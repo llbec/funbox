@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Bnet
+Comment=Bnet P2P Cryptocurrency
+Comment[fr]=Bnet, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Bnet, eşten eşe kriptografik sanal para birimi
+Exec=bnet-qt %u
+Terminal=false
+Type=Application
+Icon=bnet128
+MimeType=x-scheme-handler/bnet;
+Categories=Office;Finance;

@@ -1,0 +1,2 @@
+usr/local/bin/bnetd usr/bin
+usr/local/bin/bnet-cli usr/bin
