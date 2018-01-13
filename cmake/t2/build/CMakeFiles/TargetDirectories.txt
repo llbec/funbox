@@ -1,4 +1,0 @@
-/home/liu/MyTest/cmake/t2/build/CMakeFiles/rebuild_cache.dir
-/home/liu/MyTest/cmake/t2/build/CMakeFiles/edit_cache.dir
-/home/liu/MyTest/cmake/t2/build/CMakeFiles/test.dir
-/home/liu/MyTest/cmake/t2/build/CMakeFiles/hello.dir
