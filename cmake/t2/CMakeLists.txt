@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 
-project (T1)
+project (T2)
 
 set(SRC_LIST src/main.cpp)
 #set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build/bin)
