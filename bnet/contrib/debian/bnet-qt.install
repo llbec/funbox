@@ -1,6 +1,0 @@
-usr/local/bin/bnet-qt usr/bin
-share/pixmaps/bnet32.xpm usr/share/pixmaps
-share/pixmaps/bnet16.xpm usr/share/pixmaps
-share/pixmaps/bnet128.png usr/share/pixmaps
-debian/bnet-qt.desktop usr/share/applications
-debian/bnet-qt.protocol usr/share/kde4/services/
