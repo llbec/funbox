@@ -21,11 +21,11 @@ struct unit_t{
     }
 };
 
-template<uint MAX>
+template<uint XVAL>
 class base_form
 {
 protected:
-    enum { WIDTH=MAX };
+    enum { WIDTH=XVAL };
     unit_t form[WIDTH][WIDTH];
 public:
     base_form()
