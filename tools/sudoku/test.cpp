@@ -1,6 +1,6 @@
-#include "sudoku_x.h"
+#include "lib/sudoku_x.h"
 
-class sudoku_9 : public base_form<9>
+class sudoku_9 : public Sudoku_X<9>
 {
 public:
     sudoku_9(){}

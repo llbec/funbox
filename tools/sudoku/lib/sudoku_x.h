@@ -1,5 +1,6 @@
 #ifndef SUDOKU_X_H
 #define SUDOKU_X_H
+
 #include <vector>
 #include <cstring>
 
@@ -22,13 +23,13 @@ struct unit_t{
 };
 
 template<uint XVAL>
-class base_form
+class Sudoku_X
 {
 protected:
     enum { WIDTH=XVAL };
     unit_t form[WIDTH][WIDTH];
 public:
-    base_form()
+    Sudoku_X()
     {
         for(uint i = 0; i < WIDTH; i++)
             for(uint j = 0; j < WIDTH; j++)
