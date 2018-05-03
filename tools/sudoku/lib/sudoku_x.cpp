@@ -1,6 +1,6 @@
 #include "sudoku_x.h"
 
-template<uint XVAL>
+template <uint XVAL>
 void base_form<XVAL>::SetNull()
 {
     for(uint i = 0; i < WIDTH; i++)
