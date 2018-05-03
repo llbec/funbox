@@ -9,5 +9,6 @@ public:
 int main()
 {
     sudoku_9 test;
+    test.SetNull();
     return 0;
 }

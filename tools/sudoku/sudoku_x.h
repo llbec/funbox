@@ -28,7 +28,14 @@ protected:
     enum { WIDTH=MAX };
     unit_t form[WIDTH][WIDTH];
 public:
-    base_form();
+    base_form()
+    {
+        for(uint i = 0; i < WIDTH; i++)
+            for(uint j = 0; j < WIDTH; j++)
+                form[i][j].SetNull();
+    }
+
+    void SetNull();
 };
 
 #endif
