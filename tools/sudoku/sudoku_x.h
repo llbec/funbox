@@ -1,5 +1,7 @@
 #ifndef SUDOKU_X_H
 #define SUDOKU_X_H
+#include <vector>
+#include <cstring>
 
 typedef unsigned char  uint8;
 typedef unsigned int   uint;
@@ -18,10 +20,7 @@ protected:
     enum { WIDTH=MAX };
     unit_t data[WIDTH][WIDTH];
 public:
-    base_form()
-    {
-        memset(data, 0, sizeof(data));
-    }
+    base_form();
 };
 
 #endif
