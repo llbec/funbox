@@ -4,7 +4,7 @@
 typedef unsigned char  uint8;
 typedef unsigned int   uint;
 
-typedef struct unit_t{
+struct unit_t{
     uint8 fix;
     std::vector<uint8> may;
     std::vector<uint8> need;
@@ -16,7 +16,7 @@ class base_form
 {
 protected:
     enum { WIDTH=MAX };
-    uint8 data[WIDTH][WIDTH];
+    unit_t data[WIDTH][WIDTH];
 public:
     base_form()
     {
