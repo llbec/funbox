@@ -41,8 +41,8 @@ add_definitions(
 message("") # empty line
 message("------------------------------- Libs -------------------------------")
 
-file(GLOB LIB_SUDOKU lib/*.cpp)
-add_library(sudoku ${LIB_SUDOKU})
+#file(GLOB LIB_SUDOKU lib/*.cpp)
+#add_library(sudoku ${LIB_SUDOKU})
 
 ###################################### Targets ######################################
 message("") # empty line
@@ -50,5 +50,5 @@ message("------------------------------- Targets -------------------------------
 include_directories(lib)
 set(SRC_LIST test.cpp)
 add_executable(test_sudoku ${SRC_LIST})
-target_link_libraries(test_sudoku sudoku)
+#target_link_libraries(test_sudoku sudoku)
 
