@@ -1,8 +1,13 @@
 #include "sudoku_x.h"
 
+class sudoku_9 : public base_form<9>
+{
+public:
+    sudoku_9(){}
+};
+
 int main()
 {
-    const uint a = 9;
-    base_form<a> test;
+    sudoku_9 test;
     return 0;
 }
