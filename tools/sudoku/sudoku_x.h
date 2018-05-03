@@ -20,7 +20,10 @@ protected:
     enum { WIDTH=MAX };
     unit_t data[WIDTH][WIDTH];
 public:
-    base_form();
+    base_form()
+    {
+        memset(data, 0, sizeof(data));
+    }
 };
 
 #endif
