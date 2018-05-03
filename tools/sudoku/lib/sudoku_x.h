@@ -1,8 +1,10 @@
 #ifndef SUDOKU_X_H
 #define SUDOKU_X_H
 
-#include <vector>
+//#include <vector>
 #include <cstring>
+#include <stdio.h>
+#include <iostream>
 
 typedef unsigned char  uint8;
 typedef unsigned int   uint;
@@ -26,12 +28,13 @@ template<uint XVAL>
 class Sudoku_X
 {
 protected:
-    enum { WIDTH=XVAL };
+    enum { X_2=XVAL, WIDTH=XVAL*XVAL };
     struct unit_t{
         uint8 fix;
         //std::vector<uint8> may;
         //std::vector<uint8> need;
         //std::vector<uint8> cannot;
+		uint need[WIDTH];
         uint cannot[WIDTH];
 
         void SetNull()
@@ -40,7 +43,8 @@ protected:
             //may.clear();
             //need.clear();
             //cannot.clear();
-            memset(data, 0, sizeof(cannot));
+			memset(need, 0, sizeof(need));
+            memset(cannot, 0, sizeof(cannot));
         }
     };
     unit_t form[WIDTH][WIDTH];
@@ -73,6 +77,23 @@ public:
         
         return true;
     }
+
+	void Show()
+	{
+		std::cout << X_2 << " X " << X_2 << " sudoku:" << std::endl;
+		for(uint i = 0; i < WIDTH; i++)
+		{
+			for(uint j = 0; j < WIDTH; j++)
+			{
+				printf("%3d ", form[i][j].fix);
+				if((j+1)%X_2 == 0)
+                	printf("  ");
+			}
+			printf("\n");
+			if((i+1)%X_2 == 0)
+				printf("\n");
+		}
+	}
 };
 
 #endif
