@@ -9,49 +9,31 @@
 typedef unsigned char  uint8;
 typedef unsigned int   uint;
 
-/*struct unit_t{
-    uint8 fix;
-    //std::vector<uint8> may;
-    std::vector<uint8> need;
-    std::vector<uint8> cannot;
-
-    void SetNull()
-    {
-        fix = 0;
-        //may.clear();
-        need.clear();
-        cannot.clear();
-    }
-};*/
-
 template<uint XVAL>
 class Sudoku_X
 {
 protected:
-    enum { X_2=XVAL, WIDTH=XVAL*XVAL };
+    enum { X_2=XVAL, WIDTH=XVAL*XVAL, DIGIT };
     struct unit_t{
-        uint8 fix;
-        //std::vector<uint8> may;
-        //std::vector<uint8> need;
-        //std::vector<uint8> cannot;
-		uint need[WIDTH];
-        uint cannot[WIDTH];
+        char fix[DIGIT];
 
         void SetNull()
         {
-            fix = 0;
-            //may.clear();
-            //need.clear();
-            //cannot.clear();
-			memset(need, 0, sizeof(need));
-            memset(cannot, 0, sizeof(cannot));
+            memset(fix, 0, sizeof(fix));
         }
     };
     unit_t form[WIDTH][WIDTH];
     unit_t * grid[WIDTH][WIDTH];
     uint iresult = WIDTH * WIDTH;
 public:
-    
+    Sudoku_X();
+    void SetNull();
+    bool IsFinish(){ return (0 == iresult); };
+    bool CheckFinish();
+    bool CheckWidth(uint val) { return val < WIDTH };
+    bool CheckDigit(uint val) { return val < DIGIT };
+    void Show();
+    void SetUnit(uint x, uint y, uint8 value);
 };
 
 #endif

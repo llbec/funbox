@@ -20,9 +20,6 @@ void Sudoku_X<XVAL>::SetNull()
 }
 
 template <uint XVAL>
-bool Sudoku_X<XVAL>::IsFinish(){ return (0 == iresult);}
-
-template <uint XVAL>
 bool Sudoku_X<XVAL>::CheckFinish()
 {
     for(uint i = 0; i < WIDTH; i++)
@@ -54,7 +51,27 @@ void Sudoku_X<XVAL>::Show()
 }
 
 template <uint XVAL>
-void Sudoku_X<XVAL>::SetForm(uint x, uint y, uint8 value)
+void Sudoku_X<XVAL>::SetUnit(uint x, uint y, uint8 value)
 {
-    
+    if(!CheckWidth(x) || !CheckWidth(y))
+    {
+        printf("Invaild width x = %d or y = %d\n", x, y);
+        return;
+    }
+    form[x][y].fix[0] = value;
+    for(uint i = 1; i < DIGIT; i++)
+    {
+        if(i == value)
+            form[x][y].fix[i] = 1;
+        else
+            form[x][y].fix[i] = -1;
+    }
 }
+
+
+// Explicit instantiations for Sudoku_X<3>
+template Sudoku_X<3>::Sudoku_X();
+template void Sudoku_X<3>::SetNull();
+template bool Sudoku_X<3>::CheckFinish();
+template void Sudoku_X<3>::Show();
+template void Sudoku_X<3>::SetUnit(uint x, uint y, uint8 value);
