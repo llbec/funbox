@@ -86,6 +86,7 @@ public:
             else
                 form[x][y].fix[i] = -1;
         }
+    }
 };
 
 #endif
