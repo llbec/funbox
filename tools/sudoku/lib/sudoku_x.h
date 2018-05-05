@@ -62,7 +62,7 @@ public:
         {
             for(uint j = 0; j < WIDTH; j++)
             {
-                printf("%3d ", form[i][j].fix);
+                printf("%3d ", (int)form[i][j].fix[0]);
                 if((j+1)%X_2 == 0)
                     printf("  ");
             }
