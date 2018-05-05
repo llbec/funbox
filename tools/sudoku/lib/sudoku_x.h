@@ -53,8 +53,8 @@ public:
         
         return true;
     }
-    bool CheckWidth(uint val) { return val < WIDTH };
-    bool CheckDigit(uint val) { return val < DIGIT };
+    bool CheckWidth(uint val) { return val < WIDTH; };
+    bool CheckDigit(uint val) { return val < DIGIT; };
     void Show()
     {
         std::cout << X_2 << " X " << X_2 << " sudoku:" << std::endl;
