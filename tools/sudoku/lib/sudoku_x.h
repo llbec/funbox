@@ -35,6 +35,8 @@ public:
                 grid[(i/X_2)*X_2+(j/X_2)][(i%X_2)*X_2+(j%X_2)] = &form[i][j];
             }
     }
+    uint GetG_X(uint x, uint y){ return (x/X_2)*X_2+(y/X_2); }
+    uint GetG_Y(uint x, uint y){ return (x%X_2)*X_2+(y%X_2); }
     void SetNull()
     {
         for(uint i = 0; i < WIDTH; i++)
@@ -87,6 +89,17 @@ public:
                 form[x][y].fix[i] = -1;
         }
         iresult--;
+        for (uint i = 0; i < WIDTH; i++)
+        {
+            if(i != x)
+                form[i][y].fix[value] = -1;
+            
+            if(i != y)
+                form[x][i].fix[value] = -1;
+            
+            if(i != GetG_Y(x, y))
+                grid[GetG_X(x,y), i]->fix[value] = -1;
+        }
     }
 };
 
