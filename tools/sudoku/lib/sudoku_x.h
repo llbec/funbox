@@ -24,7 +24,6 @@ protected:
         }
     };
     unit_t form[WIDTH][WIDTH];
-    unit_t * grid[WIDTH][WIDTH];
     uint iresult = WIDTH * WIDTH;
 public:
     Sudoku_X()
@@ -33,7 +32,6 @@ public:
             for(uint j = 0; j < WIDTH; j++)
             {
                 form[i][j].SetNull();
-                grid[(i/X_2)*X_2+(j/X_2)][(i%X_2)*X_2+(j%X_2)] = &form[i][j];
             }
     }
     uint Get_X(uint x, uint y){ return (x/X_2)*X_2+(y/X_2); }
@@ -76,7 +74,7 @@ public:
     }
     void SetUnit(uint x, uint y, uint8 value)
     {
-        if(!CheckWidth(x) || !CheckWidth(y) || CheckDigit(value))
+        if(!CheckWidth(x) || !CheckWidth(y) || !CheckDigit(value))
         {
             printf("Invaild width x = %d or y = %d or value = %d\n", x, y, value);
             return;
@@ -98,8 +96,9 @@ public:
             if(i != y)
                 form[x][i].fix[value] = 1;
             
+            uint z = Get_X(x,y);
             if(i != Get_Y(x, y))
-                grid[Get_X(x,y), i]->fix[value] = 1;
+                form[Get_X(z,i)][Get_Y(z,i)].fix[value] = 1;
         }
     }
 
@@ -130,7 +129,7 @@ public:
             for(uint j = 0; j < WIDTH; j++)
             {
                 sum += form[j][y].fix[value];
-                if((uint8)form[j][y].fix[0] == value)
+                if(form[j][y].fix[0] == value)
                     return true;
                 if(form[j][y].fix[value] == 0)
                     position = j;
@@ -147,10 +146,10 @@ public:
         {
             for(uint j = 0; j < WIDTH; j++)
             {
-                sum += grid[z][j]->fix[value];
-                if((uint8)grid[z][j]->fix[0] == value)
+                sum += form[Get_X(z,j)][Get_Y(z,j)].fix[value];
+                if(form[Get_X(z,j)][Get_Y(z,j)].fix[0] == value)
                     return true;
-                if(form[z][j]->fix[value] == 0)
+                if(form[Get_X(z,j)][Get_Y(z,j)].fix[value] == 0)
                     position = j;
             }
         }
@@ -194,10 +193,21 @@ public:
 
     void CalcForm()
     {
+        uint lastResult = iresult;
+        uint iCount = 0;
         printf("calc start at %d\n", (int)time(NULL));
         while(!IsFinish())
         {
             Scan();
+            if(lastResult == iresult)
+                iCount ++;
+            else
+            {
+                iCount = 0;
+                lastResult = iresult;
+            }
+            if(iCount > 20)
+                break;
         }
         printf("calc ended at %d\n", (int)time(NULL));
 

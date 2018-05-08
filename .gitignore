@@ -37,3 +37,6 @@ build/
 #OSX
 *.DS_Store
 *.swp
+
+#VSCode
+.vscode/
