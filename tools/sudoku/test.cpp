@@ -25,15 +25,15 @@ uint8 SUDOKU9[9][9] =
 
 int main(int argc, char* argv[])
 {
-    if(argc!=1) // help 
+    if(argc!=2) // help 
     {
-       printf("./test_sudoku filepath\n");
+       printf("example./test_sudoku filepath  error %d\n", argc);
        return 1;
     }
     sudoku_9 test;
 
     /*read file*/
-    FILE * ptrData = fopen(std::string(argv[0]).c_str(), "r");
+    FILE * ptrData = fopen(std::string(argv[argc - 1]).c_str(), "r");
     if(ptrData == NULL){ printf("Error: could't open file data.ini\n"); return 2;}
     // obtain file size:
     fseek(ptrData, 0, SEEK_END);
@@ -45,17 +45,18 @@ int main(int argc, char* argv[])
 
     // copy the file into the buffer:
     uint result = fread (buffer,1,iSize,ptrData);
-    //if (result != iSize) { printf("Error: Reading error\n"); return 4;}
+    if (result <= 0) { printf("Error: Reading error\n"); return 4;}
 
-    char * pSplit = ",{}\n "; 
+    const char * pSplit = ",{}\n "; 
     char * p = strtok(buffer, pSplit);
 	int index = 0;
     while(p != NULL)
     {
     	if(index >= 9*9)
    		{
-		   	printf("out range\n");
-		   	return 0;
+		   	//printf("out range\n");
+		   	//return 0;
+			break;
 	   	}
     	SUDOKU9[index/9][index%9] = (uint8)atoi(p);
     	index++;
