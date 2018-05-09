@@ -1,7 +1,7 @@
 #ifndef SUDOKU_X_H
 #define SUDOKU_X_H
 
-//#include <vector>
+#include <vector>
 #include <cstring>
 #include <stdio.h>
 #include <iostream>
@@ -18,21 +18,29 @@ protected:
     struct unit_t{
         uint8 fix[DIGIT];
 
-        void SetNull()
-        {
-            memset(fix, 0, sizeof(fix));
-        }
+        void SetNull(){ memset(fix, 0, sizeof(fix)); }
+        uint MemSize(){ return sizeof(uint8)*DIGIT;}
     };
     unit_t form[WIDTH][WIDTH];
-    uint iresult = WIDTH * WIDTH;
+    uint iresult;
+    const uint form_size;
+
+    struct stage_t{
+        unit_t form[WIDTH][WIDTH];
+        uint iresult;
+        uint8 value;
+        std::vector< std::pair<uint, uint> > vTry;
+    };
+
+    std::vector<stage_t> vstages;
 public:
-    Sudoku_X()
+    Sudoku_X():form_size(sizeof(uint8)*DIGIT*WIDTH*WIDTH)
     {
         for(uint i = 0; i < WIDTH; i++)
             for(uint j = 0; j < WIDTH; j++)
-            {
                 form[i][j].SetNull();
-            }
+
+        iresult = WIDTH*WIDTH;
     }
     uint Get_X(uint x, uint y){ return (x/X_2)*X_2+(y/X_2); }
     uint Get_Y(uint x, uint y){ return (x%X_2)*X_2+(y%X_2); }
@@ -41,6 +49,8 @@ public:
         for(uint i = 0; i < WIDTH; i++)
             for(uint j = 0; j < WIDTH; j++)
                 form[i][j].SetNull();
+                
+        iresult = WIDTH*WIDTH;
     }
     bool IsFinish(){ return (0 == iresult); };
     bool CheckFinish()
@@ -119,6 +129,21 @@ public:
         }
         return false;
     }
+    bool CheckX(uint x, uint8 value, std::vector<uint> & v_id)
+    {
+        v_id.clear();
+        if(CheckDigit(value) && CheckWidth(x))
+        {
+            for(uint j = 0; j < WIDTH; j++)
+            {
+                if(form[x][j].fix[0] == value)
+                    return true;
+                if(form[x][j].fix[value] == 0)
+                    v_id.push_back(j);
+            }
+        }
+        return false;
+    }
 
     bool CheckY(uint y, uint8 value, uint8 & sum, uint & position)
     {
@@ -137,6 +162,21 @@ public:
         }
         return false;
     }
+    bool CheckY(uint y, uint8 value, std::vector<uint> & v_id)
+    {
+        v_id.clear();
+        if(CheckDigit(value) && CheckWidth(y))
+        {
+            for(uint j = 0; j < WIDTH; j++)
+            {
+                if(form[j][y].fix[0] == value)
+                    return true;
+                if(form[j][y].fix[value] == 0)
+                    v_id.push_back(j);
+            }
+        }
+        return false;
+    }
 
     bool CheckZ(uint z, uint8 value, uint8 & sum, uint & position)
     {
@@ -151,6 +191,21 @@ public:
                     return true;
                 if(form[Get_X(z,j)][Get_Y(z,j)].fix[value] == 0)
                     position = j;
+            }
+        }
+        return false;
+    }
+    bool CheckZ(uint z, uint8 value, std::vector<uint> & v_id)
+    {
+        v_id.clear();
+        if(CheckDigit(value) && CheckWidth(z))
+        {
+            for(uint j = 0; j < WIDTH; j++)
+            {
+                if(form[Get_X(z,j)][Get_Y(z,j)].fix[0] == value)
+                    return true;
+                if(form[Get_X(z,j)][Get_Y(z,j)].fix[value] == 0)
+                    v_id.push_back(j);
             }
         }
         return false;
@@ -207,7 +262,12 @@ public:
                 lastResult = iresult;
             }
             if(iCount > 20)
+            {
+                stage_t tStage;
+                memcpy(tStage.form, form, form_size);
+                tStage.iresult = iresult;
                 break;
+            }
         }
         printf("calc ended at %d\n", (int)time(NULL));
 
