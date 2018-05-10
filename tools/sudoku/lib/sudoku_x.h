@@ -169,7 +169,10 @@ public:
         else
         {
             if(v_tmp.size() == 0)
+			{
+				printf("Conflict at %d\n",i);
                 return false;
+			}
             if(pTry.first == 0 || pTry.second.size() > v_tmp.size())
             {
                 pTry.first = i;
@@ -242,7 +245,10 @@ public:
             if(!Scan(pTry))
             {
                 if(!HanldStage())
+				{
+					printf("break at iresult = %d\n",iresult);
                     break;
+				}
             }
             if(lastResult == iresult)
                 iCount ++;
@@ -261,10 +267,13 @@ public:
                 tStage.vTry.assign(pTry.second.begin(), pTry.second.end());
                 vstages.push_back(tStage);
                 if(!HanldStage())
-                    break;
+				{
+                    printf("how can break at here?????? iresult = %d\n",iresult);
+					break;
+                }
             }
         }
-        printf("calc ended at %d\n", (int)time(NULL));
+        printf("calc ended at %d iresult = %d\n", (int)time(NULL),iresult);
 
         Show();
     }
