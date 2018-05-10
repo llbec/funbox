@@ -215,17 +215,17 @@ public:
         if(vstages.size() == 0)
             return false;
         
-         //std::vector<stage_t>::iterator itr = vstages.back();
-         //stage_t * pStage = *itr;
          if(vstages.back().vTry.size() > 0)
          {
-             SetUnit(vstages.back().vTry.back().first, vstages.back().vTry.back().second, vstages.back().value);
-             vstages.back().vTry.pop_back();
+            memcpy(form, vstages.back().form, form_size);
+            iresult = vstages.back().iresult;
+            SetUnit(vstages.back().vTry.back().first, vstages.back().vTry.back().second, vstages.back().value);
+            vstages.back().vTry.pop_back();
          }
          else
          {
-             vstages.pop_back();
-             return HanldStage();
+            vstages.pop_back();
+            return HanldStage();
          }
          return true;
     }
