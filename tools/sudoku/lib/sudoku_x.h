@@ -168,13 +168,13 @@ public:
         }
         else
         {
-            if(v_tmp.size == 0)
+            if(v_tmp.size() == 0)
                 return false;
             if(pTry.first == 0 || pTry.second.size() > v_tmp.size())
             {
                 pTry.first = i;
-                pTry.second.clear;
-                pTry.second.assign(v_tmp);
+                pTry.second.clear();
+                pTry.second.assign(v_tmp.begin(), v_tmp.end());
             }
         }
         return true;
@@ -214,7 +214,8 @@ public:
     {
         uint lastResult = iresult;
         uint iCount = 0;
-        std::pair< uint8, std::vector< std::pair<uint, uint> > > pTry(0, std::vector< std::pair<uint, uint> > vId);
+		std::vector< std::pair<uint, uint> > vId;
+        std::pair< uint8, std::vector< std::pair<uint, uint> > > pTry(0, vId);
         printf("calc start at %d\n", (int)time(NULL));
         while(!IsFinish())
         {
