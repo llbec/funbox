@@ -129,7 +129,7 @@ public:
         }
         return false;
     }
-    bool CheckX(uint x, uint8 value, std::vector<uint> & v_id)
+    bool CheckX(uint x, uint8 value, std::vector< std::pair<uint, uint> > & v_id)
     {
         v_id.clear();
         if(CheckDigit(value) && CheckWidth(x))
@@ -139,7 +139,7 @@ public:
                 if(form[x][j].fix[0] == value)
                     return true;
                 if(form[x][j].fix[value] == 0)
-                    v_id.push_back(j);
+                    v_id.push_back(std::make_pair(x,j));
             }
         }
         return false;
@@ -162,7 +162,7 @@ public:
         }
         return false;
     }
-    bool CheckY(uint y, uint8 value, std::vector<uint> & v_id)
+    bool CheckY(uint y, uint8 value, std::vector< std::pair<uint, uint> > & v_id)
     {
         v_id.clear();
         if(CheckDigit(value) && CheckWidth(y))
@@ -172,7 +172,7 @@ public:
                 if(form[j][y].fix[0] == value)
                     return true;
                 if(form[j][y].fix[value] == 0)
-                    v_id.push_back(j);
+                    v_id.push_back(std::make_pair(j,y));
             }
         }
         return false;
@@ -195,7 +195,7 @@ public:
         }
         return false;
     }
-    bool CheckZ(uint z, uint8 value, std::vector<uint> & v_id)
+    bool CheckZ(uint z, uint8 value, std::vector< std::pair<uint, uint> > & v_id)
     {
         v_id.clear();
         if(CheckDigit(value) && CheckWidth(z))
@@ -205,7 +205,7 @@ public:
                 if(form[Get_X(z,j)][Get_Y(z,j)].fix[0] == value)
                     return true;
                 if(form[Get_X(z,j)][Get_Y(z,j)].fix[value] == 0)
-                    v_id.push_back(j);
+                    v_id.push_back(std::make_pair(Get_X(z,j),Get_Y(z,j)));
             }
         }
         return false;
@@ -246,14 +246,54 @@ public:
         }
     }
 
+    bool Scan(std::pair< uint8 val, std::vector<uint,uint>vId > & pTry )
+    {
+        std::vector< std::pair<uint, uint> > v_tmp;
+        for(uint8 i = 1; i < DIGIT; i++)
+        {
+            for (uint j = 0; j < WIDTH; j++)
+            {
+                if(!CheckX(j, i, v_tmp))
+                {
+                    if(v_tmp.size() == 1)
+                    {
+                        SetUnit(v_tmp[0].first, v_tmp[0].second, i);
+                    }
+                }
+
+                if(!CheckY(j, i, v_tmp))
+                {
+                    if(v_tmp.size() == 1)
+                    {
+                        SetUnit(v_tmp[0].first, v_tmp[0].second, i);
+                    }
+                }
+
+                if(!CheckZ(j, i, v_tmp))
+                {
+                    if(v_tmp.size() == 1)
+                    {
+                        SetUnit(v_tmp[0].first, v_tmp[0].second, i);
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     void CalcForm()
     {
         uint lastResult = iresult;
         uint iCount = 0;
+        std::pair< uint8 val, std::vector<uint,uint>vId > pTry;
         printf("calc start at %d\n", (int)time(NULL));
         while(!IsFinish())
         {
-            Scan();
+            if(!Scan(pTry))
+            {
+                continue;
+            }
             if(lastResult == iresult)
                 iCount ++;
             else
