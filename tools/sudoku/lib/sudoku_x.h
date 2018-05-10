@@ -218,19 +218,20 @@ public:
         if(vstages.size() == 0)
             return false;
         
-         if(vstages.back().vTry.size() > 0)
-         {
+        if(vstages.back().vTry.size() > 0)
+        {
+            std::cout << "hanld stage: iresult " << vstages.back().iresult << "set unit (" << vstages.back().vTry.back().first << "," << vstages.back().vTry.back().second << ") value " << vstages.back().value << std::endl;
             memcpy(form, vstages.back().form, form_size);
             iresult = vstages.back().iresult;
             SetUnit(vstages.back().vTry.back().first, vstages.back().vTry.back().second, vstages.back().value);
             vstages.back().vTry.pop_back();
-         }
-         else
-         {
+        }
+        else
+        {
             vstages.pop_back();
             return HanldStage();
-         }
-         return true;
+        }
+        return true;
     }
 
     void CalcForm()
