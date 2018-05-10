@@ -273,7 +273,7 @@ public:
                 printf("Add stage:iresult(%d) set unit %d at ", vstages.back().iresult,
                     vstages.back().value);
                 
-                for(auto = varTry in vstages.back().vTry)
+                foreach(auto varTry:vstages.back().vTry)
                 {
                     printf("(%d,%d) ", varTry.first, varTry.second);
                 }
