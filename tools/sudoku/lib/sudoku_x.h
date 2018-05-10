@@ -274,6 +274,8 @@ public:
                 tStage.value = pTry.first;
                 tStage.vTry.clear();
                 tStage.vTry.assign(pTry.second.begin(), pTry.second.end());
+                pTry.first = 0;
+                pTry.second.clear();
                 printf("New stage:iresult(%d) set unit %d at ", tStage.iresult,tStage.value);
                 for(auto & varTry:tStage.vTry)
                 {
