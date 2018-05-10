@@ -220,7 +220,10 @@ public:
         
         if(vstages.back().vTry.size() > 0)
         {
-            std::cout << "hanld stage: iresult " << vstages.back().iresult << "set unit (" << vstages.back().vTry.back().first << "," << vstages.back().vTry.back().second << ") value " << vstages.back().value << std::endl;
+            printf("hanld stage:iresult(%d) set unit %d at (%d,%d)\n", vstages.back().iresult,
+                    vstages.back().value,
+                    vstages.back().vTry.back().first,
+                    vstages.back().vTry.back().second);
             memcpy(form, vstages.back().form, form_size);
             iresult = vstages.back().iresult;
             SetUnit(vstages.back().vTry.back().first, vstages.back().vTry.back().second, vstages.back().value);
@@ -267,6 +270,10 @@ public:
                 tStage.vTry.clear();
                 tStage.vTry.assign(pTry.second.begin(), pTry.second.end());
                 vstages.push_back(tStage);
+                printf("Add stage:iresult(%d) set unit %d at (%d,%d)\n", vstages.back().iresult,
+                    vstages.back().value,
+                    vstages.back().vTry.back().first,
+                    vstages.back().vTry.back().second);
                 if(!HanldStage())
 				{
                     printf("how can break at here?????? iresult = %d\n",iresult);
