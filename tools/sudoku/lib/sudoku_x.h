@@ -112,23 +112,6 @@ public:
         }
     }
 
-    bool CheckX(uint x, uint8 value, uint8 & sum, uint & position)
-    {
-        sum = 0;
-        position = DIGIT;
-        if(CheckDigit(value) && CheckWidth(x))
-        {
-            for(uint j = 0; j < WIDTH; j++)
-            {
-                sum += form[x][j].fix[value];
-                if(form[x][j].fix[0] == value)
-                    return true;
-                if(form[x][j].fix[value] == 0)
-                    position = j;
-            }
-        }
-        return false;
-    }
     bool CheckX(uint x, uint8 value, std::vector< std::pair<uint, uint> > & v_id)
     {
         v_id.clear();
@@ -145,23 +128,6 @@ public:
         return false;
     }
 
-    bool CheckY(uint y, uint8 value, uint8 & sum, uint & position)
-    {
-        sum = 0;
-        position = DIGIT;
-        if(CheckDigit(value) && CheckWidth(y))
-        {
-            for(uint j = 0; j < WIDTH; j++)
-            {
-                sum += form[j][y].fix[value];
-                if(form[j][y].fix[0] == value)
-                    return true;
-                if(form[j][y].fix[value] == 0)
-                    position = j;
-            }
-        }
-        return false;
-    }
     bool CheckY(uint y, uint8 value, std::vector< std::pair<uint, uint> > & v_id)
     {
         v_id.clear();
@@ -178,23 +144,6 @@ public:
         return false;
     }
 
-    bool CheckZ(uint z, uint8 value, uint8 & sum, uint & position)
-    {
-        sum = 0;
-        position = DIGIT;
-        if(CheckDigit(value) && CheckWidth(z))
-        {
-            for(uint j = 0; j < WIDTH; j++)
-            {
-                sum += form[Get_X(z,j)][Get_Y(z,j)].fix[value];
-                if(form[Get_X(z,j)][Get_Y(z,j)].fix[0] == value)
-                    return true;
-                if(form[Get_X(z,j)][Get_Y(z,j)].fix[value] == 0)
-                    position = j;
-            }
-        }
-        return false;
-    }
     bool CheckZ(uint z, uint8 value, std::vector< std::pair<uint, uint> > & v_id)
     {
         v_id.clear();
@@ -211,39 +160,24 @@ public:
         return false;
     }
 
-    void Scan()
+    bool HandlCheckResult(std::pair< uint8, std::vector< std::pair<uint, uint> > > & pTry, const std::vector< std::pair<uint, uint> > & v_tmp, const uint8 i)
     {
-        uint8 sum = 0;
-        uint position = DIGIT;
-        for(uint8 i = 1; i < DIGIT; i++)
+        if(v_tmp.size() == 1)
         {
-            for (uint j = 0; j < WIDTH; j++)
+            SetUnit(v_tmp[0].first, v_tmp[0].second, i);
+        }
+        else
+        {
+            if(v_tmp.size == 0)
+                return false;
+            if(pTry.first == 0 || pTry.second.size() > v_tmp.size())
             {
-                if(!CheckX(j, i, sum, position))
-                {
-                    if(WIDTH - 1 == sum)
-                    {
-                        SetUnit(j, position, i);
-                    }
-                }
-
-                if(!CheckY(j, i, sum, position))
-                {
-                    if(WIDTH - 1 == sum)
-                    {
-                        SetUnit(position, j, i);
-                    }
-                }
-
-                if(!CheckZ(j, i, sum, position))
-                {
-                    if(WIDTH - 1 == sum)
-                    {
-                        SetUnit(Get_X(j, position), Get_Y(j, position), i);
-                    }
-                }
+                pTry.first = i;
+                pTry.second.clear;
+                pTry.second.assign(v_tmp);
             }
         }
+        return true;
     }
 
     bool Scan(std::pair< uint8, std::vector< std::pair<uint, uint> > > & pTry )
@@ -255,26 +189,20 @@ public:
             {
                 if(!CheckX(j, i, v_tmp))
                 {
-                    if(v_tmp.size() == 1)
-                    {
-                        SetUnit(v_tmp[0].first, v_tmp[0].second, i);
-                    }
+                    if(!HandlCheckResult(pTry, v_tmp, i))
+                        return false;
                 }
 
                 if(!CheckY(j, i, v_tmp))
                 {
-                    if(v_tmp.size() == 1)
-                    {
-                        SetUnit(v_tmp[0].first, v_tmp[0].second, i);
-                    }
+                    if(!HandlCheckResult(pTry, v_tmp, i))
+                        return false;
                 }
 
                 if(!CheckZ(j, i, v_tmp))
                 {
-                    if(v_tmp.size() == 1)
-                    {
-                        SetUnit(v_tmp[0].first, v_tmp[0].second, i);
-                    }
+                    if(!HandlCheckResult(pTry, v_tmp, i))
+                        return false;
                 }
             }
         }
@@ -286,7 +214,7 @@ public:
     {
         uint lastResult = iresult;
         uint iCount = 0;
-        std::pair< uint8, std::vector< std::pair<uint, uint> > > pTry;
+        std::pair< uint8, std::vector< std::pair<uint, uint> > > pTry(0, std::vector< std::pair<uint, uint> > vId);
         printf("calc start at %d\n", (int)time(NULL));
         while(!IsFinish())
         {
