@@ -270,10 +270,15 @@ public:
                 tStage.vTry.clear();
                 tStage.vTry.assign(pTry.second.begin(), pTry.second.end());
                 vstages.push_back(tStage);
-                printf("Add stage:iresult(%d) set unit %d at (%d,%d)\n", vstages.back().iresult,
-                    vstages.back().value,
-                    vstages.back().vTry.back().first,
-                    vstages.back().vTry.back().second);
+                printf("Add stage:iresult(%d) set unit %d at ", vstages.back().iresult,
+                    vstages.back().value);
+                
+                for(auto = varTry in vstages.back().vTry)
+                {
+                    printf("(%d,%d) ", varTry.first, varTry.second);
+                }
+                printf("\n");
+                
                 if(!HanldStage())
 				{
                     printf("how can break at here?????? iresult = %d\n",iresult);
