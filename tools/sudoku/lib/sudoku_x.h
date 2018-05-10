@@ -269,11 +269,14 @@ public:
                 tStage.value = pTry.first;
                 tStage.vTry.clear();
                 tStage.vTry.assign(pTry.second.begin(), pTry.second.end());
+                printf("New stage:iresult(%d) set unit %d at ", tStage.iresult,tStage.value);
+                for(auto & varTry:tStage.vTry)
+                {
+                    printf("(%d,%d) ", varTry.first, varTry.second);
+                }
                 vstages.push_back(tStage);
-                printf("Add stage:iresult(%d) set unit %d at ", vstages.back().iresult,
-                    vstages.back().value);
-                
-                foreach(auto varTry:vstages.back().vTry)
+                printf("Add stage:iresult(%d) set unit %d at ", vstages.back().iresult,vstages.back().value);
+                for(auto & varTry:vstages.back().vTry)
                 {
                     printf("(%d,%d) ", varTry.first, varTry.second);
                 }
