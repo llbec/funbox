@@ -246,7 +246,7 @@ public:
         }
     }
 
-    bool Scan(std::pair< uint8 val, std::vector<std::pair<uint, uint>>vId > & pTry )
+    bool Scan(std::pair< uint8, std::vector< std::pair<uint, uint> > > & pTry )
     {
         std::vector< std::pair<uint, uint> > v_tmp;
         for(uint8 i = 1; i < DIGIT; i++)
@@ -286,7 +286,7 @@ public:
     {
         uint lastResult = iresult;
         uint iCount = 0;
-        std::pair< uint8 val, std::vector<std::pair<uint, uint>>vId > pTry;
+        std::pair< uint8, std::vector< std::pair<uint, uint> > > pTry;
         printf("calc start at %d\n", (int)time(NULL));
         while(!IsFinish())
         {
