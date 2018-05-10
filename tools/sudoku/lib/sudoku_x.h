@@ -15,7 +15,7 @@ class Sudoku_X
 {
 protected:
     enum { X_2=XVAL, WIDTH=XVAL*XVAL, DIGIT };
-    struct unit_t{
+    typename struct unit_t{
         uint8 fix[DIGIT];
 
         void SetNull(){ memset(fix, 0, sizeof(fix)); }
@@ -25,7 +25,7 @@ protected:
     uint iresult;
     const uint form_size;
 
-    struct stage_t{
+    typename struct stage_t{
         unit_t form[WIDTH][WIDTH];
         uint iresult;
         uint8 value;
@@ -210,6 +210,26 @@ public:
         return true;
     }
 
+    bool HanldStage()
+    {
+        if(vstages.size() == 0)
+            return false;
+        
+         std::vector<stage_t>::iterator itr = vstages.back();
+         stage_t * pStage = *itr;
+         if(pStage->vTry.size() > 0)
+         {
+             SetUnit(pStage->vTry.back().first, pStage->vTry.back().second, pStage->value);
+             pStage->vTry.pop_back();
+         }
+         else
+         {
+             vstages.pop_back();
+             return HanldStage();
+         }
+         return true;
+    }
+
     void CalcForm()
     {
         uint lastResult = iresult;
@@ -221,7 +241,8 @@ public:
         {
             if(!Scan(pTry))
             {
-                continue;
+                if(!HanldStage())
+                    break;
             }
             if(lastResult == iresult)
                 iCount ++;
@@ -230,12 +251,17 @@ public:
                 iCount = 0;
                 lastResult = iresult;
             }
-            if(iCount > 20)
+            if(iCount > 3)
             {
                 stage_t tStage;
                 memcpy(tStage.form, form, form_size);
                 tStage.iresult = iresult;
-                break;
+                tStage.value = pTry.first;
+                tStage.vTry.clear();
+                tStage.vTry.assign(pTry.second.begin(), pTry.second.end());
+                vstages.push_back(tStage);
+                if(!HanldStage())
+                    break;
             }
         }
         printf("calc ended at %d\n", (int)time(NULL));
