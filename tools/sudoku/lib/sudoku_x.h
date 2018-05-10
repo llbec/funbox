@@ -178,6 +178,10 @@ public:
                 pTry.first = i;
                 pTry.second.clear();
                 pTry.second.assign(v_tmp.begin(), v_tmp.end());
+                printf("HandlCheckResult: new try %d at ", pTry.first);
+                for(auto var:v_tmp)
+                    printf("(%d,%d) ", var.first, var.second);
+                printf("\n");
             }
         }
         return true;
