@@ -227,6 +227,7 @@ public:
             memcpy(form, vstages.back().form, form_size);
             iresult = vstages.back().iresult;
             SetUnit(vstages.back().vTry.back().first, vstages.back().vTry.back().second, vstages.back().value);
+            Show();
             vstages.back().vTry.pop_back();
         }
         else
