@@ -169,19 +169,12 @@ public:
         else
         {
             if(v_tmp.size() == 0)
-			{
-				printf("Conflict at %d\n",i);
-                return false;
-			}
+			    return false;
             if(pTry.first == 0 || pTry.second.size() > v_tmp.size())
             {
                 pTry.first = i;
                 pTry.second.clear();
                 pTry.second.assign(v_tmp.begin(), v_tmp.end());
-                printf("HandlCheckResult: new try %d at ", pTry.first);
-                for(auto var:v_tmp)
-                    printf("(%d,%d) ", var.first, var.second);
-                printf("\n");
             }
         }
         return true;
@@ -190,6 +183,8 @@ public:
     bool Scan(std::pair< uint8, std::vector< std::pair<uint, uint> > > & pTry )
     {
         std::vector< std::pair<uint, uint> > v_tmp;
+        pTry.first = 0;
+        pTry.second.clear();
         for(uint8 i = 1; i < DIGIT; i++)
         {
             for (uint j = 0; j < WIDTH; j++)
@@ -224,14 +219,9 @@ public:
         
         if(vstages.back().vTry.size() > 0)
         {
-            printf("hanld stage:iresult(%d) set unit %d at (%d,%d)\n", vstages.back().iresult,
-                    vstages.back().value,
-                    vstages.back().vTry.back().first,
-                    vstages.back().vTry.back().second);
             memcpy(form, vstages.back().form, form_size);
             iresult = vstages.back().iresult;
             SetUnit(vstages.back().vTry.back().first, vstages.back().vTry.back().second, vstages.back().value);
-            Show();
             vstages.back().vTry.pop_back();
         }
         else
@@ -254,10 +244,8 @@ public:
             if(!Scan(pTry))
             {
                 if(!HanldStage())
-				{
-					printf("break at iresult = %d\n",iresult);
                     break;
-				}
+                continue;
             }
             if(lastResult == iresult)
                 iCount ++;
@@ -274,29 +262,13 @@ public:
                 tStage.value = pTry.first;
                 tStage.vTry.clear();
                 tStage.vTry.assign(pTry.second.begin(), pTry.second.end());
-                pTry.first = 0;
-                pTry.second.clear();
-                printf("New stage:iresult(%d) set unit %d at ", tStage.iresult,tStage.value);
-                for(auto & varTry:tStage.vTry)
-                {
-                    printf("(%d,%d) ", varTry.first, varTry.second);
-                }
                 vstages.push_back(tStage);
-                printf("Add stage:iresult(%d) set unit %d at ", vstages.back().iresult,vstages.back().value);
-                for(auto & varTry:vstages.back().vTry)
-                {
-                    printf("(%d,%d) ", varTry.first, varTry.second);
-                }
-                printf("\n");
                 
                 if(!HanldStage())
-				{
-                    printf("how can break at here?????? iresult = %d\n",iresult);
-					break;
-                }
+                    break;
             }
         }
-        printf("calc ended at %d iresult = %d\n", (int)time(NULL),iresult);
+        printf("calc ended at %d \n", (int)time(NULL));
 
         Show();
     }
