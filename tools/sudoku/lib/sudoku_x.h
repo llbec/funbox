@@ -15,7 +15,7 @@ class Sudoku_X
 {
 protected:
     enum { X_2=XVAL, WIDTH=XVAL*XVAL, DIGIT };
-    typename struct unit_t{
+    struct unit_t{
         uint8 fix[DIGIT];
 
         void SetNull(){ memset(fix, 0, sizeof(fix)); }
@@ -25,7 +25,7 @@ protected:
     uint iresult;
     const uint form_size;
 
-    typename struct stage_t{
+    struct stage_t{
         unit_t form[WIDTH][WIDTH];
         uint iresult;
         uint8 value;
@@ -215,12 +215,12 @@ public:
         if(vstages.size() == 0)
             return false;
         
-         std::vector<stage_t>::iterator itr = vstages.back();
-         stage_t * pStage = *itr;
-         if(pStage->vTry.size() > 0)
+         //std::vector<stage_t>::iterator itr = vstages.back();
+         //stage_t * pStage = *itr;
+         if(vstages.back().vTry.size() > 0)
          {
-             SetUnit(pStage->vTry.back().first, pStage->vTry.back().second, pStage->value);
-             pStage->vTry.pop_back();
+             SetUnit(vstages.back().vTry.back().first, vstages.back().vTry.back().second, vstages.back().value);
+             vstages.back().vTry.pop_back();
          }
          else
          {
