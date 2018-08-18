@@ -133,7 +133,7 @@ int write_profile_string_nosection( const char *key, const char *value, const ch
 {
 	char buf[MAX_FILE_SIZE]={0};
 	char w_buf[MAX_FILE_SIZE]={0};
-	int sec_s,sec_e,key_s,key_e, value_s, value_e;
+	int sec_s,key_s,key_e, value_s, value_e;
 	int value_len = (int)strlen(value);
 	int file_size;
 	FILE *out;
@@ -170,9 +170,9 @@ int write_profile_string_nosection( const char *key, const char *value, const ch
 	else if(-1 == key_s)
 	{
 		//not find the key, then add the new key & value at end of the section
-		memcpy(w_buf,buf,sec_e);
-		sprintf(w_buf+sec_e,"%s=%s\n",key,value);
-		sprintf(w_buf+sec_e+strlen(key)+strlen(value)+2,buf+sec_e, file_size - sec_e);
+		memcpy(w_buf,buf,file_size);
+		sprintf(w_buf+file_size,"%s=%s\n",key,value);
+		//sprintf(w_buf+sec_e+strlen(key)+strlen(value)+2,buf+sec_e, file_size - sec_e);
 	}
 	else
 	{
