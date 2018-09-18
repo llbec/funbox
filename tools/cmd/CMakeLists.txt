@@ -45,8 +45,9 @@ message("------------------------------- Libs -------------------------------")
 ###################################### Targets ######################################
 message("") # empty line
 message("------------------------------- Targets -------------------------------")
-include_directories(lib)
-set(SRC_LIST *.cpp)
+include_directories(libs)
+#set(SRC_LIST "*.cc")
+file(GLOB SRC_LIST "*.cc")
 add_executable(cmdtool ${SRC_LIST})
 #target_link_libraries(test_sudoku sudoku)
 
