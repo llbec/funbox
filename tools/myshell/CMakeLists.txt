@@ -40,7 +40,7 @@ message("") # empty line
 message("------------------------------- Libs -------------------------------")
 
 file(GLOB LIB_SHELL libs/*.cc)
-add_library(libshell ${LIB_SUDOKU})
+add_library(libshell ${LIB_SHELL})
 
 ###################################### Targets ######################################
 message("") # empty line

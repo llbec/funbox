@@ -90,6 +90,7 @@ void CViewShell::HandlerBackspace()
 bool CViewShell::HandlerEnter()
 {
     if(!pObj_->Handler(GetString())) {
+	printf("\n");
         return false;
     }
     printf("\n");
