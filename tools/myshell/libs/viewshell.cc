@@ -39,9 +39,12 @@ int sh_getch(void) {
     #error "error : Currently only supports the Visual Studio and GCC!"
 #endif
 
-CViewShell::CViewShell(CViewCmd * ptr)
+using namespace std;
+
+CViewShell::CViewShell(CViewBase * ptr)
 {
     pObj_ = ptr;
+    sTitle_ = pObj_->CurrentView()->_name;
     Clear();
 }
 
@@ -54,30 +57,64 @@ void CViewShell::Clear()
 
 std::string CViewShell::GetString()
 {
-    std::string sLine;
+    string sLine;
     sLine.insert(sLine.begin(), vecLine_.begin(), vecLine_.end());
     return sLine;
 }
 
-void CViewShell::HandlerTab()
+void CViewShell::PutChar(char c)
+{
+    vecLine_.push_back(c);
+    printf("%c", c);
+}
+
+void CViewShell::PutString(std::string str)
+{
+    vecLine_.insert(vecLine_.end(), str.begin(), str.end());
+    printf("%s", str.c_str());
+}
+
+void CViewShell::PutNewLine(std::string str = "")
+{
+    printf("\n%s>", sTitle_);
+    Clear();
+    if(str != "") PutString(str);
+}
+
+bool CViewShell::HandlerTab()
 {
     if(bTab_) {
-        std::vector<std::string> vecOpt;
-        pObj_->GetPossible(vecOpt, GetString());
+        vector<string> vecOpt;
+        if(!pObj_->GetPossible(vecOpt, GetString())) return false;
         printf("\n");
         for(auto var : vecOpt)
             printf("%s\t", var.c_str());
-        printf("\n%s", GetString().c_str());
+        PutNewLine(GetString());
     } else {
-        std::vector<char> vecWord;
-        pObj_->GetWord(vecWord, GetString());
-        for(auto var : vecWord)
+        vector<char> vecWord;
+        int iret = pObj_->GetWord(vecWord, GetString());
+        switch(iret)
         {
-            vecLine_.push_back(var);
-            printf("%c", var);
+            case CViewCmd::get_one:
+                for(auto var : vecWord)
+                    PutChar(var);
+                bTab_ = false;
+                break;
+            case CViewCmd::get_match:
+                PutChar(' ');
+                bTab_ = false;
+                break;
+            case CViewCmd::get_no:
+                bTab_ = false;
+                break;
+            case CViewCmd::get_multi:
+                bTab_ = true;
+                break;
+            default:
+                return false;
         }
-        bTab_ = false;
     }
+    return true;
 }
 
 void CViewShell::HandlerBackspace()
@@ -89,20 +126,18 @@ void CViewShell::HandlerBackspace()
 
 bool CViewShell::HandlerEnter()
 {
-    if(!pObj_->Handler(GetString())) {
-	printf("\n");
+    if(!pObj_->Handler(GetString(), sTitle_)) {
+        printf("\n");
         return false;
     }
-    printf("\n");
-    Clear();
+    PutNewLine();
     return true;
 }
 
 void CViewShell::HandlerChar()
 {
-    vecLine_.push_back(cGet_);
+    PutChar(cGet_);
     bTab_ = false;
-    printf("%c", cGet_);
 }
 
 void CViewShell::Run()
@@ -111,22 +146,120 @@ void CViewShell::Run()
         cGet_ = sh_getch();
         if(cGet_ == '\0')
             continue;
-        else if(cGet_ == '\t')
-            HandlerTab();
-        else if(cGet_ == '\b')
+        else if(cGet_ == '\t') {
+            if(!HandlerTab()) break;
+        } else if(cGet_ == '\b') {
             HandlerBackspace();
-        else if(cGet_ == '\r') {
-            if(!HandlerEnter())
-                break;
-        } else
+        } else if(cGet_ == '\r') {
+            if(!HandlerEnter()) break;
+        } else {
             HandlerChar();
+        }
         cGet_ = '\0';
     }
 }
 
-bool CViewCmd::Handler(std::string str)
+CViewBase::CViewBase() : 
+tBaseView_("base")
+{
+    stackViews_.push_back(&tBaseView_);
+}
+
+CViewCmd* CViewBase::CurrentView()
+{
+    if(stackViews_.size <= 0)
+        throw -1;
+    return stackViews_[stackViews_.size - 1];
+}
+
+bool CViewBase::Handler(std::string str, std::string& sRet)
+{
+    if(str == "quit") {
+        if(stackViews_.size == 1)
+            return false;
+        else {
+            stackViews_.pop_back();
+            sRet = CurrentView()->_name;
+        }
+        return true;
+    } else {
+        try {
+            //what's value for sRet
+            vector<CViewCmd*> vecView;
+            return CurrentView()->Handler(vecView, str);
+        } catch (int exp) {
+            exp == -1 ? printf("FATAL: Stack of command view is empty!\n") : printf("FATAL: Command quit passed!\n");
+            return false;
+        }
+    }
+}
+bool CViewBase::GetPossible(std::vector<std::string>& vecRet, std::string str)
+{
+    try {
+        CurrentView()->GetPossible(vecRet, str);
+    } catch (int exp) {
+        printf("FATAL: Stack of command view is empty!\n");
+        return false;
+    }
+    return true;
+}
+int CViewBase::GetWord(std::vector<char>& vecRet, std::string str)
+{
+    try {
+        return CurrentView()->GetWord(vecRet, str);
+    } catch (int exp) {
+        printf("FATAL: Stack of command view is empty!\n");
+        return -1;
+    }
+}
+
+CViewCmd::CViewCmd(std::string name) :
+_name(name)
+{}
+
+void CViewCmd::GetPossible(std::vector<std::string>& vecRet, std::string str)
+{
+    vecRet.clear();
+    if(str == _name) {
+        for(auto var : mapViews_)
+            vecRet.push_back(var.first);
+    } else {
+        for(auto var : mapViews_)
+        {
+            string::size_type idx = var.first.find(str);
+            if(0 == idx) vecRet.push_back(var.first);
+        }
+    }
+}
+
+int CViewCmd::GetWord(std::vector<char>& vecRet, std::string str)
+{
+    vecRet.clear();
+    vector<string> vecMatchs;
+    string::size_type idx = string::npos;
+    for(auto var : mapViews_)
+    {
+        idx = var.first.find(str);
+        if(0 == idx) vecMatchs.push_back(var.first);
+        idx = string::npos;
+    }
+    if(vecMatchs.size() == 1) {
+        if(vecMatchs[0] == str) {
+            return get_match;
+        }
+        idx = vecMatchs[0].find(str);
+        vecRet.assign(vecMatchs[0].begin() + str.length(), vecMatchs[0].end());
+        return get_one;
+    } else {
+        if (vecMatchs.size() == 0)
+            return get_no;
+        return get_multi;
+    }
+}
+
+bool CViewCmd::Handler(std::vector<CViewCmd*>& vecRet, std::string str)
 {
     if(str == "quit")
-        return false;
+        throw 0;
     return true;
 }

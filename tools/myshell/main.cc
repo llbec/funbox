@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-    CViewCmd tCmd;
+    CViewBase tCmd;
     CViewShell myShell(&tCmd);
     myShell.Run();
     return 0;
