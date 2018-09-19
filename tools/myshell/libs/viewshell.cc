@@ -76,7 +76,7 @@ void CViewShell::PutString(std::string str)
 
 void CViewShell::PutNewLine(std::string str = "")
 {
-    printf("\n%s>", sTitle_);
+    printf("\n%s>", sTitle_.c_str());
     Clear();
     if(str != "") PutString(str);
 }
@@ -167,15 +167,15 @@ tBaseView_("base")
 
 CViewCmd* CViewBase::CurrentView()
 {
-    if(stackViews_.size <= 0)
+    if(stackViews_.size() <= 0)
         throw -1;
-    return stackViews_[stackViews_.size - 1];
+    return stackViews_[stackViews_.size() - 1];
 }
 
 bool CViewBase::Handler(std::string str, std::string& sRet)
 {
     if(str == "quit") {
-        if(stackViews_.size == 1)
+        if(stackViews_.size() == 1)
             return false;
         else {
             stackViews_.pop_back();
