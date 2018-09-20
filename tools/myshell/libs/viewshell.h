@@ -24,11 +24,13 @@ public:
     };
     CViewCmd(std::string name);
     void Handler(std::vector<std::string>& vecCmd, std::vector<CViewCmd *>& vecRetView);
-    void GetPossible(std::vector<std::string>& vecRet, std::string str);
-    int GetWord(std::vector<char>& vecRet, std::string str);
+    void GetPossible(std::vector<std::string>& vecRet, std::vector<std::string>& vecArgs);
+    int GetWord(std::vector<char>& vecRet, std::vector<std::string>& vecArgs);
     bool LogonView(CViewCmd* pView);
     bool LogonCmd(std::string str);
-    virtual void HandlerCommand(const std::vector<std::string>& vecArg){}
+    CViewCmd* GetNextView(std::string name);
+    virtual void HandlerCommand(const std::vector<std::string>& vecArg) {}
+    virtual void HelpCommand(std::vector<std::string>& vecRet, std::string sCmd) {}
 };
 
 class CViewBase

@@ -240,9 +240,11 @@ bool CViewBase::Handler(std::string str, std::string& sRet)
 bool CViewBase::GetPossible(std::vector<std::string>& vecRet, std::string str)
 {
     try {
-        CurrentView()->GetPossible(vecRet, GetKeyEnd(str));
+        vector<string> vecCmd;
+        GetKeyList(str, vecCmd);
+        CurrentView()->GetPossible(vecRet, vecCmd);
     } catch (int exp) {
-        printf("FATAL: Stack of command view is empty!\n");
+        exp == -1 ? printf("FATAL: Stack of command view is empty!\n") : printf("FATAL:view map is NULL\n");
         return false;
     }
     return true;
@@ -250,9 +252,11 @@ bool CViewBase::GetPossible(std::vector<std::string>& vecRet, std::string str)
 int CViewBase::GetWord(std::vector<char>& vecRet, std::string str)
 {
     try {
-        return CurrentView()->GetWord(vecRet, GetKeyEnd(str));
+        vector<string> vecCmd;
+        GetKeyList(str, vecCmd);
+        return CurrentView()->GetWord(vecRet, vecCmd);
     } catch (int exp) {
-        printf("FATAL: Stack of command view is empty!\n");
+        exp == -1 ? printf("FATAL: Stack of command view is empty!\n")  : printf("FATAL:view map is NULL\n");
         return -1;
     }
 }
@@ -261,60 +265,78 @@ CViewCmd::CViewCmd(std::string name) :
 _name(name)
 {}
 
-void CViewCmd::GetPossible(std::vector<std::string>& vecRet, std::string str)
+void CViewCmd::GetPossible(std::vector<std::string>& vecRet, std::vector<std::string>& vecArgs)
 {
     vecRet.clear();
-    if(str == _name || str.empty() || str == " ") {
+    if(vecArgs.empty()) {
         for(auto var : mapViews_) vecRet.push_back(var.first);
 		for (auto var : mapCommand_) vecRet.push_back(var.first);
     } else {
+        string str = vecArgs[0];
         for(auto var : mapViews_)
         {
             string::size_type idx = var.first.find(str);
             if(0 == idx) vecRet.push_back(var.first);
         }
+        if(vecRet.size() == 1) {
+            if(vecRet[0] == str && vecArgs.size() > 1) {
+                vecArgs.erase(vecArgs.begin());
+                CViewCmd* ptrtemp = GetNextView(str);
+                if(ptrtemp == NULL) throw -2;
+                vecRet.clear();
+                ptrtemp->GetPossible(vecRet, vecArgs);
+                return;
+            }
+        }
+        string sCmd = "";
         for(auto var : mapCommand_)
         {
             string::size_type idx = var.first.find(str);
-            if(0 == idx) vecRet.push_back(var.first);
+            if(0 == idx) {
+                vecRet.push_back(var.first);
+                sCmd = var.first;
+            }
+        }
+        if(!sCmd.empty() && vecRet.size() == 1) {
+            vecRet.clear();
+            HelpCommand(vecRet, sCmd);
+            return;
         }
     }
 }
 
-int CViewCmd::GetWord(std::vector<char>& vecRet, std::string str)
+int CViewCmd::GetWord(std::vector<char>& vecRet, std::vector<std::string>& vecArgs)
 {
-    if(str.empty()) return get_no;
-    if(str == " ") return get_multi;
+    if(vecArgs.empty()) return get_no;
+    string str = vecArgs[0];
     vecRet.clear();
     vector<string> vecMatchs;
     string::size_type idx = string::npos;
-    for(auto var : mapViews_)
+    for(auto varView : mapViews_)
     {
-        idx = var.first.find(str);
-        if(0 == idx) vecMatchs.push_back(var.first);
+        idx = varView.first.find(str);
+        if(0 == idx) vecMatchs.push_back(varView.first);
+        idx = string::npos;
+    }
+    if(vecMatchs.size() == 1) {
+        if(vecMatchs[0] == str && vecArgs.size() > 1) {
+            vecArgs.erase(vecArgs.begin());
+            CViewCmd* ptrtemp = GetNextView(str);
+            if(ptrtemp == NULL) throw -2;
+            return ptrtemp->GetWord(vecRet, vecArgs);
+        }
+    }
+    for(auto varCmd : mapCommand_)
+    {
+        idx = varCmd.first.find(str);
+        if(0 == idx) vecMatchs.push_back(varCmd.first);
         idx = string::npos;
     }
     if(vecMatchs.size() == 1) {
         if(vecMatchs[0] == str) {
             return get_match;
         }
-        idx = vecMatchs[0].find(str);
-        vecRet.assign(vecMatchs[0].begin() + str.length(), vecMatchs[0].end());
-        return get_one;
-    } else if (vecMatchs.size() > 1) {
-        return get_multi;
-    }
-    for(auto var : mapCommand_)
-    {
-        idx = var.first.find(str);
-        if(0 == idx) vecMatchs.push_back(var.first);
-        idx = string::npos;
-    }
-    if(vecMatchs.size() == 1) {
-        if(vecMatchs[0] == str) {
-            return get_match;
-        }
-        idx = vecMatchs[0].find(str);
+        //idx = vecMatchs[0].find(str);
         vecRet.assign(vecMatchs[0].begin() + str.length(), vecMatchs[0].end());
         return get_one;
     } else if (vecMatchs.size() > 1) {
@@ -367,4 +389,9 @@ bool CViewCmd::LogonCmd(std::string str)
     if(mapCommand_.count(str) != 0) return false;
     mapCommand_.insert(make_pair(str, 1));
     return true;
+}
+
+CViewCmd* CViewCmd::GetNextView(std::string name)
+{
+    return mapViews_[name];
 }
