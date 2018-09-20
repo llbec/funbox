@@ -5,15 +5,16 @@
 #include <vector>
 #include <map>
 
+//typedef void (*FP_CMD)(const std::vector<std::string>& vecArg);
 
 class CViewCmd
 {
 public:
     const std::string _name;
-    typedef void (*FP_CMD)(int, char const **);
 private:
     std::map <std::string, CViewCmd*> mapViews_;
-    std::map <std::string, FP_CMD> mapCommand_;
+    std::map <std::string, int> mapCommand_;
+    bool IsVaildCmd(std::string str);
 public:
     enum GetWordRet {
         get_no,
@@ -22,9 +23,11 @@ public:
         get_match
     };
     CViewCmd(std::string name);
-    bool Handler(std::vector<CViewCmd*>& vecRet, std::string str);
+    void Handler(std::vector<std::string>& vecCmd, std::vector<CViewCmd *>& vecRetView);
     void GetPossible(std::vector<std::string>& vecRet, std::string str);
     int GetWord(std::vector<char>& vecRet, std::string str);
+    bool LogonView(CViewCmd* pView);
+    virtual void HandlerCommand(const std::vector<std::string>& vecArg){}
 };
 
 class CViewBase
@@ -35,6 +38,8 @@ private:
 public:
     CViewBase();
     CViewCmd* CurrentView();
+    void GetKeyList(std::string str, std::vector<std::string>& vecList);
+    std::string GetKeyEnd(std::string str);
     bool Handler(std::string str, std::string& sRet);
     bool GetPossible(std::vector<std::string>& vecRet, std::string str);
     int GetWord(std::vector<char>& vecRet, std::string str);

@@ -121,7 +121,7 @@ void CViewShell::HandlerBackspace()
 {
     vecLine_.pop_back();
     bTab_ = false;
-    printf("\b \b%c",'\0');
+    printf("\b \b");
 }
 
 bool CViewShell::HandlerEnter()
@@ -142,6 +142,7 @@ void CViewShell::HandlerChar()
 
 void CViewShell::Run()
 {
+    printf("%s>", sTitle_.c_str());
     while(true){
         cGet_ = sh_getch();
         if(cGet_ == '\0')
@@ -172,6 +173,39 @@ CViewCmd* CViewBase::CurrentView()
     return stackViews_[stackViews_.size() - 1];
 }
 
+void CViewBase::GetKeyList(std::string str, std::vector<std::string>& vecList)
+{
+    string schar = "";
+    for(int i = 0; i < str.length(); i++)
+    {
+        char c = *(str.begin() + i);
+        if(c != ' ') {
+            schar += c;
+        } else {
+            vecList.push_back(schar);
+            schar = "";
+        }
+    }
+    vecList.push_back(schar);
+}
+
+std::string CViewBase::GetKeyEnd(std::string str)
+{
+    string schar = "";
+    if(str.length() < 1) return schar;
+    if(*(str.end() - 1) == ' ') return " ";
+    for(int i = 1; i <= str.length(); i++)
+    {
+        char c = *(str.end() - i);
+        if(c != ' ') {
+            schar += c;
+        } else {
+            break;
+        }
+    }
+    return schar;
+}
+
 bool CViewBase::Handler(std::string str, std::string& sRet)
 {
     if(str == "quit") {
@@ -184,9 +218,12 @@ bool CViewBase::Handler(std::string str, std::string& sRet)
         return true;
     } else {
         try {
-            //what's value for sRet
             vector<CViewCmd*> vecView;
-            return CurrentView()->Handler(vecView, str);
+            vector<string> vecCmd;
+            GetKeyList(str, vecCmd);
+            CurrentView()->Handler(vecCmd, vecView);
+            for(auto var : vecView) stackViews_.push_back(var);
+            sRet = CurrentView()->_name;
         } catch (int exp) {
             exp == -1 ? printf("FATAL: Stack of command view is empty!\n") : printf("FATAL: Command quit passed!\n");
             return false;
@@ -196,7 +233,7 @@ bool CViewBase::Handler(std::string str, std::string& sRet)
 bool CViewBase::GetPossible(std::vector<std::string>& vecRet, std::string str)
 {
     try {
-        CurrentView()->GetPossible(vecRet, str);
+        CurrentView()->GetPossible(vecRet, GetKeyEnd(str));
     } catch (int exp) {
         printf("FATAL: Stack of command view is empty!\n");
         return false;
@@ -206,7 +243,7 @@ bool CViewBase::GetPossible(std::vector<std::string>& vecRet, std::string str)
 int CViewBase::GetWord(std::vector<char>& vecRet, std::string str)
 {
     try {
-        return CurrentView()->GetWord(vecRet, str);
+        return CurrentView()->GetWord(vecRet, GetKeyEnd(str));
     } catch (int exp) {
         printf("FATAL: Stack of command view is empty!\n");
         return -1;
@@ -234,6 +271,7 @@ void CViewCmd::GetPossible(std::vector<std::string>& vecRet, std::string str)
 
 int CViewCmd::GetWord(std::vector<char>& vecRet, std::string str)
 {
+    if(str.empty()) return get_no;
     vecRet.clear();
     vector<string> vecMatchs;
     string::size_type idx = string::npos;
@@ -257,9 +295,40 @@ int CViewCmd::GetWord(std::vector<char>& vecRet, std::string str)
     }
 }
 
-bool CViewCmd::Handler(std::vector<CViewCmd*>& vecRet, std::string str)
+void CViewCmd::Handler(std::vector<std::string>& vecCmd, std::vector<CViewCmd *>& vecRetView)
 {
-    if(str == "quit")
-        throw 0;
+    if(vecCmd.size() == 0) return;
+    vector<std::string>::iterator it = vecCmd.begin();
+    if(mapCommand_.count(*it) != 0) {
+        HandlerCommand(vecCmd);
+        vecRetView.clear();
+        return;
+    }
+    if(mapViews_.count(*it) != 0) {
+        string str = *it;
+        vecCmd.erase(it);
+        vecRetView.push_back(mapViews_[str]);
+        mapViews_[str]->Handler(vecCmd, vecRetView);
+    }
+    return;
+}
+
+bool CViewCmd::IsVaildCmd(std::string str)
+{
+    if(str.empty()) return false;
+    /*more rules*/
+    return true;
+}
+
+bool CViewCmd::LogonView(CViewCmd* pView)
+{
+    if(pView == NULL) return false;
+    if(!IsVaildCmd(pView->_name)) return false;
+    if(mapViews_.count(pView->_name) != 0) {
+        if(mapViews_[pView->_name] != pView)
+            return false;
+        return true;
+    }
+    mapViews_.insert(make_pair(pView->_name, pView));
     return true;
 }
