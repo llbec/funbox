@@ -27,6 +27,7 @@ public:
     void GetPossible(std::vector<std::string>& vecRet, std::string str);
     int GetWord(std::vector<char>& vecRet, std::string str);
     bool LogonView(CViewCmd* pView);
+    bool LogonCmd(std::string str);
     virtual void HandlerCommand(const std::vector<std::string>& vecArg){}
 };
 

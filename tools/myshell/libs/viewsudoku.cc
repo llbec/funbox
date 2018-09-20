@@ -11,7 +11,13 @@ CMD_SHOW("show"),
 CMD_CALC("calc"),
 nMaxIndex(8),
 nMaxVar(9)
-{}
+{
+    LogonCmd(CMD_SETROW);
+    LogonCmd(CMD_SETCOLN);
+    LogonCmd(CMD_SETUNIT);
+    LogonCmd(CMD_SHOW);
+    LogonCmd(CMD_CALC);
+}
 
 void CViewSudoku::SetRow(const std::vector<std::string>& vecArg)
 {
@@ -25,7 +31,7 @@ void CViewSudoku::SetRow(const std::vector<std::string>& vecArg)
         printf("\nInvalid row index. [0,%d]", nMaxIndex);
         return;
     }
-    for(int i = 2; i < vecArg.size(); i++)
+    for(unsigned int i = 2; i < vecArg.size(); i++)
     {
         int n = atoi(vecArg[i].c_str());
         if(n < 1 || n > nMaxVar) {
@@ -33,7 +39,7 @@ void CViewSudoku::SetRow(const std::vector<std::string>& vecArg)
             return;
         }
     }
-    for(int i = 2; i < vecArg.size(); i++)
+    for(unsigned int i = 2; i < vecArg.size(); i++)
     {
         sudoku9_.SetUnit(nRow, (i - 2), atoi(vecArg[i].c_str()));
     }
@@ -51,7 +57,7 @@ void CViewSudoku::SetColn(const std::vector<std::string>& vecArg)
         printf("\nInvalid column index. [0,%d]", nMaxIndex);
         return;
     }
-    for(int i = 2; i < vecArg.size(); i++)
+    for(unsigned int i = 2; i < vecArg.size(); i++)
     {
         int n = atoi(vecArg[i].c_str());
         if(n < 1 || n > nMaxVar) {
@@ -59,7 +65,7 @@ void CViewSudoku::SetColn(const std::vector<std::string>& vecArg)
             return;
         }
     }
-    for(int i = 2; i < vecArg.size(); i++)
+    for(unsigned int i = 2; i < vecArg.size(); i++)
     {
         sudoku9_.SetUnit((i - 2), nColn, atoi(vecArg[i].c_str()));
     }

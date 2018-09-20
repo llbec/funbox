@@ -92,6 +92,10 @@ bool CViewShell::HandlerTab()
         PutNewLine(GetString());
     } else {
         vector<char> vecWord;
+        if(GetString().empty()) {
+            bTab_ = true;
+            return true;
+        }
         int iret = pObj_->GetWord(vecWord, GetString());
         switch(iret)
         {
@@ -119,6 +123,7 @@ bool CViewShell::HandlerTab()
 
 void CViewShell::HandlerBackspace()
 {
+    if(vecLine_.empty()) return;
     vecLine_.pop_back();
     bTab_ = false;
     printf("\b \b");
@@ -176,7 +181,7 @@ CViewCmd* CViewBase::CurrentView()
 void CViewBase::GetKeyList(std::string str, std::vector<std::string>& vecList)
 {
     string schar = "";
-    for(int i = 0; i < str.length(); i++)
+    for(unsigned int i = 0; i < str.length(); i++)
     {
         char c = *(str.begin() + i);
         if(c != ' ') {
@@ -194,11 +199,11 @@ std::string CViewBase::GetKeyEnd(std::string str)
     string schar = "";
     if(str.length() < 1) return schar;
     if(*(str.end() - 1) == ' ') return " ";
-    for(int i = 1; i <= str.length(); i++)
+    for(unsigned int i = 1; i <= str.length(); i++)
     {
         char c = *(str.end() - i);
         if(c != ' ') {
-            schar += c;
+            schar.insert(0, 1, c);
         } else {
             break;
         }
@@ -229,7 +234,9 @@ bool CViewBase::Handler(std::string str, std::string& sRet)
             return false;
         }
     }
+    return true;
 }
+
 bool CViewBase::GetPossible(std::vector<std::string>& vecRet, std::string str)
 {
     try {
@@ -257,11 +264,16 @@ _name(name)
 void CViewCmd::GetPossible(std::vector<std::string>& vecRet, std::string str)
 {
     vecRet.clear();
-    if(str == _name) {
-        for(auto var : mapViews_)
-            vecRet.push_back(var.first);
+    if(str == _name || str.empty() || str == " ") {
+        for(auto var : mapViews_) vecRet.push_back(var.first);
+		for (auto var : mapCommand_) vecRet.push_back(var.first);
     } else {
         for(auto var : mapViews_)
+        {
+            string::size_type idx = var.first.find(str);
+            if(0 == idx) vecRet.push_back(var.first);
+        }
+        for(auto var : mapCommand_)
         {
             string::size_type idx = var.first.find(str);
             if(0 == idx) vecRet.push_back(var.first);
@@ -272,6 +284,7 @@ void CViewCmd::GetPossible(std::vector<std::string>& vecRet, std::string str)
 int CViewCmd::GetWord(std::vector<char>& vecRet, std::string str)
 {
     if(str.empty()) return get_no;
+    if(str == " ") return get_multi;
     vecRet.clear();
     vector<string> vecMatchs;
     string::size_type idx = string::npos;
@@ -288,11 +301,26 @@ int CViewCmd::GetWord(std::vector<char>& vecRet, std::string str)
         idx = vecMatchs[0].find(str);
         vecRet.assign(vecMatchs[0].begin() + str.length(), vecMatchs[0].end());
         return get_one;
-    } else {
-        if (vecMatchs.size() == 0)
-            return get_no;
+    } else if (vecMatchs.size() > 1) {
         return get_multi;
     }
+    for(auto var : mapCommand_)
+    {
+        idx = var.first.find(str);
+        if(0 == idx) vecMatchs.push_back(var.first);
+        idx = string::npos;
+    }
+    if(vecMatchs.size() == 1) {
+        if(vecMatchs[0] == str) {
+            return get_match;
+        }
+        idx = vecMatchs[0].find(str);
+        vecRet.assign(vecMatchs[0].begin() + str.length(), vecMatchs[0].end());
+        return get_one;
+    } else if (vecMatchs.size() > 1) {
+        return get_multi;
+    }
+    return get_no;
 }
 
 void CViewCmd::Handler(std::vector<std::string>& vecCmd, std::vector<CViewCmd *>& vecRetView)
@@ -330,5 +358,13 @@ bool CViewCmd::LogonView(CViewCmd* pView)
         return true;
     }
     mapViews_.insert(make_pair(pView->_name, pView));
+    return true;
+}
+
+bool CViewCmd::LogonCmd(std::string str)
+{
+    if(str.empty()) return false;
+    if(mapCommand_.count(str) != 0) return false;
+    mapCommand_.insert(make_pair(str, 1));
     return true;
 }

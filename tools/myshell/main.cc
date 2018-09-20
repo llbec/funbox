@@ -4,7 +4,7 @@
 int main(int argc, char* argv[])
 {
     CViewBase tCmdMan;
-    CViewSudoku tSudoku();
+    CViewSudoku tSudoku;
     tCmdMan.CurrentView()->LogonView((CViewCmd *)&tSudoku);
     CViewShell myShell(&tCmdMan);
     myShell.Run();
