@@ -5,8 +5,11 @@
  * __MSC_VER    => window
  */
 #ifdef __GNUC__
-
+#ifdef __APPLE__
+#include <termios.h>
+#else
 #include <termio.h>
+#endif // __APPLE__
 /*
  * get one char from  input
  * return: int
