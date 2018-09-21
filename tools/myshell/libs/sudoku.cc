@@ -217,9 +217,9 @@ bool CSudoku::IsReady()
 
 void CSudoku::CpyForm(unit_t ** dest, unit_t ** src)
 {
-    for(int i = 0; i < WIDTH; i++)
-        for(int j = 0; j < WIDTH; j++)
-            for(int k = 0; k < WIDTH; k++)
+    for(uint i = 0; i < WIDTH; i++)
+        for(uint j = 0; j < WIDTH; j++)
+            for(uint k = 0; k < WIDTH; k++)
                 dest[i][j].fix[k] = src[i][j].fix[k];
 }
 
