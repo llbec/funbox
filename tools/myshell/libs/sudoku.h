@@ -43,6 +43,7 @@ private:
     bool Scan(std::pair< uint8, std::vector< std::pair<uint, uint> > > & pTry );
     bool HanldStage();
     bool IsReady();
+    void CpyForm(unit_t ** dest, unit_t ** src);
 
 public:
     CSudoku(uint n = 3);

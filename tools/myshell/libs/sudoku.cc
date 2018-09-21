@@ -52,7 +52,7 @@ void CSudoku::FreeForm(unit_t *** ptr)
 
 void CSudoku::ClearUnit(unit_t * ptr)
 {
-    memset(ptr->fix, 0, sizeof(uint8)*DIGIT);
+    memset(ptr->fix, 0, DIGIT);
 }
 
 uint CSudoku::Get_X(uint x, uint y)
@@ -197,7 +197,8 @@ bool CSudoku::HanldStage()
         return false;
     
     if(vstages.back().vTry.size() > 0) {
-        memcpy(form, vstages.back().form, form_size);
+        //memcpy(form, vstages.back().form, form_size);
+        CpyForm(form, vstages.back().form);
         iresult = vstages.back().iresult;
         SetUnit(vstages.back().vTry.back().first, vstages.back().vTry.back().second, vstages.back().value);
         vstages.back().vTry.pop_back();
@@ -212,6 +213,14 @@ bool CSudoku::HanldStage()
 bool CSudoku::IsReady()
 {
     return X_2 != 0 && form != NULL;
+}
+
+void CSudoku::CpyForm(unit_t ** dest, unit_t ** src)
+{
+    for(int i = 0; i < WIDTH; i++)
+        for(int j = 0; j < WIDTH; j++)
+            for(int k = 0; k < WIDTH; k++)
+                dest[i][j].fix[k] = src[i][j].fix[k];
 }
 
 void CSudoku::SetUnit(uint x, uint y, uint8 value)
@@ -253,7 +262,7 @@ void CSudoku::Show()
         printf("Fatal:Init failed! reset sudoku\n");
         return;
     }
-    printf("%d X %d sudoku:\n", WIDTH, WIDTH);
+    printf("\n%d X %d sudoku:\n", WIDTH, WIDTH);
     for(uint i = 0; i < WIDTH; i++)
     {
         for(uint j = 0; j < WIDTH; j++)
@@ -300,7 +309,8 @@ void CSudoku::CalcForm()
         {
             stage_t tStage;
             MallocForm(&(tStage.form));
-            memcpy(tStage.form, form, form_size);
+            //memcpy(tStage.form, form, form_size);
+            CpyForm(tStage.form, form);
             tStage.iresult = iresult;
             tStage.value = pTry.first;
             tStage.vTry.clear();

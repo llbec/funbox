@@ -1,14 +1,7 @@
 #ifndef VIEWSUDOKU_H
 #define VIEWSUDOKU_H
-//#include "sudoku_x.h"
 #include "viewshell.h"
 #include "sudoku.h"
-
-/*class sudoku_9 : public Sudoku_X<3>
-{
-public:
-    sudoku_9(){}
-};*/
 
 class CViewSudoku : public CViewCmd
 {
@@ -21,7 +14,6 @@ private:
     const std::string CMD_CALC;
     const std::string CMD_SETSIZE;
     /*commands*/
-    //sudoku_9 sudoku9_;
     CSudoku * pSudoku_;
     int nBase_;
     int nMaxIndex_;
