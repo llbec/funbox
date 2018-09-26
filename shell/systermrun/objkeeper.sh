@@ -22,7 +22,7 @@ function StartProgram()
     screen -x -S $screen_name -p 0 -X stuff $"gdb -ex run /root/utchain/src/ulordd\n"
 }
 
-echo "ulord center scan start!"
+echo "program keeper start!"
 while ((1)) ; do
 count=$(ps -aux | grep ulordd | grep -v grep | grep -v SCREEN | grep -v screen | grep -v gdb | wc -l)
 echo "$count"
