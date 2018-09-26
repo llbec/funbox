@@ -148,6 +148,15 @@ void CViewShell::HandlerChar()
     bTab_ = false;
 }
 
+bool CViewShell::IsBackspace()
+{
+#ifdef __APPLE__
+    return cGet_ == 127;
+#else
+    return cGet_ == '\b';
+#endif
+}
+
 void CViewShell::Run()
 {
     printf("%s>", sTitle_.c_str());
@@ -157,7 +166,7 @@ void CViewShell::Run()
             continue;
         else if(cGet_ == '\t') {
             if(!HandlerTab()) break;
-        } else if(cGet_ == '\b') {
+        } else if(IsBackspace()) {
             HandlerBackspace();
         } else if(cGet_ == '\r') {
             if(!HandlerEnter()) break;

@@ -56,17 +56,19 @@ private:
     std::vector<char> vecLine_;
     CViewBase * pObj_;
     std::string sTitle_;
-public:
-    CViewShell(CViewBase * ptr);
+private:
     void Clear();
     std::string GetString();
     bool HandlerTab();
     void HandlerBackspace();
     bool HandlerEnter();
     void HandlerChar();
-    void Run();
     void PutChar(char c);
     void PutString(std::string str);
     void PutNewLine(std::string str);
+    bool IsBackspace();
+public:
+    CViewShell(CViewBase * ptr);
+    void Run();
 };
 #endif // VIEW_SHELL_H
