@@ -30,13 +30,15 @@ int main(int argc, char const *argv[])
                 cout << "error: args error!" << endl;
                 return -1;
             }
-            string head(argv[2], argv[2]+45);
-            string version(argv[2]+45, argv[2]+49);
-            string timestamp(argv[2]+49, argv[2]+57);
-            string type(argv[2]+57, argv[2]+61);
-            string txidlen(argv[2]+61, argv[2]+69);
-            string txid(argv[2]+69, argv[2]+133);
-            string voutid(argv[2]+133, argv[2]+137);
+            string hex = string(argv[2]);
+            string string head = hex.substr(0,45);
+            string string version = hex.substr(45,4);
+            string string timestamp = hex.substr(49,8);
+            string string type = hex.substr(57,4);
+            string string txidlen = hex.substr(61,8);
+            string string txid = hex.substr(69,64);
+            string string voutid = hex.substr(133,4);
+
             cout << "Message Head: " << ParseHex(head) << endl
                 << "Message version: " << ParseHex(version) << endl
                 << "Message timestamp: " << ParseHex(timestamp) << endl
