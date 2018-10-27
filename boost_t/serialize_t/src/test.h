@@ -102,7 +102,7 @@ int Hex2Int(const std::string& str)
     {
         //int pos = (i/2)*8 + (i%2==0?4:0);
         //[](int x) { return (x/2 *8)+[](int y){return y%2==0?4:0}(x)}(i);
-        r |= ((int32)HexDigit(str.begin()+i)) << [](int x) { return (x/2 *8)+[](int y){ return y%2==0?4:0; }(x); }(i);
+        r |= ((int)HexDigit(str.begin()+i)) << [](int x) { return (x/2 *8)+[](int y){ return y%2==0?4:0; }(x); }(i);
     }
     return r;
 }
