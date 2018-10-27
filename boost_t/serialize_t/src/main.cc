@@ -39,6 +39,14 @@ int main(int argc, char const *argv[])
             string txid = hex.substr(69,64);
             string voutid = hex.substr(133,4);
 
+            cout << "Message Head: " << (head) << endl
+                << "Message version: " << (version) << endl
+                << "Message timestamp: " << (timestamp) << endl
+                << "Message type: " << (type) << endl
+                << "Message txid length: " << (txidlen) << endl
+                << "Message txid: " << (txid) << endl
+                << "Message voutid: " << (voutid) << endl;
+
             cout << "Message Head: " << ParseHex(head) << endl
                 << "Message version: " << ParseHex(version) << endl
                 << "Message timestamp: " << ParseHex(timestamp) << endl
