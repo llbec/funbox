@@ -1,5 +1,5 @@
-#include "viewshell.h"
-#include "viewsudoku.h"
+#include "libs/viewshell.h"
+#include "libs/viewsudoku.h"
 
 int main(int argc, char* argv[])
 {
