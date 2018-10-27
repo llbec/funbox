@@ -31,13 +31,13 @@ int main(int argc, char const *argv[])
                 return -1;
             }
             string hex = string(argv[2]);
-            string string head = hex.substr(0,45);
-            string string version = hex.substr(45,4);
-            string string timestamp = hex.substr(49,8);
-            string string type = hex.substr(57,4);
-            string string txidlen = hex.substr(61,8);
-            string string txid = hex.substr(69,64);
-            string string voutid = hex.substr(133,4);
+            string head = hex.substr(0,45);
+            string version = hex.substr(45,4);
+            string timestamp = hex.substr(49,8);
+            string type = hex.substr(57,4);
+            string txidlen = hex.substr(61,8);
+            string txid = hex.substr(69,64);
+            string voutid = hex.substr(133,4);
 
             cout << "Message Head: " << ParseHex(head) << endl
                 << "Message version: " << ParseHex(version) << endl
