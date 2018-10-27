@@ -93,4 +93,29 @@ std::string ParseHex(const std::string& str)
 {
     return ParseHex(str.c_str());
 }
+
+int Hex2Int(const std::string& str)
+{
+    int r = 0;
+    if(str.size() != 8) return 0;
+    for(int i = 0; i < 8; i++)
+    {
+        //int pos = (i/2)*8 + (i%2==0?4:0);
+        //[](int x) { return (x/2 *8)+[](int y){return y%2==0?4:0}(x)}(i);
+        r |= ((int32)HexDigit(str.begin()+i)) << [](int x) { return (x/2 *8)+[](int y){ return y%2==0?4:0; }(x); }(i);
+    }
+    return r;
+}
+int64_t Hex2Int64(const std::string& str)
+{
+    int r = 0;
+    if(str.size() != 16) return 0;
+    for(int i = 0; i < 16; i++)
+    {
+        //int pos = (i/2)*8 + (i%2==0?4:0);
+        //[](int x) { return (x/2 *8)+[](int y){return y%2==0?4:0}(x)}(i);
+        r |= ((int64_t)HexDigit(str.begin()+i)) << [](int x) { return (x/2 *8)+[](int y){ return y%2==0?4:0; }(x); }(i);
+    }
+    return r;
+}
 #endif

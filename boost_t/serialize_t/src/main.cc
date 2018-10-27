@@ -48,12 +48,12 @@ int main(int argc, char const *argv[])
                 << "Message voutid: " << (voutid) << endl;*/
 
             cout << "Message Head: " << ParseHex(head) << endl
-                << "Message version: " << ParseHex(version) << endl
-                << "Message timestamp: " << ParseHex(timestamp) << endl
-                << "Message type: " << ParseHex(type) << endl
-                << "Message txid length: " << ParseHex(txidlen) << endl
+                << "Message version: " << Hex2Int(version) << endl
+                << "Message timestamp: " << Hex2Int64(timestamp) << endl
+                << "Message type: " << Hex2Int(type) << endl
+                << "Message txid length: " << Hex2Int64(txidlen) << endl
                 << "Message txid: " << ParseHex(txid) << endl
-                << "Message voutid: " << ParseHex(voutid) << endl;
+                << "Message voutid: " << Hex2Int(voutid) << endl;
         } else cout << "unknown command! " << cmd << endl;
         return 0;
     }
