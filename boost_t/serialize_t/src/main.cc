@@ -25,6 +25,25 @@ int main(int argc, char const *argv[])
             string content = string(argv[2]);
             cout << "Hex: " << HexStr(content) << endl << "string length: " << content.size() << endl;
             return 1;
+        } else if("getmsg" == cmd) {
+            if(argc != 3) {
+                cout << "error: args error!" << endl;
+                return -1;
+            }
+            string head(argv[2], argv[2]+45);
+            string version(argv[2]+45, argv[2]+49);
+            string timestamp(argv[2]+49, argv[2]+57);
+            string type(argv[2]+57, argv[2]+61);
+            string txidlen(argv[2]+61, argv[2]+69);
+            string txid(argv[2]+69, argv[2]+133);
+            string voutid(argv[2]+133, argv[2]+137);
+            cout << "Message Head: " << ParseHex(head) << endl
+                << "Message version: " << ParseHex(version) << endl
+                << "Message timestamp: " << ParseHex(timestamp) << endl
+                << "Message type: " << ParseHex(type) << endl
+                << "Message txid length: " << ParseHex(txidlen) << endl
+                << "Message txid: " << ParseHex(txid) << endl
+                << "Message voutid: " << ParseHex(voutid) << endl;
         } else cout << "unknown command! " << cmd << endl;
         return 0;
     }
