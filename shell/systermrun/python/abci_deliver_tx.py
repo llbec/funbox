@@ -53,7 +53,7 @@ while layers != 0 :
     cmd = 'deliver_tx '
     cmd += get_tx(node, i)
     i += 1
-    if i == sys.maxint :
+    if i == sys.maxsize :
         i = 0
     
     #print('Trying', cmd, '...')
