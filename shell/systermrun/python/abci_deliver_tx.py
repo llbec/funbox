@@ -45,8 +45,6 @@ def get_tx(node, value) :
 
 analyzer = pexpect.spawnu('abci-cli console')
 analyzer.expect('> ')
-analyzer = pexpect.spawnu('abci-cli console')
-analyzer.expect('> ')
 
 node = input("Enter node name:")
 i = 0
