@@ -1,9 +1,10 @@
 #!/usr/bin/python
 
 import os
-import re
+#import re
 import sys
 import time
+import json
 
 gLetters=[chr(i) for i in range(97,123)]
 gIndexs = [0] * 26
@@ -53,7 +54,7 @@ node = input("Enter node name:")
 host = input("Enter host ip:")
 i = 0
 
-timsstart = 1542703800
+timsstart = 1542715140
 tnow = time.time()
 print("script will start at :", time.asctime(time.localtime(timsstart)))
 while tnow < timsstart :
@@ -68,8 +69,9 @@ while gLayers != 0 :
         i = 0
     
     #ret = send_cmd(cmd)
-    res = re.match("error", send_cmd(cmd))
-    if res == None :
-        print('Trying', cmd, '... OK')
+    #res = re.match("error", send_cmd(cmd))
+    res = json.loads(send_cmd(cmd)).get("result")
+    if res != None :
+        print('Trying', cmd, '... OK. Hash is:', res.get("hash"), '. Height is:', res.get("height"))
     else :
         print('Trying', cmd, '... FAILED')
