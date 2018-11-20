@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import time
 
 gLetters=[chr(i) for i in range(97,123)]
 gIndexs = [0] * 26
@@ -49,9 +50,17 @@ def send_cmd(_cmd) :
 #func end
 
 node = input("Enter node name:")
+host = input("Enter host ip:")
 i = 0
 
-cmd_send_tx_prifix = 'curl -s \'localhost:26657/broadcast_tx_commit?tx='
+timsstart = 1542703800
+tnow = time.time()
+print("script will start at :", time.asctime(time.localtime(timsstart)))
+while tnow < timsstart :
+    time.sleep(1)
+    tnow = time.time()
+
+cmd_send_tx_prifix = 'curl -s \'' + host + ':26657/broadcast_tx_commit?tx='
 while gLayers != 0 :
     cmd = cmd_send_tx_prifix + get_tx(node, i)
     i += 1
