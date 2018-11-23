@@ -3,6 +3,7 @@ import sys, os
 import paramiko
 import threading
 import re
+import socket
 
 class Host :
     def __init__(self, _ip, _port, _usrname, _passwd, _arg1, _arg2) :
@@ -14,9 +15,10 @@ class Host :
         self.arg2 = _arg2
 
 hosts = [
-    Host("10.186.11.6", 22, "root", "Zxcvbn2018", "h-6", "10.186.11.27"),
+    Host("10.186.11.6", 22, "root", "Zxcvbn2018", "h-6", "10.186.11.61"),
     Host("10.186.11.7", 22, "root", "Zxcvbn2018", "h-7", "10.186.11.27"),
     Host("10.186.11.8", 22, "root", "Zxcvbn2018", "h-8", "10.186.11.27"),
+    Host("10.186.11.27", 22, "root", "Zxcvbn2018", "h-27", "10.186.11.27"),
     Host("10.186.11.42", 22, "root", "Zxcvbn2018", "h-42", "10.186.11.60"),
     Host("10.186.11.60", 22, "root", "Zxcvbn2018", "h-60", "10.186.11.60"),
     Host("10.186.11.61", 22, "root", "Zxcvbn2018", "h-61", "10.186.11.61"),
@@ -27,7 +29,7 @@ hosts = [
 ]
 
 if len(sys.argv) < 3 :
-    print(sys.argv[0] + ' [run|stop|clear] targetfile')
+    print(sys.argv[0] + ' [run|stop|clean] targetfile')
     os._exit(0)
 
 command = sys.argv[1]
@@ -36,6 +38,10 @@ srcFile = srcPath = os.path.abspath(os.path.dirname(os.path.abspath(__file__)) +
 screenName = fileName.split('.')[0]
 srcSize = os.path.getsize(srcFile)
 destDirectory = 'ssh-script'
+hostSelected = ''
+
+if len(sys.argv) == 4 :
+    hostSelected = sys.argv[3]
 
 class hostThread (threading.Thread):
     def __init__(self, _host):
@@ -45,6 +51,31 @@ class hostThread (threading.Thread):
         hostProcess(self.host)
 
 def hostProcess(_host) :
+    if hostSelected != '' :
+        if hostSelected != _host.ip :
+            return
+    #local
+    if _host.ip == getLocalIP() :
+        if command == 'run' :
+            if localCleanScreen() != 1 :
+                print(_host.ip + ' clean screen failed!')
+                return
+            localCmd('screen -dmS %s python3 %s %s %s'%(screenName, fileName, _host.arg1, _host.arg2))
+            print(_host.ip + ' script is working ...')
+        elif command == 'stop' :
+            if localCleanScreen() != 1 :
+                print(_host.ip + ' stop failed!')
+            print(_host.ip + ' stoped')
+        elif command == 'clean' :
+            if localCleanScreen() != 1 :
+                print(_host.ip + ' clean screen failed!')
+            #localCmd('rm %s'%(fileName))
+            print(_host.ip + ' is clean')
+        else :
+            print(sys.argv[0] + " [run|stop|clean] targetfile")
+        return
+    
+    #remote
     _ssh = getRemote(_host)
     if _ssh == None :
         print("Login in %s failed!"%(_host.ip))
@@ -66,7 +97,7 @@ def hostProcess(_host) :
             _ssh.close()
             return
         
-        if clearScreen(_ssh, _host) < 0 :
+        if cleanScreen(_ssh, _host) < 0 :
             _ssh.close()
             return
         
@@ -75,15 +106,19 @@ def hostProcess(_host) :
         else :
             print(_host.ip + ' script failed!')
     elif command == 'stop' :
-        if clearScreen(_ssh, _host) < 0 :
+        if cleanScreen(_ssh, _host) < 0 :
             print(_host.ip + 'stop failed! screen ' + screenName)
         _ssh.close()
-    elif command == 'clear' :
+        print(_host.ip + ' stoped')
+    elif command == 'clean' :
+        if cleanScreen(_ssh, _host) < 0 :
+            print(_host.ip + 'stop failed! screen ' + screenName)
         if searchPath(_ssh, _host) == 1 :
             if removeDir(_ssh, _host) < 0 :
-                print(_host.ip + 'clear failed!')
+                print(_host.ip + 'clean failed!')
+        print(_host.ip + ' is clean')
     else :
-        print(sys.argv[0] + " [run|stop|clear] targetfile")
+        print(sys.argv[0] + " [run|stop|clean] targetfile")
     
     _ssh.close()
     return
@@ -178,7 +213,7 @@ def copyDestFile(_ssh, _host) :
         print(_host.ip + ' ' + str(e))
         return -1
 
-def clearScreen(_ssh, _host) :
+def cleanScreen(_ssh, _host) :
     try :
         _count = 0
         while searchScreen(_ssh) == 1 :
@@ -200,6 +235,31 @@ def runFile(_ssh, _host) :
         return -1
 
 #local funcs
+def localCmd(_cmd) : 
+    _p = os.popen(_cmd)
+    _data = _p.read()
+    _p.close()
+    return _data
+
+def localCleanScreen() :
+    _count = 0
+    while re.search(screenName, localCmd("screen -ls")) != None :
+        localCmd('screen -S %s -X quit'%(screenName))
+        _count += 1
+        if _count > 3 :
+            return 0
+    return 1
+
+def getLocalIP():
+    try:
+        _s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        _s.connect(('8.8.8.8', 80))
+        _ip = _s.getsockname()[0]
+    finally:
+        _s.close()
+
+    return _ip
+
 def run() :
     print("Start to run %s in hosts"%(fileName))
     _threads = []
