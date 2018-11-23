@@ -40,6 +40,11 @@ srcSize = os.path.getsize(srcFile)
 destDirectory = 'ssh-script'
 hostSelected = ''
 
+#log result
+resSuccess = 0
+resPass = 0
+resFail = 0
+
 if len(sys.argv) == 4 :
     hostSelected = sys.argv[3]
 
@@ -48,18 +53,18 @@ class hostThread (threading.Thread):
         threading.Thread.__init__(self)
         self.host = _host
     def run(self):
-        hostProcess(self.host)
+        recordResult(hostProcess(self.host))
 
 def hostProcess(_host) :
     if hostSelected != '' :
         if hostSelected != _host.ip :
-            return
+            return 0
     #local
     if _host.ip == getLocalIP() :
         if command == 'run' :
             if localCleanScreen() != 1 :
                 print(_host.ip + ' clean screen failed!')
-                return
+                return -1
             localCmd('screen -dmS %s python3 %s %s %s'%(screenName, fileName, _host.arg1, _host.arg2))
             print(_host.ip + ' script is working ...')
         elif command == 'stop' :
@@ -73,33 +78,34 @@ def hostProcess(_host) :
             print(_host.ip + ' is clean')
         else :
             print(sys.argv[0] + " [run|stop|clean] targetfile")
-        return
+            return 0
+        return 1
     
     #remote
     _ssh = getRemote(_host)
     if _ssh == None :
         print("Login in %s failed!"%(_host.ip))
-        return
+        return -1
     
     if command == 'run' :
         if searchPath(_ssh, _host) == 1 :
-            if removeDestFile(_ssh, _host) < 0 :
+            if removeDestFile(_ssh, _host) != 1 :
                 _ssh.close()
-                return
+                return -1
         else :
             if makeDir(_ssh, _host) != 1 :
                 print(_host.ip + ' make directory failed!')
                 _ssh.close()
-                return
+                return -1
         
         if copyDestFile(_ssh, _host) != 1 :
             print(_host.ip + ' copy file failed!')
             _ssh.close()
-            return
+            return -1
         
         if cleanScreen(_ssh, _host) < 0 :
             _ssh.close()
-            return
+            return -1
         
         if runFile(_ssh, _host) == 1 :
             print(_host.ip + ' script is working ...')
@@ -119,9 +125,10 @@ def hostProcess(_host) :
         print(_host.ip + ' is clean')
     else :
         print(sys.argv[0] + " [run|stop|clean] targetfile")
+        return 0
     
     _ssh.close()
-    return
+    return 1
 
 
 # remote funcs
@@ -194,7 +201,7 @@ def removeDestFile(_ssh, _host) :
     try :
         _cmd = "rm " + getDestFile(_host)
         _ssh.exec_command(_cmd)
-        return 0
+        return 1
     except Exception as e:
         print(_host.ip + ' ' + str(e))
         return -1
@@ -260,6 +267,18 @@ def getLocalIP():
 
     return _ip
 
+def recordResult(_result) :
+    global resFail, resPass, resSuccess
+    if _result == 1 :
+        resSuccess += 1
+    elif _result == 0 :
+        resPass += 1
+    else :
+        resFail += 1
+
+def showResult() :
+    print('Execution result:\tTotal:%d\tSucceed:%d\tPassed:%d\tFailed%d'%(resSuccess+resPass+resFail, resSuccess, resPass, resFail))
+
 def run() :
     print("Start to run %s in hosts"%(fileName))
     _threads = []
@@ -270,7 +289,6 @@ def run() :
 
     for _t in _threads :
         _t.join()
-    print("All hosts are running!")
+    showResult()
 
 run()
-#def stop() :

@@ -33,13 +33,16 @@ if len(sys.argv) < 2 :
     os._exit(0)
 
 command = sys.argv[1]
+resSuccess = 0
+resPass = 0
+resFail = 0
 
 class hostThread (threading.Thread):
     def __init__(self, _host):
         threading.Thread.__init__(self)
         self.host = _host
     def run(self):
-        hostProcess(self.host)
+        recordResult(hostProcess(self.host))
 
 def hostProcess(_host) :
     if isLocalIP(_host.ip) == 1 :
@@ -88,6 +91,18 @@ def localCmd(_cmd) :
     _p.close()
     return _data
 
+def recordResult(_result) :
+    global resFail, resPass, resSuccess
+    if _result == 1 :
+        resSuccess += 1
+    elif _result == 0 :
+        resPass += 1
+    else :
+        resFail += 1
+
+def showResult() :
+    print('Execution result:\tTotal:%d\tSucceed:%d\tPassed:%d\tFailed%d'%(resSuccess+resPass+resFail, resSuccess, resPass, resFail))
+
 threads = []
 for _host in hosts :
     _thd = hostThread(_host)
@@ -96,3 +111,5 @@ for _host in hosts :
 
 for _t in threads :
     _t.join()
+
+showResult()
