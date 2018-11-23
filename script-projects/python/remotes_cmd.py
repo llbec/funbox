@@ -33,9 +33,12 @@ if len(sys.argv) < 2 :
     os._exit(0)
 
 command = sys.argv[1]
+hostSelected = ''
 resSuccess = 0
 resPass = 0
 resFail = 0
+if len(sys.argv) == 3 :
+    hostSelected = sys.argv[2]
 
 class hostThread (threading.Thread):
     def __init__(self, _host):
@@ -45,9 +48,19 @@ class hostThread (threading.Thread):
         recordResult(hostProcess(self.host))
 
 def hostProcess(_host) :
+    if hostSelected != '' :
+        if hostSelected != _host.ip :
+            return 0
+    
+    _output = _host.ip + ':\n\t'
+
     if isLocalIP(_host.ip) == 1 :
+        '''_outs = localCmd(command).split('\n')
+        for _out in _outs :
+            _output += _out + '\t'
+        print(_output)'''
         print(_host.ip + ':\n' + localCmd(command))
-        return
+        return 1
     try :
         #login in to host
         _ssh = paramiko.SSHClient()
@@ -55,7 +68,6 @@ def hostProcess(_host) :
         _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
         
         #run command
-        _output = _host.ip + ':\n\t'
         _stdin, _stdout, _stderr = _ssh.exec_command(command)
         _errs = _stderr.readlines()
         if len(_errs) != 0 :
@@ -70,7 +82,8 @@ def hostProcess(_host) :
         _ssh.close()
     except Exception as e:
         print(_host.ip + ' ' + str(e))
-    return
+        return -1
+    return 1
 
 def isLocalIP(_addr):
     try:
