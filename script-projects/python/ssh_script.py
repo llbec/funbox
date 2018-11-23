@@ -5,13 +5,13 @@ import threading
 import re
 
 class Host :
-    def __init__(self, _ip, _port, _usrname, _passwd, _hname, _remoteip) :
+    def __init__(self, _ip, _port, _usrname, _passwd, _arg1, _arg2) :
         self.ip = _ip
         self.port = _port
         self.usrname = _usrname
         self.passwd = _passwd
-        self.hname = _hname
-        self.remoteip = _remoteip
+        self.arg1 = _arg1
+        self.arg2 = _arg2
 
 hosts = [
     Host("10.186.11.6", 22, "root", "Zxcvbn2018", "h-6", "10.186.11.27"),
@@ -193,7 +193,7 @@ def clearScreen(_ssh, _host) :
 
 def runFile(_ssh, _host) :
     try :
-        _ssh.exec_command('screen -dmS %s python3 %s %s %s'%(screenName, getDestFile(_host), _host.hname, _host.remoteip))
+        _ssh.exec_command('screen -dmS %s python3 %s %s %s'%(screenName, getDestFile(_host), _host.arg1, _host.arg2))
         return 1
     except Exception as e:
         print(_host.ip + ' ' + str(e))
