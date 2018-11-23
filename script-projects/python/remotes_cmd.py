@@ -3,6 +3,7 @@ import sys, os
 import paramiko
 import threading
 import re
+import socket
 
 class Host :
     def __init__(self, _ip, _port, _usrname, _passwd, _arg1, _arg2) :
@@ -17,6 +18,7 @@ hosts = [
     Host("10.186.11.6", 22, "root", "Zxcvbn2018", "h-6", "10.186.11.27"),
     Host("10.186.11.7", 22, "root", "Zxcvbn2018", "h-7", "10.186.11.27"),
     Host("10.186.11.8", 22, "root", "Zxcvbn2018", "h-8", "10.186.11.27"),
+    Host("10.186.11.27", 22, "root", "Zxcvbn2018", "h-27", "10.186.11.27"),
     Host("10.186.11.42", 22, "root", "Zxcvbn2018", "h-42", "10.186.11.60"),
     Host("10.186.11.60", 22, "root", "Zxcvbn2018", "h-60", "10.186.11.60"),
     Host("10.186.11.61", 22, "root", "Zxcvbn2018", "h-61", "10.186.11.61"),
@@ -40,6 +42,9 @@ class hostThread (threading.Thread):
         hostProcess(self.host)
 
 def hostProcess(_host) :
+    if isLocalIP(_host.ip) == 1 :
+        print(_host.ip + ':\n' + localCmd(command))
+        return
     try :
         #login in to host
         _ssh = paramiko.SSHClient()
@@ -47,7 +52,7 @@ def hostProcess(_host) :
         _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
         
         #run command
-        _output = _host.ip + '\n\t'
+        _output = _host.ip + ':\n\t'
         _stdin, _stdout, _stderr = _ssh.exec_command(command)
         _errs = _stderr.readlines()
         if len(_errs) != 0 :
@@ -62,6 +67,26 @@ def hostProcess(_host) :
         _ssh.close()
     except Exception as e:
         print(_host.ip + ' ' + str(e))
+    return
+
+def isLocalIP(_addr):
+    try:
+        _s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        _s.connect(('8.8.8.8', 80))
+        _ip = _s.getsockname()[0]
+    finally:
+        _s.close()
+
+    if _ip == _addr :
+        return 1
+    else :
+        return 0
+
+def localCmd(_cmd) : 
+    _p = os.popen(_cmd)
+    _data = _p.read()
+    _p.close()
+    return _data
 
 threads = []
 for _host in hosts :
