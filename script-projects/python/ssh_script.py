@@ -48,6 +48,9 @@ resFail = 0
 if len(sys.argv) == 4 :
     hostSelected = sys.argv[3]
 
+def getScriptCmd(_fileName, _arg1, _arg2) :
+    return 'python3 %s %s %s'%(_fileName, _arg1, _arg2)
+
 class hostThread (threading.Thread):
     def __init__(self, _host):
         threading.Thread.__init__(self)
@@ -65,7 +68,7 @@ def hostProcess(_host) :
             if localCleanScreen() != 1 :
                 print(_host.ip + ' clean screen failed!')
                 return -1
-            localCmd('screen -dmS %s python3 %s %s %s'%(screenName, fileName, _host.arg1, _host.arg2))
+            localCmd('screen -dmS %s %s'%(screenName, getScriptCmd(fileName, _host.arg1, _host.arg2)))
             print(_host.ip + ' script is working ...')
         elif command == 'stop' :
             if localCleanScreen() != 1 :
@@ -235,7 +238,7 @@ def cleanScreen(_ssh, _host) :
 
 def runFile(_ssh, _host) :
     try :
-        _ssh.exec_command('screen -dmS %s python3 %s %s %s'%(screenName, getDestFile(_host), _host.arg1, _host.arg2))
+        _ssh.exec_command('screen -dmS %s %s'%(screenName, getScriptCmd(getDestFile(_host), _host.arg1, _host.arg2)))
         return 1
     except Exception as e:
         print(_host.ip + ' ' + str(e))
