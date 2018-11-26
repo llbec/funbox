@@ -48,8 +48,8 @@ resFail = 0
 if len(sys.argv) == 4 :
     hostSelected = sys.argv[3]
 
-def getScriptCmd(_fileName, _arg1, _arg2) :
-    return 'python3 %s %s %s'%(_fileName, _arg1, _arg2)
+def getScriptCmd(_script, _arg1, _arg2) :
+    return 'python3 %s %s %s'%(_script, _arg1, _arg2)
 
 class hostThread (threading.Thread):
     def __init__(self, _host):
