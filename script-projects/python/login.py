@@ -73,7 +73,7 @@ while True :
 
     _ssh = pexpect.spawn(getLoginCmd(relayHosts[hosts[_idx].relay]))
     if ssh_login(_ssh, relayHosts[hosts[_idx].relay]) < 0 :
-        print('[ERROR]Connect relay host fails')
+        print('[ERROR]Connect relay host fails, try chmod 700 *.pem')
         continue
     _ssh.sendline(getLoginCmd(hosts[_idx]))
     if ssh_login(_ssh, hosts[_idx]) < 0 :
