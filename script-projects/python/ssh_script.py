@@ -29,7 +29,7 @@ hosts = [
 ]
 
 if len(sys.argv) < 3 :
-    print(sys.argv[0] + ' [run|stop|clean] targetfile')
+    print(sys.argv[0] + ' [run|stop|clean|copy] targetfile')
     os._exit(0)
 
 command = sys.argv[1]
@@ -79,8 +79,10 @@ def hostProcess(_host) :
                 print(_host.ip + ' clean screen failed!')
             #localCmd('rm %s'%(fileName))
             print(_host.ip + ' is clean')
+        elif command == 'copy' :
+            pass
         else :
-            print(sys.argv[0] + " [run|stop|clean] targetfile")
+            print(sys.argv[0] + " [run|stop|clean|copy] targetfile")
             return 0
         return 1
     
@@ -114,6 +116,20 @@ def hostProcess(_host) :
             print(_host.ip + ' script is working ...')
         else :
             print(_host.ip + ' script failed!')
+    elif command == 'copy' :
+        if searchPath(_ssh, _host) == 1 :
+            if removeDestFile(_ssh, _host) != 1 :
+                _ssh.close()
+                return -1
+        else :
+            if makeDir(_ssh, _host) != 1 :
+                print(_host.ip + ' make directory failed!')
+                _ssh.close()
+                return -1
+        if copyDestFile(_ssh, _host) != 1 :
+            print(_host.ip + ' copy file failed!')
+            _ssh.close()
+            return -1
     elif command == 'stop' :
         if cleanScreen(_ssh, _host) < 0 :
             print(_host.ip + 'stop failed! screen ' + screenName)
@@ -127,7 +143,7 @@ def hostProcess(_host) :
                 print(_host.ip + 'clean failed!')
         print(_host.ip + ' is clean')
     else :
-        print(sys.argv[0] + " [run|stop|clean] targetfile")
+        print(sys.argv[0] + " [run|stop|clean|copy] targetfile")
         return 0
     
     _ssh.close()
