@@ -13,10 +13,12 @@ class Host :
 
 relayHosts = [
     Host('47.75.73.38', 22, 'ubuntu', '', 'hk.pem', 'HK-relay', -1),
+    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186-relay', -1),
 ]
 
 hosts = [
     Host('45.77.223.88', 22, 'root', '9Y[zVY3PPS+GXBN]', '', '666MN', 0),
+    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 0),
 ]
 
 def ssh_passwd(_ssh, _host) :
