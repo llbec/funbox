@@ -126,3 +126,7 @@ for _t in threads :
     _t.join()
 
 showResult()
+
+#python3 /root/pro-test/script-projects/python/remotes_cmd.py "sed -i '\$a\export GOPATH=\"\$HOME/go\"' /etc/profile"
+#python3 /root/pro-test/script-projects/python/remotes_cmd.py "sed -i '\$a\export GOBIN=\"\$GOPATH/bin\"' /etc/profile"
+#python3 /root/pro-test/script-projects/python/remotes_cmd.py "sed -i '\$a\export PATH=\"\$PATH:/usr/local/go/bin:\$GOPATH/bin\"' /etc/profile"
