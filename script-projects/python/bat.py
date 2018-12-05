@@ -259,6 +259,8 @@ def scriptHandle(_host) :
         os._exit(0)
     _action = sys.argv[2]
     _script = sys.argv[3]
+    if _script.split('/')[0] != '' and _script.split('/')[0] != '~' :
+        _script = os.getcwd() + '/' + _script
     if _action == 'run' :
         return scriptRun(_host, _script)
     elif _action == 'stop' :
