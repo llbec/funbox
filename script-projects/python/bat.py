@@ -53,7 +53,7 @@ def cmdHandle(_host) :
     if len(sys.argv) < 3 :
         print(sys.argv[0] + ' cmd "command"')
         os._exit(0)
-    if isLocalIP(_host._addr) == 1 :
+    if isLocalIP(_host.ip) == 1 :
         print(_host.ip + ':\n' + localCmd(sys.argv[2]))
         return 1
     #else remote
@@ -150,7 +150,7 @@ def copyHandle(_host) :
     if len(sys.argv) < 4 :
         print(sys.argv[0] + ' cp srcfile destfile')
         os._exit(0)
-    if isLocalIP(_host) == 1 :
+    if isLocalIP(_host.ip) == 1 :
         return 1
     try :
         #login in to host
@@ -205,7 +205,7 @@ def getScriptCmd(_script, _arg1, _arg2) :
     return 'python3 %s %s %s'%(_script, _arg1, _arg2)
 
 def scriptRun(_host, _script) :
-    if isLocalIP(_host._addr) == 1 :
+    if isLocalIP(_host.ip) == 1 :
         if localCleanScreen(_script) != 1 :
             print(_host.ip + ' clean screen failed!')
             return -1
@@ -231,7 +231,7 @@ def scriptRun(_host, _script) :
     return 1
 
 def scriptStop(_host, _script) :
-    if isLocalIP(_host._addr) == 1 :
+    if isLocalIP(_host.ip) == 1 :
         return localCleanScreen(_script)
     #else remote
     #login in to host
@@ -241,7 +241,7 @@ def scriptStop(_host, _script) :
     return cleanScreen(_ssh, _host, _script)
 
 def scriptClean(_host, _script) :
-    if isLocalIP(_host._addr) == 1 :
+    if isLocalIP(_host.ip) == 1 :
         return localCleanScreen(_script)
     #else remote
     #login in to host
