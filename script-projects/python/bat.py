@@ -47,7 +47,7 @@ def localCmd(_cmd) :
 
 def cmdHandle(_host) :
     if len(sys.argv) < 3 :
-        print(sys.argv[0] + ' cmd "command"')
+        print('python ' + sys.argv[0].split('/')[-1] + ' cmd "command"')
         os._exit(0)
     if isLocalIP(_host.ip) == 1 :
         print(_host.ip + ':\n' + localCmd(sys.argv[2]))
@@ -145,7 +145,7 @@ def copyFile(_ssh, _host, _src, _dest) :
 
 def copyHandle(_host) :
     if len(sys.argv) < 4 :
-        print(sys.argv[0] + ' cp srcfile destfile')
+        print('python ' + sys.argv[0].split('/')[-1] + ' cp srcfile destfile')
         os._exit(0)
     if isLocalIP(_host.ip) == 1 :
         return 0
@@ -225,8 +225,22 @@ def pythonRun(_host, _python) :
             _ssh.close()
             return -1
         #create screen & run python
-        _ssh.exec_command('screen -dmS %s'%(getScreenName(_python)))
-        _ssh.exec_command(getPythonCmd(_python, _host.arg1, _host.arg2))
+        _stdin, _stdout, _stderr = _ssh.exec_command('screen -dmS %s'%(getScreenName(_python)))
+        _oput = 'stdout:'
+        for _o in _stdout.readlines() :
+            _oput += '[%s],'%(_o)
+        _oput = _oput[:-1] + '\nstderr:'
+        for _o in _stderr.readlines() :
+            _oput += '[%s],'%(_o)
+        print(_oput[:-1])
+        _stdin, _stdout, _stderr =_ssh.exec_command(getPythonCmd(_python, _host.arg1, _host.arg2))
+        _oput = 'stdout:'
+        for _o in _stdout.readlines() :
+            _oput += '[%s],'%(_o)
+        _oput = _oput[:-1] + '\nstderr:'
+        for _o in _stderr.readlines() :
+            _oput += '[%s],'%(_o)
+        print(_oput[:-1])
         print(_host.ip + ' python is working ...')
         _ssh.close()
         return 1
@@ -270,7 +284,7 @@ def pythonClean(_host, _python) :
 
 def pythonHandle(_host) :
     if len(sys.argv) < 4 :
-        print(sys.argv[0] + ' py [run|stop|clean] pythonfile')
+        print('python ' + sys.argv[0].split('/')[-1] + ' py [run|stop|clean] pythonfile')
         os._exit(0)
     _action = sys.argv[2]
     _python = sys.argv[3]
@@ -335,12 +349,13 @@ def scnStop(_host, _scnname) :
 
 def screenHandle(_host) :
     if len(sys.argv) < 4 :
-        print(sys.argv[0] + ' scn [run|stop] screenname [command|]')
+        print('python ' + sys.argv[0].split('/')[-1] + ' scn [run|stop] screenname [command|]')
         os._exit(0)
     _action = sys.argv[2]
     if _action == 'run' :
         if len(sys.argv) < 5 :
-            print(sys.argv[0] + ' scn run screenname command')
+            print('python ' + sys.argv[0].split('/')[-1] + ' scn run screenname command')
+            os._exit(0)
         return scnRun(_host, sys.argv[3], sys.argv[4])
     elif _action == 'stop' :
         return scnStop(_host, sys.argv[3])
