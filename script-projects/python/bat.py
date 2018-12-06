@@ -83,9 +83,9 @@ def cmdHandle(_host) :
 
 def getHome(_host) :
     if _host.usrname == 'root' :
-        return '/root/'
+        return '/root'
     else :
-        return '/home/%s/'%(_host.usrname)
+        return '/home/%s'%(_host.usrname)
 
 def isExist(_ssh, _host, _path) :
     try :
@@ -105,11 +105,11 @@ def checkPath(_ssh, _host, _path) :
         for i in range(len(_directs)) :
             if i == 0 :
                 if _directs[0] == '' :
-                    _check = '/'
+                    _check = ''
                     continue
                 else :
                     _check = getHome(_host)
-            _check += _directs[i]
+            _check += '/'+_directs[i]
             _index = i
             if isExist(_ssh, _host, _check) == False :
                 break
@@ -119,7 +119,7 @@ def checkPath(_ssh, _host, _path) :
             if _i == _index :
                 _ssh.exec_command('mkdir %s'%(_check))
             else :
-                _check += _directs[_i]
+                _check += '/'+_directs[_i]
                 _ssh.exec_command('mkdir %s'%(_check))
         return 1
     except Exception as e:
@@ -143,7 +143,7 @@ def copyFile(_ssh, _host, _src, _dest) :
             return -1
         return 1
     except Exception as e:
-        print(_host.ip + ',copyFile error: ' + str(e))
+        print('%s, copyFile error: %s. src is %s, dest is %s.'%(_host.ip, str(e), _src, _dest))
         return -1
 
 def copyHandle(_host) :
@@ -202,14 +202,15 @@ def cleanScreen(_ssh, _host, _path) :
         return -1
 
 def getScriptCmd(_script, _arg1, _arg2) :
-    return 'python3 %s %s %s'%(_script, _arg1, _arg2)
+    return 'screen -x -S %s -p 0 -X stuff "python3 %s %s %s\n"'%(getScreenName(_script), _script, _arg1, _arg2)
 
 def scriptRun(_host, _script) :
     if isLocalIP(_host.ip) == 1 :
         if localCleanScreen(_script) != 1 :
             print(_host.ip + ' clean screen failed!')
             return -1
-        localCmd('screen -dmS %s %s'%(getScreenName(_script), getScriptCmd(_script, _host.arg1, _host.arg2)))
+        localCmd('screen -dmS %s'%(getScreenName(_script)))
+        localCmd(getScriptCmd(_script, _host.arg1, _host.arg2))
         print(_host.ip + ' script is working ...')
         return 1
     #else remote
@@ -226,7 +227,8 @@ def scriptRun(_host, _script) :
         _ssh.close()
         return -1
     #create screen & run script
-    _ssh.exec_command('screen -dmS %s %s'%(getScreenName(_script), getScriptCmd(_script, _host.arg1, _host.arg2)))
+    _ssh.exec_command('screen -dmS %s'%(getScreenName(_script)))
+    _ssh.exec_command(getScriptCmd(_script, _host.arg1, _host.arg2))
     print(_host.ip + ' script is working ...')
     return 1
 
@@ -261,6 +263,8 @@ def scriptHandle(_host) :
     _script = sys.argv[3]
     if _script.split('/')[0] != '' and _script.split('/')[0] != '~' :
         _script = os.getcwd() + '/' + _script
+    if _script.split('/')[0] == '~' :
+        _script.replace('~/', '%s/'%(getHome(_host)))
     if _action == 'run' :
         return scriptRun(_host, _script)
     elif _action == 'stop' :
