@@ -167,8 +167,10 @@ def getScreenName(_path) :
 def searchScreen(_ssh, _host, _scnname) :
     try :
         _stdin, _stdout, _stderr = _ssh.exec_command('screen -ls | grep %s'%(_scnname))
-        if len(_stdout.readlines()) != 0 :
-            return 1
+        _outs = _stdout.readlines()
+        for _out in _outs :
+            if re.search(r"\d+.%s "%(_scnname), _out) != None :
+                return 1
         return 0
     except Exception as e:
         print(_host.ip + ',searchScreen error: ' + str(e))
@@ -176,7 +178,7 @@ def searchScreen(_ssh, _host, _scnname) :
 
 def localCleanScreen(_scnname) :
     _count = 0
-    while re.search(_scnname, localCmd("screen -ls | grep %s"%(_scnname))) != None :
+    while re.search(r"\d+.%s "%(_scnname), localCmd("screen -ls | grep %s"%(_scnname))) != None :
         localCmd('screen -S %s -X quit'%(_scnname))
         _count += 1
         if _count > 3 :
