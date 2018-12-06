@@ -65,6 +65,7 @@ def cmdHandle(_host) :
         _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
         
         #run command
+        _output = _host.ip + ':\n\t'
         _stdin, _stdout, _stderr = _ssh.exec_command(sys.argv[2])
         _errs = _stderr.readlines()
         if len(_errs) != 0 :
