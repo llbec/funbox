@@ -82,8 +82,8 @@ if len(myArgv) < 2 :
     #print("please select a file as a parameter")
     os._exit(0)
 
-nodename = myArgv[1]
-host = myArgv[2]
+nodename = myArgv[0]
+host = myArgv[1]
 i = 0
 
 timsstart = 1542715140
