@@ -102,12 +102,13 @@ while gLayers != 0 :
     if i == sys.maxsize :
         i = 0
     
-    #ret = send_cmd(cmd)
+    ret = send_cmd(cmd)
     #res = re.match("error", send_cmd(cmd))
-    res = json.loads(send_cmd(cmd)).get("result")
-    if res != None :
-        print('Trying', cmd, '... OK. Hash is:', res.get("hash"), '. Height is:', res.get("height"))
-        #log.write('%d#Tring %s ... OK. Hash is: %s, Height is: %d'%(time.time(), cmd, res.get("hash"), res.get("height")))
-    else :
-        print('Trying', cmd, '... FAILED')
-        #log.write('%d#Tring %s ... FAILED.'%(time.time(), cmd))
+    if ret != '' :
+        res = json.loads(send_cmd(cmd)).get("result")
+        if res != None :
+            print('Trying', cmd, '... OK. Hash is:', res.get("hash"), '. Height is:', res.get("height"))
+            #log.write('%d#Tring %s ... OK. Hash is: %s, Height is: %d'%(time.time(), cmd, res.get("hash"), res.get("height")))
+            continue
+    print('Trying', cmd, '... FAILED')
+    #log.write('%d#Tring %s ... FAILED.'%(time.time(), cmd))
