@@ -226,18 +226,18 @@ def pythonRun(_host, _python) :
             return -1
         #create screen & run python
         _stdin, _stdout, _stderr = _ssh.exec_command('screen -dmS %s'%(getScreenName(_python)))
-        _oput = _host.ip + ' stdout:'
+        _oput = _host.ip + ' create stdout:'
         for _o in _stdout.readlines() :
             _oput += '[%s],'%(_o)
-        _oput = _oput[:-1] + '\nstderr:'
+        _oput = _oput[:-1] + '\n%s create stderr:'%(_host.ip)
         for _o in _stderr.readlines() :
             _oput += '[%s],'%(_o)
         print(_oput[:-1])
         _stdin, _stdout, _stderr =_ssh.exec_command(getPythonCmd(_python, _host.arg1, _host.arg2))
-        _oput = 'stdout:'
+        _oput = _host.ip + 'run stdout:'
         for _o in _stdout.readlines() :
             _oput += '[%s],'%(_o)
-        _oput = _oput[:-1] + '\n%s stderr:'%(_host.ip)
+        _oput = _oput[:-1] + '\n%s run stderr:'%(_host.ip)
         for _o in _stderr.readlines() :
             _oput += '[%s],'%(_o)
         print(_oput[:-1])
