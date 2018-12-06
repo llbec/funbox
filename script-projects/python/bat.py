@@ -371,7 +371,7 @@ mapAct = {
 
 def helpinfo() :
     #print(sys.argv[0] + ' [cmd|cp|py] [args ...]')
-    info = sys.argv[0] + ' ['
+    info = 'python ' + sys.argv[0].split('/')[-1] + ' ['
     for _key in mapAct.keys() :
         info += _key+'|'
     info = info[:-1]
