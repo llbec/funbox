@@ -29,7 +29,7 @@ hosts = [
 ]
 
 def helpinfo() :
-    print(sys.argv[0] + ' [cmd|cp|script] [args ...]')
+    print(sys.argv[0] + ' [cmd|cp|py] [args ...]')
     os._exit(0)
 
 def isLocalIP(_addr):
@@ -202,17 +202,17 @@ def cleanScreen(_ssh, _host, _path) :
         print(_host.ip + ',cleanScreen error: ' + str(e))
         return -1
 
-def getScriptCmd(_script, _arg1, _arg2) :
-    return 'screen -x -S %s -p 0 -X stuff "python3 %s %s %s\n"'%(getScreenName(_script), _script, _arg1, _arg2)
+def getPythonCmd(_python, _arg1, _arg2) :
+    return 'screen -x -S %s -p 0 -X stuff "python3 %s %s %s\n"'%(getScreenName(_python), _python, _arg1, _arg2)
 
-def scriptRun(_host, _script) :
+def pythonRun(_host, _python) :
     if isLocalIP(_host.ip) == 1 :
-        if localCleanScreen(_script) != 1 :
+        if localCleanScreen(_python) != 1 :
             print(_host.ip + ' clean screen failed!')
             return -1
-        localCmd('screen -dmS %s'%(getScreenName(_script)))
-        localCmd(getScriptCmd(_script, _host.arg1, _host.arg2))
-        print(_host.ip + ' script is working ...')
+        localCmd('screen -dmS %s'%(getScreenName(_python)))
+        localCmd(getPythonCmd(_python, _host.arg1, _host.arg2))
+        print(_host.ip + ' python is working ...')
         return 1
     #else remote
     #login in to host
@@ -220,58 +220,58 @@ def scriptRun(_host, _script) :
     _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
     #screen clean
-    if cleanScreen(_ssh, _host, _script) <= 0 :
+    if cleanScreen(_ssh, _host, _python) <= 0 :
         _ssh.close()
         return -1
     #copy file
-    if copyFile(_ssh, _host, _script, _script) != 1 :
+    if copyFile(_ssh, _host, _python, _python) != 1 :
         _ssh.close()
         return -1
-    #create screen & run script
-    _ssh.exec_command('screen -dmS %s'%(getScreenName(_script)))
-    _ssh.exec_command(getScriptCmd(_script, _host.arg1, _host.arg2))
-    print(_host.ip + ' script is working ...')
+    #create screen & run python
+    _ssh.exec_command('screen -dmS %s'%(getScreenName(_python)))
+    _ssh.exec_command(getPythonCmd(_python, _host.arg1, _host.arg2))
+    print(_host.ip + ' python is working ...')
     return 1
 
-def scriptStop(_host, _script) :
+def pythonStop(_host, _python) :
     if isLocalIP(_host.ip) == 1 :
-        return localCleanScreen(_script)
+        return localCleanScreen(_python)
     #else remote
     #login in to host
     _ssh = paramiko.SSHClient()
     _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
-    return cleanScreen(_ssh, _host, _script)
+    return cleanScreen(_ssh, _host, _python)
 
-def scriptClean(_host, _script) :
+def pythonClean(_host, _python) :
     if isLocalIP(_host.ip) == 1 :
-        return localCleanScreen(_script)
+        return localCleanScreen(_python)
     #else remote
     #login in to host
     _ssh = paramiko.SSHClient()
     _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
-    cleanScreen(_ssh, _host, _script)
-    _ssh.exec_command('rm %s'%(_script))
+    cleanScreen(_ssh, _host, _python)
+    _ssh.exec_command('rm %s'%(_python))
     return 1
 
 
-def scriptHandle(_host) :
+def pythonHandle(_host) :
     if len(sys.argv) < 4 :
-        print(sys.argv[0] + ' script [run|stop|clean] scriptfile')
+        print(sys.argv[0] + ' py [run|stop|clean] pythonfile')
         os._exit(0)
     _action = sys.argv[2]
-    _script = sys.argv[3]
-    if _script.split('/')[0] != '' and _script.split('/')[0] != '~' :
-        _script = os.getcwd() + '/' + _script
-    if _script.split('/')[0] == '~' :
-        _script.replace('~/', '%s/'%(getHome(_host)))
+    _python = sys.argv[3]
+    if _python.split('/')[0] != '' and _python.split('/')[0] != '~' :
+        _python = os.getcwd() + '/' + _python
+    if _python.split('/')[0] == '~' :
+        _python.replace('~/', '%s/'%(getHome(_host)))
     if _action == 'run' :
-        return scriptRun(_host, _script)
+        return pythonRun(_host, _python)
     elif _action == 'stop' :
-        return scriptStop(_host, _script)
+        return pythonStop(_host, _python)
     elif _action == 'clean' :
-        return scriptClean(_host, _script)
+        return pythonClean(_host, _python)
 
 #log result
 resSuccess = 0
@@ -303,12 +303,12 @@ def hostProcess(_host) :
         return cmdHandle(_host)
     elif _act == "cp" :
         return copyHandle(_host)
-    elif _act == 'script' :
-        return scriptHandle(_host)
+    elif _act == 'py' :
+        return pythonHandle(_host)
 
 if len(sys.argv) < 2 :
     helpinfo()
-if sys.argv[1] != "cmd" and sys.argv[1] != "cp" and sys.argv[1] != "script" :
+if sys.argv[1] != "cmd" and sys.argv[1] != "cp" and sys.argv[1] != "py" :
     helpinfo()
 
 threads = []
