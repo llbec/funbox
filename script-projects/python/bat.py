@@ -28,23 +28,6 @@ hosts = [
     Host("10.186.11.253", 22, "root", "Zxcvbn2018", "h-253", "10.186.11.60")
 ]
 
-mapAct = {
-    "cmd" : cmdHandle,
-    "cp"  : copyHandle,
-    "py"  : pythonHandle,
-    "scn" : screenHandle
-}
-
-def helpinfo() :
-    #print(sys.argv[0] + ' [cmd|cp|py] [args ...]')
-    info = sys.argv[0] + ' ['
-    for _key in mapAct.keys() :
-        info += _key+'|'
-    info = info[0,len(info)]
-    info += '] [args ...]'
-    print(info)
-    os._exit(0)
-
 def isLocalIP(_addr):
     try:
         _s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -378,6 +361,23 @@ def recordResult(_result) :
 
 def showResult() :
     print('Execution result:\tTotal:%d\tSucceed:%d\tPassed:%d\tFailed%d'%(resSuccess+resPass+resFail, resSuccess, resPass, resFail))
+
+mapAct = {
+    "cmd" : cmdHandle,
+    "cp"  : copyHandle,
+    "py"  : pythonHandle,
+    "scn" : screenHandle
+}
+
+def helpinfo() :
+    #print(sys.argv[0] + ' [cmd|cp|py] [args ...]')
+    info = sys.argv[0] + ' ['
+    for _key in mapAct.keys() :
+        info += _key+'|'
+    info = info[0,len(info)]
+    info += '] [args ...]'
+    print(info)
+    os._exit(0)
 
 class hostThread (threading.Thread):
     def __init__(self, _host):
