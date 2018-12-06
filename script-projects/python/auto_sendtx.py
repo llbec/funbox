@@ -5,6 +5,7 @@ import os
 import sys
 import time
 import json
+import socket
 
 gLetters=[chr(i) for i in range(97,123)]
 gIndexs = [0] * 26
@@ -50,14 +51,39 @@ def send_cmd(_cmd) :
     _data = _p.read()
     _p.close()
     return _data
+
+def getLocalIP():
+    try:
+        _s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        _s.connect(('8.8.8.8', 80))
+        _ip = _s.getsockname()[0]
+    finally:
+        _s.close()
+    return _ip
 #func end
 
-if len(sys.argv) < 2 :
+mapArgvs = {
+    "10.186.11.6" : ["h-6", "10.186.11.61" ],
+    "10.186.11.7" : ["h-7", "10.186.11.27" ],
+    "10.186.11.8" : ["h-8", "10.186.11.27" ],
+    "10.186.11.27" : ["h-27", "10.186.11.27" ],
+    "10.186.11.42" : ["h-42", "10.186.11.60" ],
+    "10.186.11.60" : ["h-60", "10.186.11.60" ],
+    "10.186.11.61" : ["h-61", "10.186.11.61" ],
+    "10.186.11.62" : ["h-62", "10.186.11.61" ],
+    "10.186.11.198" : ["h-198", "10.186.11.60" ],
+    "10.186.11.227" : ["h-227", "10.186.11.61" ],
+    "10.186.11.253" : ["h-253", "10.186.11.60" ]
+}
+
+myArgv = mapArgvs[getLocalIP()]
+
+if len(myArgv) < 2 :
     #print("please select a file as a parameter")
     os._exit(0)
 
-nodename = sys.argv[1]
-host = sys.argv[2]
+nodename = myArgv[1]
+host = myArgv[2]
 i = 0
 
 timsstart = 1542715140

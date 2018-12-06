@@ -6,26 +6,24 @@ import re
 import socket
 
 class Host :
-    def __init__(self, _ip, _port, _usrname, _passwd, _arg1, _arg2) :
+    def __init__(self, _ip, _port, _usrname, _passwd) :
         self.ip = _ip
         self.port = _port
         self.usrname = _usrname
         self.passwd = _passwd
-        self.arg1 = _arg1
-        self.arg2 = _arg2
 
 hosts = [
-    Host("10.186.11.6", 22, "root", "Zxcvbn2018", "h-6", "10.186.11.61"),
-    Host("10.186.11.7", 22, "root", "Zxcvbn2018", "h-7", "10.186.11.27"),
-    Host("10.186.11.8", 22, "root", "Zxcvbn2018", "h-8", "10.186.11.27"),
-    Host("10.186.11.27", 22, "root", "Zxcvbn2018", "h-27", "10.186.11.27"),
-    Host("10.186.11.42", 22, "root", "Zxcvbn2018", "h-42", "10.186.11.60"),
-    Host("10.186.11.60", 22, "root", "Zxcvbn2018", "h-60", "10.186.11.60"),
-    Host("10.186.11.61", 22, "root", "Zxcvbn2018", "h-61", "10.186.11.61"),
-    Host("10.186.11.62", 22, "root", "Zxcvbn2018", "h-62", "10.186.11.61"),
-    Host("10.186.11.198", 22, "root", "Zxcvbn2018", "h-198", "10.186.11.60"),
-    Host("10.186.11.227", 22, "root", "Zxcvbn2018", "h-227", "10.186.11.61"),
-    Host("10.186.11.253", 22, "root", "Zxcvbn2018", "h-253", "10.186.11.60")
+    Host("10.186.11.6", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.7", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.8", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.27", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.42", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.60", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.61", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.62", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.198", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.227", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.253", 22, "root", "Zxcvbn2018")
 ]
 
 def isLocalIP(_addr):
@@ -198,8 +196,8 @@ def cleanScreen(_ssh, _host, _scnname) :
         print(_host.ip + ',cleanScreen error: ' + str(e))
         return -1
 
-def getPythonCmd(_python, _arg1, _arg2) :
-    return 'screen -x -S %s -p 0 -X stuff "python3 %s %s %s\n"'%(getScreenName(_python), _python, _arg1, _arg2)
+def getPythonCmd(_python) :
+    return 'screen -x -S %s -p 0 -X stuff "python3 %s\n"'%(getScreenName(_python), _python)
 
 def pythonRun(_host, _python) :
     if isLocalIP(_host.ip) == 1 :
@@ -207,7 +205,7 @@ def pythonRun(_host, _python) :
             print(_host.ip + ' clean screen failed!')
             return -1
         localCmd('screen -dmS %s'%(getScreenName(_python)))
-        localCmd(getPythonCmd(_python, _host.arg1, _host.arg2))
+        localCmd(getPythonCmd(_python))
         print(_host.ip + ' python is working ...')
         return 1
     #else remote
@@ -227,7 +225,7 @@ def pythonRun(_host, _python) :
         #create screen & run python
         _ssh.exec_command('screen -dmS %s'%(getScreenName(_python)))
         time.sleep(0.5)
-        _ssh.exec_command(getPythonCmd(_python, _host.arg1, _host.arg2))
+        _ssh.exec_command(getPythonCmd(_python))
         print(_host.ip + ' python is working ...')
         _ssh.close()
         return 1
