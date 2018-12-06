@@ -28,8 +28,21 @@ hosts = [
     Host("10.186.11.253", 22, "root", "Zxcvbn2018", "h-253", "10.186.11.60")
 ]
 
+mapAct = {
+    "cmd" : cmdHandle,
+    "cp"  : copyHandle,
+    "py"  : pythonHandle,
+    "scn" : screenHandle
+}
+
 def helpinfo() :
-    print(sys.argv[0] + ' [cmd|cp|py] [args ...]')
+    #print(sys.argv[0] + ' [cmd|cp|py] [args ...]')
+    info = sys.argv[0] + ' ['
+    for _key in mapAct.keys() :
+        info += _key+'|'
+    info = info[0,len(info)]
+    info += '] [args ...]'
+    print(info)
     os._exit(0)
 
 def isLocalIP(_addr):
@@ -375,18 +388,27 @@ class hostThread (threading.Thread):
 
 def hostProcess(_host) :
     _act = sys.argv[1]
-    if _act == "cmd" :
+    '''if _act == "cmd" :
         return cmdHandle(_host)
     elif _act == "cp" :
         return copyHandle(_host)
     elif _act == 'py' :
         return pythonHandle(_host)
     elif _act == 'scn' :
-        return screenHandle(_host)
+        return screenHandle(_host)'''
+    return mapAct[_act](_host)
 
 if len(sys.argv) < 2 :
     helpinfo()
-if sys.argv[1] != "cmd" and sys.argv[1] != "cp" and sys.argv[1] != "py" and sys.argv[1] != "scn" :
+'''if sys.argv[1] != "cmd" and sys.argv[1] != "cp" and sys.argv[1] != "py" and sys.argv[1] != "scn" :
+    helpinfo()'''
+kExist = False
+for keyAct in mapAct.keys() :
+    if keyAct == sys.argv[1] :
+        kExist = True
+        break
+
+if kExist == False :
     helpinfo()
 
 threads = []
