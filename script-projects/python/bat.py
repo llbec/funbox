@@ -374,7 +374,7 @@ def helpinfo() :
     info = sys.argv[0] + ' ['
     for _key in mapAct.keys() :
         info += _key+'|'
-    info = info[0,len(info)]
+    info = info[:-1]
     info += '] [args ...]'
     print(info)
     os._exit(0)
