@@ -332,9 +332,28 @@ def scnStop(_host, _scnname) :
         print(_host.ip + ',scnRun error: ' + str(e))
         return -1
 
+def scnExist(_host, _scnname) :
+    if isLocalIP(_host.ip) == 1 :
+        if re.search(r"\d+.(%s)"%(_scnname), re.sub(r'\s','',localCmd("screen -ls | grep %s"%(_scnname)))) != None :
+            return 1
+        return 0
+    #else remote
+    #login in to host
+    try :
+        _ssh = paramiko.SSHClient()
+        _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
+        #screen clean
+        _ret = searchScreen(_ssh, _host, _scnname)
+        _ssh.close()
+        return _ret
+    except Exception as e:
+        print(_host.ip + ',scnRun error: ' + str(e))
+        return -1
+
 def screenHandle(_host) :
     if len(sys.argv) < 4 :
-        print('python ' + sys.argv[0].split('/')[-1] + ' scn [run|stop] screenname [command|]')
+        print('python ' + sys.argv[0].split('/')[-1] + ' scn [run|stop|exist] screenname [command|]')
         os._exit(0)
     _action = sys.argv[2]
     if _action == 'run' :
@@ -344,6 +363,16 @@ def screenHandle(_host) :
         return scnRun(_host, sys.argv[3], sys.argv[4])
     elif _action == 'stop' :
         return scnStop(_host, sys.argv[3])
+    elif _action == 'exist' :
+        _ret = scnExist(_host, sys.argv[3])
+        if _ret == 1 :
+            print('%s screen"%s" exist'%(_host.ip, sys.argv[3]))
+            return 1
+        elif _ret == 0 :
+            print('%s has no screen"%s"'%(_host.ip, sys.argv[3]))
+            return 1
+        print('%s inquire screen"%s" failed'%(_host.ip, sys.argv[3]))
+        return -1
 
 #log result
 resSuccess = 0
