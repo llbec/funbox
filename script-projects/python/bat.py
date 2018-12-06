@@ -152,7 +152,7 @@ def copyHandle(_host) :
         print(sys.argv[0] + ' cp srcfile destfile')
         os._exit(0)
     if isLocalIP(_host.ip) == 1 :
-        return 1
+        return 0
     try :
         #login in to host
         _ssh = paramiko.SSHClient()
@@ -168,35 +168,35 @@ def getScreenName(_path) :
     _ts = _path.split('/')
     return _ts[len(_ts) - 1].split('.')[0]
 
-def searchScreen(_ssh, _host, _path) :
+def searchScreen(_ssh, _host, _scnname) :
     try :
         _stdin, _stdout, _stderr = _ssh.exec_command('screen -ls')
         _outs = _stdout.readlines()
         for _out in _outs :
-            if re.search(getScreenName(_path), _out) != None :
+            if re.search(_scnname, _out) != None :
                 return 1
         return 0
     except Exception as e:
         print(_host.ip + ',searchScreen error: ' + str(e))
         return -1
 
-def localCleanScreen(_path) :
+def localCleanScreen(_scnname) :
     _count = 0
-    while re.search(getScreenName(_path), localCmd("screen -ls")) != None :
-        localCmd('screen -S %s -X quit'%(getScreenName(_path)))
+    while re.search(_scnname, localCmd("screen -ls")) != None :
+        localCmd('screen -S %s -X quit'%(_scnname))
         _count += 1
         if _count > 3 :
             return 0
     return 1
 
-def cleanScreen(_ssh, _host, _path) :
+def cleanScreen(_ssh, _host, _scnname) :
     try :
         _count = 0
-        while searchScreen(_ssh, _host, _path) == 1 :
-                _ssh.exec_command('screen -S %s -X quit'%(getScreenName(_path)))
+        while searchScreen(_ssh, _host, _scnname) == 1 :
+                _ssh.exec_command('screen -S %s -X quit'%(_scnname))
                 _count += 1
                 if _count > 3 :
-                    return 0
+                    return -1
         return 1
     except Exception as e:
         print(_host.ip + ',cleanScreen error: ' + str(e))
@@ -207,7 +207,7 @@ def getPythonCmd(_python, _arg1, _arg2) :
 
 def pythonRun(_host, _python) :
     if isLocalIP(_host.ip) == 1 :
-        if localCleanScreen(_python) != 1 :
+        if localCleanScreen(getScreenName(_python)) != 1 :
             print(_host.ip + ' clean screen failed!')
             return -1
         localCmd('screen -dmS %s'%(getScreenName(_python)))
@@ -216,44 +216,60 @@ def pythonRun(_host, _python) :
         return 1
     #else remote
     #login in to host
-    _ssh = paramiko.SSHClient()
-    _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
-    #screen clean
-    if cleanScreen(_ssh, _host, _python) <= 0 :
+    try :
+        _ssh = paramiko.SSHClient()
+        _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
+        #screen clean
+        if cleanScreen(_ssh, _host, getScreenName(_python)) <= 0 :
+            _ssh.close()
+            return -1
+        #copy file
+        if copyFile(_ssh, _host, _python, _python) != 1 :
+            _ssh.close()
+            return -1
+        #create screen & run python
+        _ssh.exec_command('screen -dmS %s'%(getScreenName(_python)))
+        _ssh.exec_command(getPythonCmd(_python, _host.arg1, _host.arg2))
+        print(_host.ip + ' python is working ...')
         _ssh.close()
+        return 1
+    except Exception as e:
+        print(_host.ip + ',pythonRun error: ' + str(e))
         return -1
-    #copy file
-    if copyFile(_ssh, _host, _python, _python) != 1 :
-        _ssh.close()
-        return -1
-    #create screen & run python
-    _ssh.exec_command('screen -dmS %s'%(getScreenName(_python)))
-    _ssh.exec_command(getPythonCmd(_python, _host.arg1, _host.arg2))
-    print(_host.ip + ' python is working ...')
-    return 1
 
 def pythonStop(_host, _python) :
     if isLocalIP(_host.ip) == 1 :
-        return localCleanScreen(_python)
+        return localCleanScreen(getScreenName(_python))
     #else remote
     #login in to host
-    _ssh = paramiko.SSHClient()
-    _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
-    return cleanScreen(_ssh, _host, _python)
+    try :
+        _ssh = paramiko.SSHClient()
+        _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
+        _r = cleanScreen(_ssh, _host, getScreenName(_python))
+        _ssh.close()
+        return _r
+    except Exception as e:
+        print(_host.ip + ',pythonStop error: ' + str(e))
+        return -1
 
 def pythonClean(_host, _python) :
     if isLocalIP(_host.ip) == 1 :
-        return localCleanScreen(_python)
+        return localCleanScreen(getScreenName(_python))
     #else remote
     #login in to host
-    _ssh = paramiko.SSHClient()
-    _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
-    cleanScreen(_ssh, _host, _python)
-    _ssh.exec_command('rm %s'%(_python))
-    return 1
+    try :
+        _ssh = paramiko.SSHClient()
+        _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
+        cleanScreen(_ssh, _host, getScreenName(_python))
+        _ssh.exec_command('rm %s'%(_python))
+        _ssh.close()
+        return 1
+    except Exception as e:
+        print(_host.ip + ',pythonClean error: ' + str(e))
+        return -1
 
 
 def pythonHandle(_host) :
@@ -272,6 +288,66 @@ def pythonHandle(_host) :
         return pythonStop(_host, _python)
     elif _action == 'clean' :
         return pythonClean(_host, _python)
+
+def scnRun(_host, _scnname, _cmd) :
+    if isLocalIP(_host.ip) == 1 :
+        if localCleanScreen(_scnname) != 1 :
+            print(_host.ip + ' clean screen failed!')
+            return -1
+        localCmd('screen -dmS %s'%(_scnname))
+        localCmd('screen -x -S %s -p 0 -X stuff "%s\n"'%(_scnname, _cmd))
+        print(_host.ip + ' screen is working ...')
+        return 1
+    #else remote
+    #login in to host
+    try :
+        _ssh = paramiko.SSHClient()
+        _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
+        #screen clean
+        if cleanScreen(_ssh, _host, _scnname) <= 0 :
+            _ssh.close()
+            return -1
+        #create screen & run cmd
+        _ssh.exec_command('screen -dmS %s'%(_scnname))
+        _ssh.exec_command('screen -x -S %s -p 0 -X stuff "%s\n"'%(_scnname, _cmd))
+        print(_host.ip + ' screen is working ...')
+        _ssh.close()
+        return 1
+    except Exception as e:
+        print(_host.ip + ',scnRun error: ' + str(e))
+        return -1
+
+def scnStop(_host, _scnname) :
+    if isLocalIP(_host.ip) == 1 :
+        return localCleanScreen(_scnname)
+    #else remote
+    #login in to host
+    try :
+        _ssh = paramiko.SSHClient()
+        _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        _ssh.connect(_host.ip, _host.port, _host.usrname, _host.passwd, timeout=5)
+        #screen clean
+        if cleanScreen(_ssh, _host, _scnname) <= 0 :
+            _ssh.close()
+            return -1
+        _ssh.close()
+        return 1
+    except Exception as e:
+        print(_host.ip + ',scnRun error: ' + str(e))
+        return -1
+
+def screenHandle(_host) :
+    if len(sys.argv) < 4 :
+        print(sys.argv[0] + ' scn [run|stop] screenname [command|]')
+        os._exit(0)
+    _action = sys.argv[2]
+    if _action == 'run' :
+        if len(sys.argv) < 5 :
+            print(sys.argv[0] + ' scn run screenname command')
+        return scnRun(_host, sys.argv[3], sys.argv[4])
+    elif _action == 'stop' :
+        return scnStop(_host, sys.argv[3])
 
 #log result
 resSuccess = 0
@@ -305,10 +381,12 @@ def hostProcess(_host) :
         return copyHandle(_host)
     elif _act == 'py' :
         return pythonHandle(_host)
+    elif _act == 'scn' :
+        return screenHandle(_host)
 
 if len(sys.argv) < 2 :
     helpinfo()
-if sys.argv[1] != "cmd" and sys.argv[1] != "cp" and sys.argv[1] != "py" :
+if sys.argv[1] != "cmd" and sys.argv[1] != "cp" and sys.argv[1] != "py" and sys.argv[1] != "scn" :
     helpinfo()
 
 threads = []
