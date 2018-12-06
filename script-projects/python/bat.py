@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import sys, os
+import sys, os, time
 import paramiko
 import threading
 import re
@@ -166,11 +166,9 @@ def getScreenName(_path) :
 
 def searchScreen(_ssh, _host, _scnname) :
     try :
-        _stdin, _stdout, _stderr = _ssh.exec_command('screen -ls')
-        _outs = _stdout.readlines()
-        for _out in _outs :
-            if re.search(_scnname, _out) != None :
-                return 1
+        _stdin, _stdout, _stderr = _ssh.exec_command('screen -ls | grep %s'%(_scnname))
+        if len(_stdout.readlines()) != 0 :
+            return 1
         return 0
     except Exception as e:
         print(_host.ip + ',searchScreen error: ' + str(e))
@@ -178,11 +176,11 @@ def searchScreen(_ssh, _host, _scnname) :
 
 def localCleanScreen(_scnname) :
     _count = 0
-    while re.search(_scnname, localCmd("screen -ls")) != None :
+    while re.search(_scnname, localCmd("screen -ls | grep %s"%(_scnname))) != None :
         localCmd('screen -S %s -X quit'%(_scnname))
         _count += 1
         if _count > 3 :
-            return 0
+            return -1
     return 1
 
 def cleanScreen(_ssh, _host, _scnname) :
@@ -225,22 +223,9 @@ def pythonRun(_host, _python) :
             _ssh.close()
             return -1
         #create screen & run python
-        _stdin, _stdout, _stderr = _ssh.exec_command('screen -dmS %s'%(getScreenName(_python)))
-        _oput = _host.ip + ' create stdout:'
-        for _o in _stdout.readlines() :
-            _oput += '[%s],'%(_o)
-        _oput = _oput[:-1] + '\n%s create stderr:'%(_host.ip)
-        for _o in _stderr.readlines() :
-            _oput += '[%s],'%(_o)
-        print(_oput[:-1])
-        _stdin, _stdout, _stderr =_ssh.exec_command(getPythonCmd(_python, _host.arg1, _host.arg2))
-        _oput = _host.ip + 'run stdout:'
-        for _o in _stdout.readlines() :
-            _oput += '[%s],'%(_o)
-        _oput = _oput[:-1] + '\n%s run stderr:'%(_host.ip)
-        for _o in _stderr.readlines() :
-            _oput += '[%s],'%(_o)
-        print(_oput[:-1])
+        _ssh.exec_command('screen -dmS %s'%(getScreenName(_python)))
+        time.sleep(0.5)
+        _ssh.exec_command(getPythonCmd(_python, _host.arg1, _host.arg2))
         print(_host.ip + ' python is working ...')
         _ssh.close()
         return 1
