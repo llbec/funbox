@@ -374,6 +374,17 @@ def screenHandle(_host) :
         print('%s inquire screen"%s" failed'%(_host.ip, sys.argv[3]))
         return -1
 
+def hostShow(_host) :
+    if len(sys.argv) < 3 :
+        print('python ' + sys.argv[0].split('/')[-1] + ' host [ls|check]')
+        os._exit(0)
+    _action = sys.argv[2]
+    if _action == 'ls' :
+        print('%s@%s port=%d,passwd=%s'%(_host.usrname, _host.ip, _host.port, _host.passwd))
+        return 1
+    elif _action == 'check' :
+        return 1
+
 #log result
 resSuccess = 0
 resPass = 0
@@ -395,7 +406,8 @@ mapAct = {
     "cmd" : cmdHandle,
     "cp"  : copyHandle,
     "py"  : pythonHandle,
-    "scn" : screenHandle
+    "scn" : screenHandle,
+    "host": hostShow
 }
 
 def helpinfo() :
