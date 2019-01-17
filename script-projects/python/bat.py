@@ -376,14 +376,14 @@ def screenHandle(_host) :
 
 def statusHandle(_host) :
     if len(sys.argv) < 3 :
-        print('python ' + sys.argv[0].split('/')[-1] + ' status [ls|check]')
+        print('python ' + sys.argv[0].split('/')[-1] + ' status [ls|check|path]')
         os._exit(0)
     _action = sys.argv[2]
     if _action == 'ls' :
         print('%s@%s port=%d,passwd=%s'%(_host.usrname, _host.ip, _host.port, _host.passwd))
         return 1
     elif _action == 'check' :
-        return 1
+        return 0
 
 #log result
 resSuccess = 0
@@ -442,7 +442,7 @@ def hostProcess(_host) :
 if len(sys.argv) < 2 :
     helpinfo()
 if len(sys.argv) == 3 and sys.argv[1] == "status" and sys.argv[2] == "path" :
-    print(os.path.abspath('.'))
+    print(sys.argv[0])
     os._exit(0)
 
 kExist = False
