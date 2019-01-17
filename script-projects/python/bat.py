@@ -13,17 +13,17 @@ class Host :
         self.passwd = _passwd
 
 hosts = [
-    Host("10.186.11.6", 22, "root", "Zxcvbn2018"),
-    Host("10.186.11.7", 22, "root", "Zxcvbn2018"),
-    Host("10.186.11.8", 22, "root", "Zxcvbn2018"),
-    Host("10.186.11.27", 22, "root", "Zxcvbn2018"),
+    #Host("10.186.11.6", 22, "root", "Zxcvbn2018"),
+    #Host("10.186.11.7", 22, "root", "Zxcvbn2018"),
+    #Host("10.186.11.8", 22, "root", "Zxcvbn2018"),
+    #Host("10.186.11.27", 22, "root", "Zxcvbn2018"),
     Host("10.186.11.42", 22, "root", "Zxcvbn2018"),
-    Host("10.186.11.60", 22, "root", "Zxcvbn2018"),
-    Host("10.186.11.61", 22, "root", "Zxcvbn2018"),
-    Host("10.186.11.62", 22, "root", "Zxcvbn2018"),
-    Host("10.186.11.198", 22, "root", "Zxcvbn2018"),
-    Host("10.186.11.227", 22, "root", "Zxcvbn2018"),
-    Host("10.186.11.253", 22, "root", "Zxcvbn2018")
+    #Host("10.186.11.60", 22, "root", "Zxcvbn2018"),
+    Host("10.186.11.61", 22, "root", "chain33"),
+    Host("10.186.11.62", 22, "root", "chain33"),
+    #Host("10.186.11.198", 22, "root", "Zxcvbn2018"),
+    #Host("10.186.11.227", 22, "root", "Zxcvbn2018"),
+    #Host("10.186.11.253", 22, "root", "Zxcvbn2018")
 ]
 
 def isLocalIP(_addr):
@@ -374,9 +374,9 @@ def screenHandle(_host) :
         print('%s inquire screen"%s" failed'%(_host.ip, sys.argv[3]))
         return -1
 
-def hostShow(_host) :
+def statusHandle(_host) :
     if len(sys.argv) < 3 :
-        print('python ' + sys.argv[0].split('/')[-1] + ' host [ls|check]')
+        print('python ' + sys.argv[0].split('/')[-1] + ' status [ls|check]')
         os._exit(0)
     _action = sys.argv[2]
     if _action == 'ls' :
@@ -403,11 +403,11 @@ def showResult() :
     print('Execution result:\tTotal:%d\tSucceed:%d\tPassed:%d\tFailed%d'%(resSuccess+resPass+resFail, resSuccess, resPass, resFail))
 
 mapAct = {
-    "cmd" : cmdHandle,
-    "cp"  : copyHandle,
-    "py"  : pythonHandle,
-    "scn" : screenHandle,
-    "host": hostShow
+    "cmd"    : cmdHandle,
+    "cp"     : copyHandle,
+    "py"     : pythonHandle,
+    "scn"    : screenHandle,
+    "status" : statusHandle
 }
 
 def helpinfo() :
@@ -441,8 +441,10 @@ def hostProcess(_host) :
 
 if len(sys.argv) < 2 :
     helpinfo()
-'''if sys.argv[1] != "cmd" and sys.argv[1] != "cp" and sys.argv[1] != "py" and sys.argv[1] != "scn" :
-    helpinfo()'''
+if len(sys.argv) == 3 and sys.argv[1] == "status" and sys.argv[2] == "path" :
+    print(os.path.abspath('.'))
+    os._exit(0)
+
 kExist = False
 for keyAct in mapAct.keys() :
     if keyAct == sys.argv[1] :
