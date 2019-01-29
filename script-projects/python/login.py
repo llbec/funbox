@@ -18,7 +18,7 @@ relayHosts = [
 
 hosts = [
     Host('45.77.223.88', 22, 'root', '9Y[zVY3PPS+GXBN]', '', '666MN', 0),
-    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 0),
+    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 1),
 ]
 
 def ssh_passwd(_ssh, _host) :
