@@ -38,9 +38,37 @@ Gui,  1:Add, DropDownList, x420 y30 w50 h25 r2 vddl4 Choose1 AltSubmit, 启用|�
 Gui,  1:Add, Edit, x420 y60 w35 h20 vedit4 Center, 600
 Gui,  1:Add, Text, x460 y64 w15 h20 vtext4 Center, MS
 
+/*
+;技能设置框1,2,3,4
+Gui,  1:Add, GroupBox, x90 y10 w70 h80 Center, 按键 1:
+Gui,  1:Add, DropDownList, x100 y30 w50 h25 r2 vddl4 Choose1 AltSubmit, 启用|关闭
+Gui,  1:Add, Edit, x100 y60 w35 h20 vedit4 Center, 600
+Gui,  1:Add, Text, x140 y64 w15 h20 vtext4 Center, MS
+
+Gui,  1:Add, GroupBox, x170 y10 w70 h80 Center, 按键 2:
+Gui,  1:Add, DropDownList, x180 y30 w50 h25 r2 vddl1 Choose1 AltSubmit, 启用|关闭
+Gui,  1:Add, Edit, x180 y60 w35 h20 vedit1 Center, 600
+Gui,  1:Add, Text, x220 y64 w15 h20 vtext1 Center, MS
+
+Gui,  1:Add, GroupBox, x250 y10 w70 h80 Center, 按键 3:
+Gui,  1:Add, DropDownList, x260 y30 w50 h25 r2 vddl2 Choose1 AltSubmit, 启用|关闭
+Gui,  1:Add, Edit, x260 y60 w35 h20 vedit2 Center, 600
+Gui,  1:Add, Text, x300 y64 w15 h20 vtext2 Center, MS
+
+Gui,  1:Add, GroupBox, x330 y10 w70 h80 Center, 按键 4:
+Gui,  1:Add, DropDownList, x340 y30 w50 h25 r2 vddl3 Choose1 AltSubmit, 启用|关闭
+Gui,  1:Add, Edit, x340 y60 w35 h20 vedit3 Center, 600
+Gui,  1:Add, Text, x380 y64 w15 h20 vtext3 Center, MS
+*/
+
 ;显示窗口
 Gui,  1:-MaximizeBox -MinimizeBox 
 Gui,  1:Show, CEnter w490 h100, D3 Auto
+
+bState = False
+nCount = 0
+
+;SetTimer, LabelLog, 100
 Return
 
 GuiClose:
@@ -91,6 +119,106 @@ LabelTimer4:
     }
 Return
 
+LabelActionStart:
+    Gosub LabelTimer1
+    Gosub LabelTimer2
+    Gosub LabelTimer3
+    Gosub LabelTimer4
+    bState = True
+Return
+
+LabelActionStop:
+    SetTimer, LabelCast1, off
+    SetTimer, LabelCast2, off
+    SetTimer, LabelCast3, off
+    SetTimer, LabelCast4, off
+    bState = False
+Return
+
+LabelRunner:
+    Gui,  1:Submit, NoHide
+    If radiomouse = 0
+    {
+        SetTimer, LabelRunner, off
+    }
+    GetKeyState, bLButtonState, LButton, P
+    ToolTip, %bLButtonState%`n%nCount%`n%bState%, 0, 0, 2
+    If bLButtonState = U
+    {
+        nCount = 0
+        If bState = True
+        {
+            Gosub LabelActionStop
+        }
+    }
+    Else
+    {
+        If nCount < 3 
+        {
+            nCount += 1
+        }
+        Else
+        {
+            If bState = False
+            {
+                ;MsgBox, , log, action start, 1
+                Gosub LabelActionStart
+            }
+        }
+    }
+Return
+
+LabelKeyBoardStart:
+    Gui,  1:Submit, NoHide
+    If radiostart = 1
+    {
+        If radiomouse = 0
+        {
+            Gosub LabelActionStart
+        }
+    }
+Return
+
+LabelKeyBoardStop:
+    Gui,  1:Submit, NoHide
+    If radiostart = 1
+    {
+        If radiomouse = 0
+        {
+            Gosub LabelActionStop
+        }
+    }
+Return
+
+LabelMouseStart:
+    Gui,  1:Submit, NoHide
+    If radiostart = 1
+    {
+        If radiomouse = 1
+        {
+            SetTimer, LabelRunner, 100
+        }
+    }
+Return
+
+LabelMouseStop:
+    Gui,  1:Submit, NoHide
+    If radiostart = 1
+    {
+        If radiomouse = 1
+        {
+            SetTimer, LabelRunner, off
+            nCount = 0
+            Gosub LabelActionStop
+        }
+    }
+Return
+
+LabelLog:
+    ToolTip, log:%nCount%`n%bState%, 400, 0,
+Return
+
+/*
 LabelMouseStart:
     Gui,  1:Submit, NoHide
     If radiostart = 1
@@ -124,31 +252,7 @@ LabelCheckLBTN:
         Gosub LabelTimer4
     }
 Return
-
-LabelKeyBoardStart:
-    Gui,  1:Submit, NoHide
-    If radiostart = 1
-    {
-        If radiokeyboard = 1 
-        {
-            Gosub LabelTimer1
-            Gosub LabelTimer2
-            Gosub LabelTimer3
-            Gosub LabelTimer4
-        }
-    }
-Return
-
-LabelKeyBoardStop:
-    Gui,  1:Submit, NoHide
-    If radiokeyboard = 1
-    {
-        SetTimer, LabelCast1, off
-        SetTimer, LabelCast2, off
-        SetTimer, LabelCast3, off
-        SetTimer, LabelCast4, off
-    }
-Return
+*/
 
 $1::
 {
@@ -192,7 +296,7 @@ $m::
 }
 Return
 
-^LButton::
+^r::
 {
     Gosub LabelMouseStart
 }
