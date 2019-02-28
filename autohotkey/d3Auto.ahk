@@ -13,8 +13,8 @@ Gui,  1:Font
 ;控制方式框
 Gui,  1:Add, GroupBox, x90 y10 w70 h80 Center, 控制方式
 Gui,  1:Font
-Gui,  1:Add, Radio, x100 y30 w50 h25 vradiomouse checked, 鼠标
-Gui,  1:Add, Radio, x100 y60 w50 h25 vradiokeyboard, 键盘
+Gui,  1:Add, Radio, x100 y30 w50 h25 gLabelMouseCtrl vradiomouse, 鼠标
+Gui,  1:Add, Radio, x100 y60 w50 h25 gLabelKeyboardCtrl vradiokeyboard checked, 键盘
 Gui,  1:Font
 
 ;技能设置框1,2,3,4
@@ -142,7 +142,7 @@ LabelRunner:
         SetTimer, LabelRunner, off
     }
     GetKeyState, bLButtonState, LButton, P
-    ToolTip, %bLButtonState%`n%nCount%`n%bState%, 0, 0, 2
+    ;ToolTip, %bLButtonState%`n%nCount%`n%bState%, 0, 0, 2
     If bLButtonState = U
     {
         nCount = 0
@@ -216,6 +216,18 @@ Return
 
 LabelLog:
     ToolTip, log:%nCount%`n%bState%, 400, 0,
+Return
+
+LabelMouseCtrl:
+    Gui,  1:Submit, NoHide
+    If radiostart = 1
+    {
+        SetTimer, LabelRunner, 100
+    }
+Return
+
+LabelKeyboardCtrl:
+    Gosub LabelMouseStop
 Return
 
 /*
@@ -293,11 +305,5 @@ $m::
 {
     Gosub LabelKeyBoardStop
     Send, m
-}
-Return
-
-^r::
-{
-    Gosub LabelMouseStart
 }
 Return
