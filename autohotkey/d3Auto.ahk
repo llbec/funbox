@@ -6,15 +6,15 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ;启动标志框
 Gui,  1:Add, GroupBox, x10 y10 w70 h80 Center, 启动
 Gui,  1:Font
-Gui,  1:Add, Radio, x20 y30 w50 h25 vradiostart, Start
-Gui,  1:Add, Radio, x20 y60 w50 h25 vradiostop checked, Stop
+Gui,  1:Add, Radio, x20 y30 w50 h25 gLabelStart vradiostart, Start
+Gui,  1:Add, Radio, x20 y60 w50 h25 gLabelStop vradiostop checked, Stop
 Gui,  1:Font
 
 ;控制方式框
 Gui,  1:Add, GroupBox, x90 y10 w70 h80 Center, 控制方式
 Gui,  1:Font
-Gui,  1:Add, Radio, x100 y30 w50 h25 gLabelMouseCtrl vradiomouse, 鼠标
-Gui,  1:Add, Radio, x100 y60 w50 h25 gLabelKeyboardCtrl vradiokeyboard checked, 键盘
+Gui,  1:Add, Radio, x100 y30 w50 h25 gLabelMouseCtrl vradiomouse checked, 鼠标
+Gui,  1:Add, Radio, x100 y60 w50 h25 gLabelKeyboardCtrl vradiokeyboard, 键盘
 Gui,  1:Font
 
 ;技能设置框1,2,3,4
@@ -202,16 +202,9 @@ LabelMouseStart:
 Return
 
 LabelMouseStop:
-    Gui,  1:Submit, NoHide
-    If radiostart = 1
-    {
-        If radiomouse = 1
-        {
-            SetTimer, LabelRunner, off
-            nCount = 0
-            Gosub LabelActionStop
-        }
-    }
+    SetTimer, LabelRunner, off
+    nCount = 0
+    Gosub LabelActionStop
 Return
 
 LabelLog:
@@ -227,6 +220,18 @@ LabelMouseCtrl:
 Return
 
 LabelKeyboardCtrl:
+    Gosub LabelMouseStop
+Return
+
+LabelStart:
+    Gui,  1:Submit, NoHide
+    If radiomouse = 1
+    {
+        SetTimer, LabelRunner, 100
+    }
+Return
+
+LabelStop:
     Gosub LabelMouseStop
 Return
 
