@@ -111,9 +111,9 @@ def ssh186() :
         except :
             return
         
-        if _idx > len(hosts) :
+        if _idx > len(hs186) :
             return
-        elif _idx == len(hosts) :
+        elif _idx == len(hs186) :
             try :
                 _snet = int(input('Enter the subnet:'))
             except :
