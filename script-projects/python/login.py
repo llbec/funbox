@@ -57,16 +57,16 @@ def getLoginCmd(_host) :
         return 'ssh -p %d %s@%s -i %s'%(_host.port, _host.usrname, _host.ip, _host.key)
     return None
 
-def getPath(_id) :
+def getPathbyId(_id, _hlist) :
     _i = _id
-    _listH = []
-    _listH.append(hosts[_i])
-    while hosts[_i].relay >= 0 :
-        _i = hosts[_i].relay
-        _listH.insert(0, hosts[_i])
-    if len(_listH) < 1 :
-        print('[ERROR]Host %s Path not existed'%hosts[_id].ip)
-    return _listH
+    _hs = []
+    _hs.append(_hlist[_i])
+    while _hlist[_i].relay >= 0 :
+        _i = _hlist[_i].relay
+        _hs.insert(0, _hlist[_i])
+    if len(_hs) < 1 :
+        print('[ERROR]Host %s Path not existed'%_hlist[_id].ip)
+    return _hs
 
 def myssh(_hostpath) :
     if len(_hostpath) < 1 :
@@ -88,16 +88,16 @@ def myssh(_hostpath) :
     print('Welcome to %s\n'%(_hostpath[-1].ip))
     _ssh.interact()
 
-def get186Path(_host) :
+def getPathbyHost(_host, _hlist) :
     _h = _host
-    _listH = []
-    _listH.append(_h)
+    _hs = []
+    _hs.append(_h)
     while _h.relay >= 0 :
-        _h = hs186[_h.relay]
-        _listH.insert(0, _h)
-    if len(_listH) < 1 :
+        _h = _hlist[_h.relay]
+        _hs.insert(0, _h)
+    if len(_hs) < 1 :
         print('[ERROR]Host %s Path not existed'%_host.ip)
-    return _listH
+    return _hs
 
 def ssh186() :
     while True:
@@ -118,9 +118,9 @@ def ssh186() :
                 _snet = int(input('Enter the subnet:'))
             except :
                 continue
-            myssh(get186Path(Host('10.186.11.%d'%_snet, 22, 'root', 'Zxcvbn2018', '', '186-%d'%_snet, 0)))
+            myssh(getPathbyHost(Host('10.186.11.%d'%_snet, 22, 'root', 'Zxcvbn2018', '', '186-%d'%_snet, 0), hs186))
         else :
-            myssh(get186Path(hs186[_idx]))
+            myssh(getPathbyHost(hs186[_idx], hs186))
 
 while True :
     print("==============[Menu]=============")
@@ -144,4 +144,4 @@ while True :
     if _idx == 1 :
         ssh186()
     else :
-        myssh(getPath(_idx))
+        myssh(getPathbyId(_idx, hosts))
