@@ -12,9 +12,13 @@ class Host :
         self.relay = _relay
 
 hosts = [
-    Host('45.77.223.88', 22, 'root', '9Y[zVY3PPS+GXBN]', '', '666MN', -1),
+    Host('45.77.223.88', 22, 'root', '9Y[zVY3PPS+GXBN]', '', '666', -1),
     Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', -1),
-    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 1),
+]
+
+hs186 = [
+    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', -1),
+    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 0),
 ]
 
 def ssh_passwd(_ssh, _host) :
@@ -52,39 +56,73 @@ def getLoginCmd(_host) :
 
 def getPath(_id) :
     _i = _id
-    listH = []
-    listH.append(hosts[_i])
+    _listH = []
+    _listH.append(hosts[_i])
     while hosts[_i].relay >= 0 :
         _i = hosts[_i].relay
-        listH.insert(0, hosts[_i])
-    return listH
-
-def myssh(_id) :
-    hostpath = getPath(_id)
-    if len(hostpath) < 1 :
+        _listH.insert(0, hosts[_i])
+    if len(_listH) < 1 :
         print('[ERROR]Host %s Path not existed'%hosts[_id].ip)
+    return _listH
+
+def myssh(_hostpath) :
+    if len(_hostpath) < 1 :
         return
 
-    _ssh = pexpect.spawn(getLoginCmd(hostpath[0]))
-    if ssh_login(_ssh, hostpath[0]) < 0 :
+    _ssh = pexpect.spawn(getLoginCmd(_hostpath[0]))
+    if ssh_login(_ssh, _hostpath[0]) < 0 :
         _ssh.close()
         return
 
-    for _i in range(1,len(hostpath)) :
-        _ssh.sendline(getLoginCmd(hostpath[_i]))
-        if ssh_login(_ssh, hostpath[_i]) < 0 :
+    for _i in range(1,len(_hostpath)) :
+        _ssh.sendline(getLoginCmd(_hostpath[_i]))
+        if ssh_login(_ssh, _hostpath[_i]) < 0 :
             _ssh.close()
             return
 
     _rows, _columns = os.popen('stty size', 'r').read().split()
     _ssh.setwinsize(int(_rows), int(_columns))
-    print('Welcome to %s\n'%(hosts[_idx].ip))
+    print('Welcome to %s\n'%(_hostpath[-1].ip))
     _ssh.interact()
+
+def get186Path(_host) :
+    _h = _host
+    _listH = []
+    _listH.append(_h)
+    while _h.relay >= 0 :
+        _h = hs186[_h.relay]
+        _listH.insert(0, _h)
+    if len(_listH) < 1 :
+        print('[ERROR]Host %s Path not existed'%_host.ip)
+    return _listH
+
+def ssh186() :
+    while True:
+        print("==============[186]=============")
+        for _index in range(len(hs186)) :
+            print('\t%d.\t%s\n'%(_index, hs186[_index].ip))
+        print('\t%d.\tsubnet\n\tothers to quit'%len(hs186))
+        
+        try :
+            _idx = int(input('Enter the number:'))
+        except :
+            return
+        
+        if _idx > len(hosts) :
+            return
+        elif _idx == len(hosts) :
+            try :
+                _snet = int(input('Enter the subnet:'))
+            except :
+                continue
+            myssh(get186Path(Host('10.186.11.%d'%_snet, 22, 'root', 'Zxcvbn2018', '', '186-%d'%_snet, 0)))
+        else :
+            myssh(get186Path(hs186[_idx]))
 
 while True :
     print("==============[Menu]=============")
     for _index in range(len(hosts)) :
-        print('\t%d.\t%s\t%s\n'%(_index+1, hosts[_index].alias, hosts[_index].ip))
+        print('\t%d.\t%s\n'%(_index+1, hosts[_index].ip))
     print('\tothers to quit')
 
     try :
@@ -100,4 +138,7 @@ while True :
         print('[ERROR]Range in 1 - %d'%(len(hosts)))
         continue
     
-    myssh(_idx)
+    if _idx == 1 :
+        ssh186()
+    else :
+        myssh(getPath(_idx))
