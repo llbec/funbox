@@ -19,6 +19,9 @@ hosts = [
 hs186 = [
     Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', -1),
     Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 0),
+    Host('10.186.11.42', 22, 'root', 'Zxcvbn2018', '', '186-42', 0),
+    Host('10.186.11.61', 22, 'root', 'chain33', '', '186-61', 0),
+    Host('10.186.11.62', 22, 'root', 'chain33', '', '186-62', 0),
 ]
 
 def ssh_passwd(_ssh, _host) :
@@ -122,7 +125,7 @@ def ssh186() :
 while True :
     print("==============[Menu]=============")
     for _index in range(len(hosts)) :
-        print('\t%d.\t%s\n'%(_index+1, hosts[_index].ip))
+        print('\t%d.\t%s\n'%(_index+1, hosts[_index].alias))
     print('\tothers to quit')
 
     try :
