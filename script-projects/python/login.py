@@ -18,6 +18,7 @@ relayHosts = [
 
 hosts = [
     Host('45.77.223.88', 22, 'root', '9Y[zVY3PPS+GXBN]', '', '666MN', -1),
+    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186-relay', -1),
     Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 1),
 ]
 
@@ -54,6 +55,37 @@ def getLoginCmd(_host) :
         return 'ssh -p %d %s@%s -i %s'%(_host.port, _host.usrname, _host.ip, _host.key)
     return None
 
+def getPath(_id) :
+    _i = _id
+    listH = []
+    listH.append(hosts[_i])
+    while hosts[_i].relay >= 0 :
+        _i = hosts[_i].relay
+        listH.insert(0, hosts[_i])
+    return listH
+
+def myssh(_id) :
+    hostpath = getPath(_id)
+    if len(hostpath) < 1 :
+        print('[ERROR]Host %s Path not existed'%hosts[_id].ip)
+        return
+
+    _ssh = pexpect.spawn(getLoginCmd(hostpath[0]))
+    if ssh_login(_ssh, hostpath[0]) < 0 :
+        _ssh.close()
+        return
+
+    for _i in range(1,len(hostpath)) :
+        _ssh.sendline(getLoginCmd(hostpath[_i]))
+        if ssh_login(_ssh, hostpath[_i]) < 0 :
+            _ssh.close()
+            return
+
+    _rows, _columns = os.popen('stty size', 'r').read().split()
+    _ssh.setwinsize(int(_rows), int(_columns))
+    print('Welcome to %s\n'%(hosts[_idx].ip))
+    _ssh.interact()
+
 while True :
     print("==============[Menu]=============")
     for _index in range(len(hosts)) :
@@ -72,8 +104,10 @@ while True :
     elif _idx >= len(hosts) :
         print('[ERROR]Range in 1 - %d'%(len(hosts)))
         continue
+    
+    myssh(_idx)
 
-    if hosts[_idx].relay < 0 :
+    '''if hosts[_idx].relay < 0 :
         _ssh = pexpect.spawn(getLoginCmd(hosts[_idx]))
     else :
         _ssh = pexpect.spawn(getLoginCmd(relayHosts[hosts[_idx].relay]))
@@ -89,4 +123,4 @@ while True :
     _rows, _columns = os.popen('stty size', 'r').read().split()
     _ssh.setwinsize(int(_rows), int(_columns))
     print('Welcome to %s\n'%(hosts[_idx].ip))
-    _ssh.interact()
+    _ssh.interact()'''
