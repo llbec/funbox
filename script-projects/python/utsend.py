@@ -54,13 +54,14 @@ def signrawtx(_rawtx) :
     _keys = getKeys()
     if _keys == None:
         print("None private key file")
-        return None
+        os._exit(0)
     for _k in _keys:
         _cmd = '%s signrawtransaction %s \'[]\' \'["%s"]\''%(ut, _rawtx.strip('\n'), _k)
         _r = json.loads(operation(_cmd))
         if _r["complete"] == True:
             return _r["hex"]
-    return None
+    print("Sign rawtransaction failed, without matched private key.")
+    os._exit(0)
 
 def sendrawtx(_tx):
     if _tx == None:
