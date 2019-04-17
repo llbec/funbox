@@ -9,7 +9,8 @@ argParser.add_argument('-o', '--origin', type=str, default='UU6Zf3QBTmwaxEyLiuBC
 argParser.add_argument('-r', '--receive', type=str, metavar='UP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3', help='Transaction receiving address')
 argParser.add_argument('-f', '--fee', type=float, default=0.00000001, metavar='', help='Transaction fee')
 argParser.add_argument('-k', '--key', type=str, default='', metavar='', help='The private key to sign the transaction')
-argParser.add_argument('-v', '--vin', type=bool, default=False, metavar='', help='Just show coins of origin address')
+argParser.add_argument('-c', '--coins', type=bool, default=False, metavar='', help='Show coins of origin address')
+argParser.add_argument('-b', '--balance', type=bool, default=False, metavar='', help='Show balance of origin address')
 
 def helpinfo() :
     print("%s address"%sys.argv[0])
@@ -85,7 +86,8 @@ def loadkey():
     try:
         with open('key', 'r') as _f:
             return json.load(_f)
-    except Exception:
+    except Exception as e:
+        print(e)
         return None
     #_list = []
     #for _k in _keys:
@@ -123,8 +125,12 @@ def updatekey(_key):
 def main () :
     args = argParser.parse_args()
 
-    if args.vin :
+    if args.coins :
         print(getCoins(args.origin))
+        return
+
+    if args.balance:
+        print(operation('%s getaddrbalance %s'%(ut, args.origin)))
         return
 
     if args.key != '':
