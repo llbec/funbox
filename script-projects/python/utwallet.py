@@ -146,6 +146,7 @@ def main () :
         print(ret)
         return
 
+    print("Use -h or --help")
     return
 
 main()
