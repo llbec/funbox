@@ -6,7 +6,7 @@ ut = '~/utchain/src/ulord-cli'
 argCount = 0
 argParser = argparse.ArgumentParser('utchain wallet')
 argParser.add_argument('-o', '--origin', type=str, default='UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h', metavar='', help='Transaction origination address')
-argParser.add_argument('-r', '--receive', type=str, default='UP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3', help='Transaction receiving address')
+argParser.add_argument('-r', '--receive', metavar='', type=str, default='UP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3', help='Transaction receiving address')
 argParser.add_argument('-f', '--fee', type=float, default=0.00000001, metavar='', help='Transaction fee')
 argParser.add_argument('-k', '--key', type=str, default='', metavar='', help='The private key to sign the transaction')
 argParser.add_argument('-c', '--coins', type=bool, default=False, metavar='', help='Show coins of origin address')
