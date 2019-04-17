@@ -12,6 +12,7 @@ argParser.add_argument('-k', '--key', type=str, default='', metavar='', help='Th
 argParser.add_argument('-c', '--coins', type=bool, default=False, metavar='', help='Show coins of origin address, defalut is false')
 argParser.add_argument('-b', '--balance', type=bool, default=False, metavar='', help='Show balance of origin address, defalut is false')
 argParser.add_argument('-s', '--send', type=bool, default=False, metavar='', help='Send transaction, defalut is false')
+argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', help='List keys')
 
 def helpinfo() :
     print("%s address"%sys.argv[0])
@@ -136,6 +137,10 @@ def main () :
 
     if args.key != '':
         updatekey(args.key)
+        return
+
+    if args.dumpkey:
+        print(getKeys())
         return
 
     if args.send:
