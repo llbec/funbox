@@ -5,14 +5,14 @@ import os, sys, argparse, json
 ut = '~/utchain/src/ulord-cli'
 argCount = 0
 argParser = argparse.ArgumentParser('utchain wallet')
-argParser.add_argument('-o', '--origin', type=str, default='UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h', metavar='', help='Transaction origination address, default is UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h')
-argParser.add_argument('-r', '--receive', metavar='', type=str, default='UP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3', help='Transaction receiving address, default is UP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3')
-argParser.add_argument('-f', '--fee', type=float, default=0.00000001, metavar='', help='Transaction fee, default is 0.00000001')
-argParser.add_argument('-k', '--key', type=str, default='', metavar='', help='The private key to sign the transaction, default is None')
-argParser.add_argument('-c', '--coins', type=bool, default=False, metavar='', help='Show coins of origin address, defalut is false')
-argParser.add_argument('-b', '--balance', type=bool, default=False, metavar='', help='Show balance of origin address, defalut is false')
-argParser.add_argument('-s', '--send', type=bool, default=False, metavar='', help='Send transaction, defalut is false')
-argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', help='List keys')
+argParser.add_argument('-o', '--origin', type=str, default='UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h', metavar='', help='Transaction origination address, type string')
+argParser.add_argument('-r', '--receive', metavar='', type=str, default='UP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3', help='Transaction receiving address, type string')
+argParser.add_argument('-f', '--fee', type=float, default=0.00000001, metavar='', help='Transaction fee, type float')
+argParser.add_argument('-k', '--key', type=str, default='', metavar='', help='The private key to sign the transaction, type string')
+argParser.add_argument('-c', '--coins', type=bool, default=False, metavar='', help='Show coins of origin address, type bool')
+argParser.add_argument('-b', '--balance', type=bool, default=False, metavar='', help='Show balance of origin address, type bool')
+argParser.add_argument('-s', '--send', type=bool, default=False, metavar='', help='Send transaction, type bool')
+argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', help='List Keys, type bool')
 
 def helpinfo() :
     print("%s address"%sys.argv[0])
