@@ -3,7 +3,7 @@
 import os, sys, argparse, json
 
 ut = '~/utchain/src/ulord-cli'
-argCount = 0
+kpath = '.key'
 argParser = argparse.ArgumentParser('utchain wallet')
 argParser.add_argument('-o', '--origin', type=str, default='UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h', metavar='', help='Transaction origination address, type string')
 argParser.add_argument('-r', '--receive', metavar='', type=str, default='UP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3', help='Transaction receiving address, type string')
@@ -86,7 +86,7 @@ def decrypt(_s):
 def loadkey():
     #_keys = None
     try:
-        with open('key', 'r') as _f:
+        with open(kpath, 'r') as _f:
             return json.load(_f)
     except Exception as e:
         print(e)
@@ -102,7 +102,7 @@ def savekey(_k):
         _json = {'0':decrypt(_k)}
     else:
         _json['%d'%(len(_json))] = decrypt(_k)
-    with open('key', 'w') as _f:
+    with open(kpath, 'w') as _f:
         json.dump(_json, _f)
 
 def getKeys():
