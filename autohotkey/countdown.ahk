@@ -3,34 +3,57 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
-hour := 0
-minute := 0
-second := 10
-FontSize := 100
-SysGet, ClockWidth, 78
-SysGet, ClockHeight, 79
-;ClockWidth := A_ScreenWidth
-;ClockHeight := FontSize + (fontsize * 0.7)
-cd := new CountDown(hour, minute, second)
+FontSize := 14
+;SysGet, ClockWidth, 78
+;SysGet, ClockHeight, 79
+ClockWidth := 200
+ClockHeight := FontSize + (fontsize * 0.7)
+global cd := new CountDown(0, 0, 0)
 Clocktext := cd.String()
 
 Gui, -SysMenu -Caption +ToolWindow +AlwaysOnTop +E0x20
 Gui, Color, Black
 Gui, Font, cSilver s%FontSize% bold, Verdana
-Gui, Add,Text,vDate yCenter xCenter, %ClockText%
-Gui, Show, NoActivate xCenter yCenter , Clock
-;WinSet, TransColor, 255, Clock
-;WinSet, Region, 10-0 W%ClockWidth% H%ClockHeight% R5-5, Clock
-SetTimer, UpdateClock, 1000
+Gui, Add,Text,vDate yCenter x20, %ClockText%
+
+Gosub WorkCD
+
+Return
+
+WorkCD:
+    SetTimer, UpdateClock, Off
+    Gui, Hide
+    cd.Reset(0, 45, 0)
+    SetTimer, StartRelax, 1000
+Return
+
+StartRelax:
+    cd.StepCount()
+    If cd.Overtime()
+    {
+        MsgBox, , Relax, Rock your body,
+        Gosub RelaxCD
+    }
+Return
+
+RelaxCD:
+    SetTimer, StartRelax, Off
+    cd.Reset(0, 5, 0)
+    Gui, Show, NoActivate xCenter y1 , Clock
+    WinSet, TransColor, 255, Clock
+    WinSet, Region, 10-0 W%ClockWidth% H%ClockHeight% R5-5, Clock
+    ClockText := cd.String()
+    GuiControl,,Date, %ClockText%
+    SetTimer, UpdateClock, 1000
 Return
 
 UpdateClock:
-cd.Setpcount()
-ClockText := cd.String()
-GuiControl,,Date, %ClockText%
+    cd.StepCount()
+    ClockText := cd.String()
+    GuiControl,,Date, %ClockText%
 
-If cd.Overtime()
-    Gosub, Tray_Exit
+    If cd.Overtime()
+        Gosub, WorkCD
 Return
 
 Tray_Show:
@@ -52,12 +75,19 @@ class CountDown
         this.s := s
     }
 
+    Reset(h, m, s)
+    {
+        this.h := h
+        this.m := m
+        this.s := s
+    }
+
     String()
     {
         Return Format("{1:02d}:{2:02d}:{3:02d}", this.h, this.m, this.s)
     }
 
-    Setpcount()
+    StepCount()
     {
         If this.s > 0
             this.s-=1
