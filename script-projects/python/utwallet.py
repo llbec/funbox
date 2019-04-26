@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, sys, argparse, json
+import os, sys, argparse, json, getpass
 
 ut = '~/utchain/src/ulord-cli'
 kpath = '.key'
@@ -13,6 +13,7 @@ argParser.add_argument('-c', '--coins', type=bool, default=False, metavar='', he
 argParser.add_argument('-b', '--balance', type=bool, default=False, metavar='', help='Show balance of origin address, type bool')
 argParser.add_argument('-s', '--send', type=bool, default=False, metavar='', help='Send transaction, type bool')
 argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', help='List Keys, type bool')
+argParser.add_argument('-p', '--password', type=str, default='', metavar='', help='Set a new password for the commands')
 
 def helpinfo() :
     print("%s address"%sys.argv[0])
@@ -83,7 +84,7 @@ def decrypt(_s):
         a[index] = a[index] ^ 87
     return a.decode(encoding='utf-8')
 
-def loadkey():
+def loadFile():
     #_keys = None
     try:
         with open(kpath, 'r') as _f:
@@ -97,20 +98,22 @@ def loadkey():
     #return _list
 
 def savekey(_k):
-    _json = loadkey()
+    _json = loadFile()
     if _json == None:
-        _json = {'0':decrypt(_k)}
+        _json = {'1':decrypt(_k)}
     else:
         _json['%d'%(len(_json))] = decrypt(_k)
     with open(kpath, 'w') as _f:
         json.dump(_json, _f)
 
 def getKeys():
-    _j = loadkey()
+    _j = loadFile()
     if _j == None:
         return None
     _list = []
     for _i,_v in _j.items():
+        if _i == 'password':
+            continue
         _list.append(decrypt(_v))
     return _list
 
@@ -123,6 +126,24 @@ def updatekey(_key):
                 return
     savekey(_key)
     print(getKeys())
+
+def getPwd():
+    _j = loadFile()
+    if _j.has_key('password'):
+        return decrypt(_j['password'])
+    return ''
+
+def checkPwd():
+    password = getpass.getpass('please input your password:')
+    if password != getPwd():
+        os._exit(0)
+        print("Invalid password.")
+
+def updatePwd(new):
+    _j = loadFile()
+    _j['password'] == new
+    with open(kpath, 'w') as _f:
+        json.dump(_j, _f)
 
 def main () :
     args = argParser.parse_args()
@@ -139,11 +160,19 @@ def main () :
         updatekey(args.key)
         return
 
+    #the follow operations need password
+    if args.password != '':
+        checkPwd()
+        updatePwd(args.password)
+        return
+
     if args.dumpkey:
+        checkPwd()
         print(getKeys())
         return
 
     if args.send:
+        checkPwd()
         coins = json.loads(getCoins(args.origin))
         rtx = createrawtx(coins, args.origin, args.receive, args.fee)
         tx = signrawtx(rtx)
