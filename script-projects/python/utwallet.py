@@ -100,9 +100,9 @@ def loadFile():
 def savekey(_k):
     _json = loadFile()
     if _json == None:
-        _json = {'1':decrypt(_k)}
+        _json = {'1':encrypt(_k)}
     else:
-        _json['%d'%(len(_json))] = decrypt(_k)
+        _json['%d'%(len(_json))] = encrypt(_k)
     with open(kpath, 'w') as _f:
         json.dump(_json, _f)
 
@@ -129,19 +129,19 @@ def updatekey(_key):
 
 def getPwd():
     _j = loadFile()
-    if _j.has_key('password'):
+    if 'password' in _j:
         return decrypt(_j['password'])
     return ''
 
 def checkPwd():
     password = getpass.getpass('please input your password:')
     if password != getPwd():
-        os._exit(0)
         print("Invalid password.")
+        os._exit(0)
 
 def updatePwd(new):
     _j = loadFile()
-    _j['password'] == new
+    _j['password'] = encrypt(new)
     with open(kpath, 'w') as _f:
         json.dump(_j, _f)
 
