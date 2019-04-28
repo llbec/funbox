@@ -30,7 +30,7 @@ def operation (_cmd) :
     return _data
 
 def callRpc(_wd):
-    ret = operation(_wd)
+    ret = json.loads(operation(_wd))
     if not ret['error'] is None:
         print(ret['error'])
         os._exit(0)
@@ -76,7 +76,7 @@ def signrawtx(_rawtx) :
     for _k in _keys:
         #_cmd = '%s signrawtransaction %s \'[]\' \'["%s"]\''%(ut, _rawtx.strip('\n'), _k)
         _cmd = rpcwd('signrawtransaction', '"%s"'%_rawtx.strip('\n'), '[]', '["%s"]'%_k)
-        _r = json.loads(callRpc(_cmd))['result']
+        _r = callRpc(_cmd)
         if _r["complete"] == True:
             return _r["hex"]
     print("Sign rawtransaction failed, without matched private key.")
@@ -85,7 +85,8 @@ def signrawtx(_rawtx) :
 def sendrawtx(_tx):
     if _tx == None:
         return "No rawtransaction data"
-    return operation('%s sendrawtransaction %s'%(ut, _tx.strip('\n')))
+    #return operation('%s sendrawtransaction %s'%(ut, _tx.strip('\n')))
+    return callRpc(rpcwd('sendrawtransaction', '"%s"'%tx.strip('\n')))
 
 def encrypt(_s):
     a = bytearray(str(_s), 'utf-8')
@@ -189,7 +190,7 @@ def main () :
 
     if args.send:
         checkPwd()
-        coins = json.loads(getCoins(args.origin))
+        coins = getCoins(args.origin)
         rtx = createrawtx(coins, args.origin, args.receive, args.fee)
         tx = signrawtx(rtx)
         ret = sendrawtx(tx)
