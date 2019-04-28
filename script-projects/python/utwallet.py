@@ -16,12 +16,12 @@ argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', 
 argParser.add_argument('-p', '--password', type=str, default='', metavar='', help='Set a new password for the commands')
 
 def rpcwd(_m, *_params):
-  _ps = ''
-  for _p in _params:
-    _ps += '%s,'%_p
-  if _ps[len(_ps)-1] == ',':
-    _ps = _ps[:len(_ps)-1]
-  return 'curl --user Ulord03:Ulord03 --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://127.0.0.1:9889/'%(_m, _ps)
+    _ps = ''
+    for _p in _params:
+        _ps += '%s,'%_p
+    if _ps[len(_ps)-1] == ',':
+        _ps = _ps[:len(_ps)-1]
+    return 'curl --user Ulord03:Ulord03 --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://127.0.0.1:9889/'%(_m, _ps)
 
 def operation (_cmd) :
     _p = os.popen(_cmd)
