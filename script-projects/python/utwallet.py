@@ -30,7 +30,7 @@ def operation (_cmd) :
     return _data
 
 def callRpc(_wd):
-    ret = operation(rpcwd(_wd))
+    ret = operation(_wd)
     if not ret['error'] is None:
         print(ret['error'])
         os._exit(0)
