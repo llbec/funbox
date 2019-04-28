@@ -29,9 +29,16 @@ def operation (_cmd) :
     _p.close()
     return _data
 
+def callRpc(_wd):
+    ret = operation(rpcwd(_wd))
+    if not ret['error'] is None:
+        print(ret['error'])
+        os._exit(0)
+    return ret['result']
+
 def getCoins (_addr) :
     #return operation('%s getaddrvin %s'%(ut,_addr))
-    return operation(rpcwd('getaddrvin', '"%s"'%_addr))
+    return callRpc(rpcwd('getaddrvin', '"%s"'%_addr))
 
 def a2str(_a) :
     return '%.8f'%_a
@@ -59,7 +66,7 @@ def createrawtx(_coins, _o, _r, _f) :
     #_rawtx = '%s createrawtransaction \'%s\' \'%s\''%(ut, _coins['Vin'], _vout)
     _rawtx = rpcwd('createrawtransaction', _coins['Vin'], _vout)
     #print(_rawtx)
-    return operation(_rawtx)
+    return callRpc(_rawtx)
 
 def signrawtx(_rawtx) :
     _keys = getKeys()
@@ -69,7 +76,7 @@ def signrawtx(_rawtx) :
     for _k in _keys:
         #_cmd = '%s signrawtransaction %s \'[]\' \'["%s"]\''%(ut, _rawtx.strip('\n'), _k)
         _cmd = rpcwd('signrawtransaction', '"%s"'%_rawtx.strip('\n'), '[]', '["%s"]'%_k)
-        _r = json.loads(operation(_cmd))['result']
+        _r = json.loads(callRpc(_cmd))['result']
         if _r["complete"] == True:
             return _r["hex"]
     print("Sign rawtransaction failed, without matched private key.")
@@ -161,7 +168,8 @@ def main () :
         return
 
     if args.balance:
-        print(operation('%s getaddrbalance %s'%(ut, args.origin)))
+        #print(operation('%s getaddrbalance %s'%(ut, args.origin)))
+        print(callRpc(rpcwd('getaddrbalance', '"%s"'%args.origin)))
         return
 
     if args.key != '':
