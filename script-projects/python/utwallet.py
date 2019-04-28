@@ -15,8 +15,13 @@ argParser.add_argument('-s', '--send', type=bool, default=False, metavar='', hel
 argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', help='List Keys, type bool')
 argParser.add_argument('-p', '--password', type=str, default='', metavar='', help='Set a new password for the commands')
 
-def helpinfo() :
-    print("%s address"%sys.argv[0])
+def rpcwd(_m, *_params):
+  _ps = ''
+  for _p in _params:
+    _ps += '%s,'%_p
+  if _ps[len(_ps)-1] == ',':
+    _ps = _ps[:len(_ps)-1]
+  return 'curl --user Ulord03:Ulord03 --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://127.0.0.1:9889/'%(_m, _ps)
 
 def operation (_cmd) :
     _p = os.popen(_cmd)
@@ -25,7 +30,8 @@ def operation (_cmd) :
     return _data
 
 def getCoins (_addr) :
-    return operation('%s getaddrvin %s'%(ut,_addr))
+    #return operation('%s getaddrvin %s'%(ut,_addr))
+    return operation(rpcwd('getaddrvin', '"%s"'%_addr))
 
 def a2str(_a) :
     return '%.8f'%_a
@@ -50,7 +56,8 @@ def createrawtx(_coins, _o, _r, _f) :
         print("Origin address has no balance")
         os._exit(0)
 
-    _rawtx = '%s createrawtransaction \'%s\' \'%s\''%(ut, _coins['Vin'], _vout)
+    #_rawtx = '%s createrawtransaction \'%s\' \'%s\''%(ut, _coins['Vin'], _vout)
+    _rawtx = rpcwd('createrawtransaction', _coins['Vin'], _vout)
     #print(_rawtx)
     return operation(_rawtx)
 
@@ -60,8 +67,9 @@ def signrawtx(_rawtx) :
         print("None private key file")
         os._exit(0)
     for _k in _keys:
-        _cmd = '%s signrawtransaction %s \'[]\' \'["%s"]\''%(ut, _rawtx.strip('\n'), _k)
-        _r = json.loads(operation(_cmd))
+        #_cmd = '%s signrawtransaction %s \'[]\' \'["%s"]\''%(ut, _rawtx.strip('\n'), _k)
+        _cmd = rpcwd('signrawtransaction', '"%s"'%_rawtx.strip('\n'), '[]', '["%s"]'%_k)
+        _r = json.loads(operation(_cmd))['result']
         if _r["complete"] == True:
             return _r["hex"]
     print("Sign rawtransaction failed, without matched private key.")
