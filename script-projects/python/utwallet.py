@@ -13,6 +13,11 @@ argParser.add_argument('-b', '--balance', type=bool, default=False, metavar='', 
 argParser.add_argument('-s', '--send', type=bool, default=False, metavar='', help='Send transaction, type bool')
 argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', help='List Keys, type bool')
 argParser.add_argument('-p', '--password', type=bool, default=False, metavar='', help='Set a new password for the commands, type bool')
+argParser.add_argument('-l', '--list', type=bool, default=False, metavar='', help='List addresses, type bool')
+
+def printAddrList():
+    d = {'666':'UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h', 'kkkk':'UP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3', 'lf':'UduLEFeiDBYmZfW6qAL3ZUHSnYnsJ8yvam', 'mn':'UgVa3XSwPTomDiwSQLQ6t8L9u3zVNLiuBC'}
+    print(d)
 
 def rpcwd(_m, *_params):
     _ps = ''
@@ -163,13 +168,18 @@ def updatePwd(new):
 def main () :
     args = argParser.parse_args()
 
+    if args.list:
+        printAddrList()
+        return
+
     if args.coins :
         print(getCoins(args.origin))
         return
 
     if args.balance:
         #print(operation('%s getaddrbalance %s'%(ut, args.origin)))
-        print(callRpc(rpcwd('getaddrbalance', '"%s"'%args.origin))['balance'])
+        b = callRpc(rpcwd('getaddrbalance', '"%s"'%args.origin))
+        print('Balance: %.8f, Received: %.8f'%(b['balance'], b['received']))
         return
 
     if args.key != '':
