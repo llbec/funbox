@@ -16,7 +16,7 @@ argParser.add_argument('-p', '--password', type=bool, default=False, metavar='',
 argParser.add_argument('-l', '--list', type=bool, default=False, metavar='', help='List addresses, type bool')
 
 def printAddrList():
-    d = {'666':'UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h', 'kkkk':'UP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3', 'lf':'UduLEFeiDBYmZfW6qAL3ZUHSnYnsJ8yvam', 'mn':'UgVa3XSwPTomDiwSQLQ6t8L9u3zVNLiuBC'}
+    d = '666\rUU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h\nkkkk\rUP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3\nlf\rUduLEFeiDBYmZfW6qAL3ZUHSnYnsJ8yvam\nmn\rUgVa3XSwPTomDiwSQLQ6t8L9u3zVNLiuBC'
     print(d)
 
 def rpcwd(_m, *_params):
