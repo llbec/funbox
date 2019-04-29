@@ -2,7 +2,6 @@
 
 import os, sys, argparse, json, getpass
 
-ut = '~/utchain/src/ulord-cli'
 kpath = '.key'
 argParser = argparse.ArgumentParser('utchain wallet')
 argParser.add_argument('-o', '--origin', type=str, default='UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h', metavar='', help='Transaction origination address, type string')
@@ -21,7 +20,7 @@ def rpcwd(_m, *_params):
         _ps += '%s,'%_p
     if _ps[len(_ps)-1] == ',':
         _ps = _ps[:len(_ps)-1]
-    return 'curl --user Ulord03:Ulord03 --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://127.0.0.1:9889/'%(_m, _ps)
+    return 'curl -s --user Ulord03:Ulord03 --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://127.0.0.1:9889/'%(_m, _ps)
 
 def operation (_cmd) :
     _p = os.popen(_cmd)
