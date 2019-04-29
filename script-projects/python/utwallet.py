@@ -12,7 +12,7 @@ argParser.add_argument('-c', '--coins', type=bool, default=False, metavar='', he
 argParser.add_argument('-b', '--balance', type=bool, default=False, metavar='', help='Show balance of origin address, type bool')
 argParser.add_argument('-s', '--send', type=bool, default=False, metavar='', help='Send transaction, type bool')
 argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', help='List Keys, type bool')
-argParser.add_argument('-p', '--password', type=str, default='', metavar='', help='Set a new password for the commands')
+argParser.add_argument('-p', '--password', type=bool, default=False, metavar='', help='Set a new password for the commands, type bool')
 
 def rpcwd(_m, *_params):
     _ps = ''
@@ -85,7 +85,7 @@ def sendrawtx(_tx):
     if _tx == None:
         return "No rawtransaction data"
     #return operation('%s sendrawtransaction %s'%(ut, _tx.strip('\n')))
-    return callRpc(rpcwd('sendrawtransaction', '"%s"'%tx.strip('\n')))
+    return callRpc(rpcwd('sendrawtransaction', '"%s"'%_tx.strip('\n')))
 
 def encrypt(_s):
     a = bytearray(str(_s), 'utf-8')
@@ -169,7 +169,7 @@ def main () :
 
     if args.balance:
         #print(operation('%s getaddrbalance %s'%(ut, args.origin)))
-        print(callRpc(rpcwd('getaddrbalance', '"%s"'%args.origin)))
+        print(callRpc(rpcwd('getaddrbalance', '"%s"'%args.origin))['balance'])
         return
 
     if args.key != '':
@@ -177,9 +177,14 @@ def main () :
         return
 
     #the follow operations need password
-    if args.password != '':
+    if args.password:
         checkPwd()
-        updatePwd(args.password)
+        pw1 = getpass.getpass('please input your new password:')
+        pw2 = getpass.getpass('please repeat your new password:')
+        if pw1 != pw2:
+            print("The password is not same!")
+            return
+        updatePwd(pw1)
         return
 
     if args.dumpkey:
