@@ -4,311 +4,227 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 ;启动标志框
-Gui,  1:Add, GroupBox, x10 y10 w70 h80 Center, 启动
+Gui,  1:Add, GroupBox, x10 y10 w310 h30 Center, 启停
 Gui,  1:Font
-Gui,  1:Add, Radio, x20 y30 w50 h25 gLabelStart vradiostart, Start
-Gui,  1:Add, Radio, x20 y60 w50 h25 gLabelStop vradiostop checked, Stop
+Gui,  1:Add, Radio, x20 y15 w50 h25 gLabelStart vradiostart, 启动
+Gui,  1:Add, Radio, x80 y15 w50 h25 gLabelStop vradiostop checked, 停止
 Gui,  1:Font
 
 ;控制方式框
-Gui,  1:Add, GroupBox, x90 y10 w70 h80 Center, 控制方式
+Gui,  1:Add, GroupBox, x10 y45 w310 h30 Center, 控制方式
 Gui,  1:Font
-Gui,  1:Add, Radio, x100 y30 w50 h25 gLabelMouseCtrl vradiomouse checked, 鼠标
-Gui,  1:Add, Radio, x100 y60 w50 h25 gLabelKeyboardCtrl vradiokeyboard, 键盘
+Gui,  1:Add, Radio, x20 y50 w50 h25 gLabelLBCtrl vctrlLb checked, 左键
+Gui,  1:Add, Radio, x80 y50 w50 h25 gLabelSpaceCtrl vctrlSpace, 空格
+Gui,  1:Add, Radio, x140 y50 w50 h25 gLabelKeyboardCtrl vctrlkeyboard, CtrlR
 Gui,  1:Font
 
 ;技能设置框1,2,3,4
-Gui,  1:Add, GroupBox, x170 y10 w70 h80 Center, 按键 1:
-Gui,  1:Add, DropDownList, x180 y30 w50 h25 r2 vddl1 Choose1 AltSubmit, 启用|关闭
+Gui,  1:Add, GroupBox, x10 y10 w70 h80 Center, 按键 1:
+Gui,  1:Add, DropDownList, x180 y30 w50 h25 r2 vselected1 Choose1 AltSubmit, 启用|关闭
 Gui,  1:Add, Edit, x180 y60 w35 h20 vedit1 Center, 600
-Gui,  1:Add, Text, x220 y64 w15 h20 vtext1 Center, MS
+Gui,  1:Add, Text, x220 y64 w15 h20 vcd1 Center, MS
 
-Gui,  1:Add, GroupBox, x250 y10 w70 h80 Center, 按键 2:
-Gui,  1:Add, DropDownList, x260 y30 w50 h25 r2 vddl2 Choose1 AltSubmit, 启用|关闭
+Gui,  1:Add, GroupBox, x90 y10 w70 h80 Center, 按键 2:
+Gui,  1:Add, DropDownList, x260 y30 w50 h25 r2 vselected2 Choose1 AltSubmit, 启用|关闭
 Gui,  1:Add, Edit, x260 y60 w35 h20 vedit2 Center, 600
-Gui,  1:Add, Text, x300 y64 w15 h20 vtext2 Center, MS
+Gui,  1:Add, Text, x300 y64 w15 h20 vcd2 Center, MS
 
-Gui,  1:Add, GroupBox, x330 y10 w70 h80 Center, 按键 3:
-Gui,  1:Add, DropDownList, x340 y30 w50 h25 r2 vddl3 Choose1 AltSubmit, 启用|关闭
+Gui,  1:Add, GroupBox, x170 y10 w70 h80 Center, 按键 3:
+Gui,  1:Add, DropDownList, x340 y30 w50 h25 r2 vselected3 Choose1 AltSubmit, 启用|关闭
 Gui,  1:Add, Edit, x340 y60 w35 h20 vedit3 Center, 600
-Gui,  1:Add, Text, x380 y64 w15 h20 vtext3 Center, MS
+Gui,  1:Add, Text, x380 y64 w15 h20 vcd3 Center, MS
 
-Gui,  1:Add, GroupBox, x410 y10 w70 h80 Center, 按键 4:
-Gui,  1:Add, DropDownList, x420 y30 w50 h25 r2 vddl4 Choose1 AltSubmit, 启用|关闭
+Gui,  1:Add, GroupBox, x250 y10 w70 h80 Center, 按键 4:
+Gui,  1:Add, DropDownList, x420 y30 w50 h25 r2 vselected4 Choose1 AltSubmit, 启用|关闭
 Gui,  1:Add, Edit, x420 y60 w35 h20 vedit4 Center, 600
-Gui,  1:Add, Text, x460 y64 w15 h20 vtext4 Center, MS
-
-/*
-;技能设置框1,2,3,4
-Gui,  1:Add, GroupBox, x90 y10 w70 h80 Center, 按键 1:
-Gui,  1:Add, DropDownList, x100 y30 w50 h25 r2 vddl4 Choose1 AltSubmit, 启用|关闭
-Gui,  1:Add, Edit, x100 y60 w35 h20 vedit4 Center, 600
-Gui,  1:Add, Text, x140 y64 w15 h20 vtext4 Center, MS
-
-Gui,  1:Add, GroupBox, x170 y10 w70 h80 Center, 按键 2:
-Gui,  1:Add, DropDownList, x180 y30 w50 h25 r2 vddl1 Choose1 AltSubmit, 启用|关闭
-Gui,  1:Add, Edit, x180 y60 w35 h20 vedit1 Center, 600
-Gui,  1:Add, Text, x220 y64 w15 h20 vtext1 Center, MS
-
-Gui,  1:Add, GroupBox, x250 y10 w70 h80 Center, 按键 3:
-Gui,  1:Add, DropDownList, x260 y30 w50 h25 r2 vddl2 Choose1 AltSubmit, 启用|关闭
-Gui,  1:Add, Edit, x260 y60 w35 h20 vedit2 Center, 600
-Gui,  1:Add, Text, x300 y64 w15 h20 vtext2 Center, MS
-
-Gui,  1:Add, GroupBox, x330 y10 w70 h80 Center, 按键 4:
-Gui,  1:Add, DropDownList, x340 y30 w50 h25 r2 vddl3 Choose1 AltSubmit, 启用|关闭
-Gui,  1:Add, Edit, x340 y60 w35 h20 vedit3 Center, 600
-Gui,  1:Add, Text, x380 y64 w15 h20 vtext3 Center, MS
-*/
+Gui,  1:Add, Text, x460 y64 w15 h20 vcd4 Center, MS
 
 ;显示窗口
 Gui,  1:-MaximizeBox -MinimizeBox 
-Gui,  1:Show, CEnter w490 h100, D3 Auto
+Gui,  1:Show, CEnter w330 h100, D3 Auto
 
-bState = False
-nCount = 0
-
-;SetTimer, LabelLog, 100
-Return
+;全局变量
+bRunning := False
+nCount := 0
+bKey := False
 
 GuiClose:
 	ExitApp
 Return
 
-;r:
-;    MsgBox started!
-;    Control, Check, ,%radiostart%
-;Return
-
-LabelCast1:
-Send, 1
+LabelCasting1:
+    Send, 1
 Return
 
-LabelCast2:
-Send, 2
+LabelCasting2:
+    Send, 2
 Return
 
-LabelCast3:
-Send, 3
+LabelCasting3:
+    Send, 3
 Return
 
-LabelCast4:
-Send, 4
+LabelCasting4:
+    Send, 4
 Return
 
 LabelTimer1:
-    If ddl1 = 1
-        SetTimer, LabelCast1, %edit1%
+    If selected1 = 1
+        SetTimer, LabelCasting1, %cd1%
 Return
 
 LabelTimer2:
-    If ddl2 = 1
-        SetTimer, LabelCast2, %edit2%
+    If selected2 = 1
+        SetTimer, LabelCasting2, %cd2%
 Return
 
 LabelTimer3:
-    If ddl3 = 1
-        SetTimer, LabelCast3, %edit3%
+    If selected3 = 1
+        SetTimer, LabelCasting3, %cd3%
 Return
 
 LabelTimer4:
-    If ddl4 = 1
+    If selected4 = 1
     {
-        SetTimer, LabelCast4, %edit4%
-        ;MsgBox, , Result, ddl4=%ddl4% edit4=%edit4%,
+        SetTimer, LabelCasting4, %cd4%
+        ;MsgBox, , Result, selected4=%selected4% cd4=%cd4%,
     }
 Return
 
-LabelActionStart:
-    Gosub LabelTimer1
-    Gosub LabelTimer2
-    Gosub LabelTimer3
-    Gosub LabelTimer4
-    bState = True
+LabelCastingStart:
+    Gosub, LabelTimer1
+    Gosub, LabelTimer2
+    Gosub, LabelTimer3
+    Gosub, LabelTimer4
 Return
 
-LabelActionStop:
-    SetTimer, LabelCast1, off
-    SetTimer, LabelCast2, off
-    SetTimer, LabelCast3, off
-    SetTimer, LabelCast4, off
-    bState = False
+LabelCastingStop:
+    SetTimer, LabelCasting1, off
+    SetTimer, LabelCasting2, off
+    SetTimer, LabelCasting3, off
+    SetTimer, LabelCasting4, off
 Return
 
-LabelRunner:
-    Gui,  1:Submit, NoHide
-    If radiomouse = 0
+LabelCheckState:
+    bState := False
+    If CtrlLB = 1
     {
-        SetTimer, LabelRunner, off
+        GetKeyState, bLButtonState, LButton, P
+        If bLButtonState = U
+            bState := False
+        Else
+            bState := True
     }
-    GetKeyState, bLButtonState, LButton, P
-    ;ToolTip, %bLButtonState%`n%nCount%`n%bState%, 0, 0, 2
-    If bLButtonState = U
+    Else If CtrlSpace = 1
     {
-        nCount = 0
-        If bState = True
+        GetKeyState, bSpaceState, Space, P
+        If bSpaceState = U
+            bState := False
+        Else
+            bState := True
+    }
+    Else
+        bState := bKey
+    
+    If bState
+    {
+        If !bRunning
         {
-            Gosub LabelActionStop
+            nCount++
+            If nCount >= 3
+            {
+                bRunning := True
+                Gosub LabelCastingStart
+            }
         }
     }
     Else
     {
-        If nCount < 3 
+        If bRunning
         {
-            nCount += 1
-        }
-        Else
-        {
-            If bState = False
-            {
-                ;MsgBox, , log, action start, 1
-                Gosub LabelActionStart
-            }
+            bRunning := False
+            Gosub LabelCastingStop
         }
     }
 Return
 
-LabelKeyBoardStart:
+LabelKeyStart
+    nCount := 3
+    bKey := True
+Return
+
+LabelKeyStop
+    nCount := 0
+    bKey := False
+Return
+
+LabelStart
     Gui,  1:Submit, NoHide
-    If radiostart = 1
-    {
-        If radiomouse = 0
-        {
-            Gosub LabelActionStart
-        }
-    }
+    SetTimer, LabelCheckState, 100
 Return
 
-LabelKeyBoardStop:
+LabelStop
     Gui,  1:Submit, NoHide
-    If radiostart = 1
-    {
-        If radiomouse = 0
-        {
-            Gosub LabelActionStop
-        }
-    }
+    SetTimer, LabelCheckState, off
 Return
 
-LabelMouseStart:
+LabelLBCtrl
     Gui,  1:Submit, NoHide
-    If radiostart = 1
-    {
-        If radiomouse = 1
-        {
-            SetTimer, LabelRunner, 100
-        }
-    }
+    bRunning := False
+    nCount : = 0
 Return
 
-LabelMouseStop:
-    SetTimer, LabelRunner, off
-    nCount = 0
-    Gosub LabelActionStop
-Return
-
-LabelLog:
-    ToolTip, log:%nCount%`n%bState%, 400, 0,
-Return
-
-LabelMouseCtrl:
+LabelSpaceCtrl
     Gui,  1:Submit, NoHide
-    If radiostart = 1
-    {
-        SetTimer, LabelRunner, 100
-    }
+    bRunning := False
+    nCount : = 0
 Return
 
-LabelKeyboardCtrl:
-    Gosub LabelMouseStop
-Return
-
-LabelStart:
+LabelKeyboardCtrl
     Gui,  1:Submit, NoHide
-    If radiomouse = 1
-    {
-        SetTimer, LabelRunner, 100
-    }
+    bRunning := False
+    nCount : = 3
 Return
 
-LabelStop:
-    Gosub LabelMouseStop
-Return
-
-/*
-LabelMouseStart:
-    Gui,  1:Submit, NoHide
-    If radiostart = 1
-    {
-        If radiomouse = 1 
-        {
-            SetTimer, LabelCheckLBTN, 100
-        }
-    }
-Return
-
-LabelCheckLBTN:
-    GetKeyState, EWD_LButtonState, LButton, P
-    if EWD_LButtonState = U
-    {
-        SetTimer, LabelCheckLBTN, off
-        SetTimer, LabelCast1, off
-        SetTimer, LabelCast2, off
-        SetTimer, LabelCast3, off
-        SetTimer, LabelCast4, off
-        ncount = 0
-        return
-    }
-    If ncount < 10
-        ncount += 1
-    If ncount = 3
-    {
-        Gosub LabelTimer1
-        Gosub LabelTimer2
-        Gosub LabelTimer3
-        Gosub LabelTimer4
-    }
-Return
-*/
-
-$1::
+^r::
 {
-    Gosub LabelKeyBoardStart
-    Send, 1
-}
-Return
-
-$2::
-{
-    Gosub LabelKeyBoardStart
-    Send, 2
-}
-Return
-
-$3::
-{
-    Gosub LabelKeyBoardStart
-    Send, 3
-}
-Return
-
-$4::
-{
-    Gosub LabelKeyBoardStart
-    Send, 4
+    If (ctrlkeyboard = 1)
+    {
+        nCount := 3
+        bKey := True
+    }
 }
 Return
 
 $t::
 {
-    Gosub LabelKeyBoardStop
+    If (ctrlkeyboard = 1)
+    {
+        nCount := 0
+        bKey := False
+    }
     Send, t
 }
 Return
 
 $m::
 {
-    Gosub LabelKeyBoardStop
+    If (ctrlkeyboard = 1)
+    {
+        nCount := 0
+        bKey := False
+    }
     Send, m
+}
+Return
+
+$Enter::
+{
+    If (ctrlkeyboard = 1)
+    {
+        nCount := 0
+        bKey := False
+    }
+    Send, Enter
 }
 Return
