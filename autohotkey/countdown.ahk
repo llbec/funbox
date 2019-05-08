@@ -43,7 +43,7 @@ Return
 
 RelaxCD:
 SetTimer, StartRelax, Off
-cd.Reset(0, 5, 0)
+cd.Reset(0, 10, 0)
 Gui, Show, NoActivate xCenter y1 , Clock
 WinSet, TransColor, 255, Clock
 WinSet, Region, 10-0 W%ClockWidth% H%ClockHeight% R5-5, Clock
