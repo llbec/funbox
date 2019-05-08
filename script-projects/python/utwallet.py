@@ -15,8 +15,9 @@ argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', 
 argParser.add_argument('-p', '--password', type=bool, default=False, metavar='', help='Set a new password for the commands, type bool')
 argParser.add_argument('-l', '--list', type=bool, default=False, metavar='', help='List addresses, type bool')
 
-def printAddrList():
-    d = '666\tUU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h\nkkkk\tUP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3\nlf\tUduLEFeiDBYmZfW6qAL3ZUHSnYnsJ8yvam\nmn\tUgVa3XSwPTomDiwSQLQ6t8L9u3zVNLiuBC'
+def printAddrList(o, r):
+    d = 'origin  address: %s\nreceive address: %s\n\n\n'%(o,r)
+    d += '666\tUU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h\nkkkk\tUP4cRYyc71x3gd9pTFRvCRkppDJhz9RsG3\nlf\tUduLEFeiDBYmZfW6qAL3ZUHSnYnsJ8yvam\nmn\tUgVa3XSwPTomDiwSQLQ6t8L9u3zVNLiuBC'
     print(d)
 
 def rpcwd(_m, *_params):
@@ -169,7 +170,7 @@ def main () :
     args = argParser.parse_args()
 
     if args.list:
-        printAddrList()
+        printAddrList(args.origin, args.receive)
         return
 
     if args.coins :
