@@ -17,11 +17,11 @@ hosts = [
 ]
 
 hs186 = [
-    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', -1),
-    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 0),
-    Host('10.186.11.42', 22, 'root', 'Zxcvbn2018', '', '186-42', 0),
-    Host('10.186.11.61', 22, 'root', 'chain33', '', '186-61', 0),
-    Host('10.186.11.62', 22, 'root', 'chain33', '', '186-62', 0),
+    Host('10.186.11.1', 20282, 'lbc', 'lbc', '', '186', 1),
+    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 1),
+    Host('10.186.11.42', 22, 'root', 'Zxcvbn2018', '', '186-42', 1),
+    Host('10.186.11.61', 22, 'root', 'chain33', '', '186-61', 1),
+    Host('10.186.11.62', 22, 'root', 'chain33', '', '186-62', 1),
 ]
 
 def ssh_passwd(_ssh, _host) :
@@ -119,8 +119,10 @@ def ssh186() :
             except :
                 continue
             myssh(getPathbyHost(Host('10.186.11.%d'%_snet, 22, 'root', 'Zxcvbn2018', '', '186-%d'%_snet, 0), hs186))
+        elif _idx == 0 :
+            myssh(getPathbyHost(hosts[hs186[_idx].relay], hosts))
         else :
-            myssh(getPathbyHost(hs186[_idx], hs186))
+            myssh(getPathbyHost(hs186[_idx], hosts))
 
 while True :
     print("==============[Menu]=============")
