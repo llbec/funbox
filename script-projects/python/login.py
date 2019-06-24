@@ -17,10 +17,7 @@ class Group :
         self.hs = hs
 
 hsali = [
-    Host('47.96.16.100', 22, 'root', 'mychain123!@#', '', 'ali0', -1),
-    Host('121.43.176.209', 22, 'root', 'mychain123!@#', '', 'ali1', -1),
-    Host('47.96.151.209', 22, 'root', 'mychain123!@#', '', 'ali2', -1),
-    Host('47.96.25.174', 22, 'root', 'mychain123!@#', '', 'ali3', -1),
+    Host('120.78.12.252', 60022, '18692060908', 'gyWo57wI^6', '', 'ali', -1),
 ]
 
 hs666 = [
@@ -44,9 +41,13 @@ groups = [
 def ssh_passwd(_ssh, _host) :
     for _n in range(0, 3) :
         _ssh.sendline(_host.passwd)
-        _i = _ssh.expect(['.*password.*', 'Last login.*'])
+        _i = _ssh.expect(['.*password.*', 'Last login.*', '.*verification.*'])
         if _i == 1 :
             return _i
+        elif _i == 2 :
+            _vfcode = input('\r\nPlease enter the verification code sent to your mobile phone:')
+            _ssh.sendline(_vfcode)
+            return 1
         else :
             _host.passwd = input('Enter the password for %s:'%(_host.ip))
             continue
@@ -55,13 +56,23 @@ def ssh_passwd(_ssh, _host) :
 
 def ssh_login(_ssh, _host) :
     while True :
-        _i = _ssh.expect([".*password.*", ".*continue.*?", 'Last login.*', pexpect.EOF, pexpect.TIMEOUT], timeout = 3)
+        _i = _ssh.expect(
+                            [".*password.*",
+                            ".*continue.*?",
+                            'Last login.*',
+                            '.*verification.*',
+                            pexpect.EOF, 
+                            pexpect.TIMEOUT], timeout = 3)
         if _i == 0 :
             return ssh_passwd(_ssh, _host)
         elif _i == 1 :
             _ssh.sendline('yes\n')
             continue
         elif _i == 2 :
+            return 1
+        elif _i == 3 :
+            _vfcode = input('\r\nPlease enter the verification code sent to your mobile phone:')
+            _ssh.sendline(_vfcode)
             return 1
         else :
             print("[Error]Connection to %s fails"%(_host.ip))
@@ -122,6 +133,8 @@ def ssh186() :
     while True:
         print("==============[186]=============")
         for _index in range(len(hs186)) :
+            if _index == 0 :
+                continue
             print('\t%d.\t%s\n'%(_index, hs186[_index].ip))
         print('\t%d.\tsubnet\n\tothers to quit'%len(hs186))
         
@@ -150,6 +163,8 @@ def sshgroup(_group) :
         while True :
             print("==============[%s]============="%_group.name)
             for _index in range(len(_group.hs)) :
+                if _index == 0 :
+                    continue
                 print('\t%d.\t%s\n'%(_index, _group.hs[_index].ip))
             print('\tothers to quit')
             
