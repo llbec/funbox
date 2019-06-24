@@ -11,17 +11,34 @@ class Host :
         self.alias = _alias
         self.relay = _relay
 
-hosts = [
+class Group :
+    def __init__(self, name, hs) :
+        self.name = name
+        self.hs = hs
+
+hsali = [
+    Host('47.96.16.100', 22, 'root', 'mychain123!@#', '', 'ali0', -1),
+    Host('121.43.176.209', 22, 'root', 'mychain123!@#', '', 'ali1', -1),
+    Host('47.96.151.209', 22, 'root', 'mychain123!@#', '', 'ali2', -1),
+    Host('47.96.25.174', 22, 'root', 'mychain123!@#', '', 'ali3', -1),
+]
+
+hs666 = [
     Host('45.77.223.88', 22, 'root', '9Y[zVY3PPS+GXBN]', '', '666', -1),
-    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', -1),
 ]
 
 hs186 = [
-    Host('10.186.11.1', 20282, 'lbc', 'lbc', '', '186', 1),
-    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 1),
-    Host('10.186.11.42', 22, 'root', 'Zxcvbn2018', '', '186-42', 1),
-    Host('10.186.11.61', 22, 'root', 'Zxcvbn2019', '', '186-61', 1),
-    Host('10.186.11.62', 22, 'root', 'chain33', '', '186-62', 1),
+    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', -1),
+    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 0),
+    Host('10.186.11.42', 22, 'root', 'Zxcvbn2018', '', '186-42', 0),
+    Host('10.186.11.61', 22, 'root', 'Zxcvbn2019', '', '186-61', 0),
+    Host('10.186.11.62', 22, 'root', 'chain33', '', '186-62', 0),
+]
+
+groups = [
+    Group('666', hs666),
+    Group('186', hs186),
+    Group('ali', hsali),
 ]
 
 def ssh_passwd(_ssh, _host) :
@@ -73,12 +90,14 @@ def myssh(_hostpath) :
         return
 
     _ssh = pexpect.spawn(getLoginCmd(_hostpath[0]))
+    print('Login@%s ......'%_hostpath[0].ip)
     if ssh_login(_ssh, _hostpath[0]) < 0 :
         _ssh.close()
         return
 
     for _i in range(1,len(_hostpath)) :
         _ssh.sendline(getLoginCmd(_hostpath[_i]))
+        print('Login@%s ......'%_hostpath[_i].ip)
         if ssh_login(_ssh, _hostpath[_i]) < 0 :
             _ssh.close()
             return
@@ -119,15 +138,35 @@ def ssh186() :
             except :
                 continue
             myssh(getPathbyHost(Host('10.186.11.%d'%_snet, 22, 'root', 'Zxcvbn2018', '', '186-%d'%_snet, 0), hs186))
-        elif _idx == 0 :
-            myssh(getPathbyHost(hosts[hs186[_idx].relay], hosts))
         else :
-            myssh(getPathbyHost(hs186[_idx], hosts))
+            myssh(getPathbyHost(hs186[_idx], hs186))
+
+def sshgroup(_group) :
+    if len(_group.hs) == 1:
+        myssh(getPathbyId(0, _group.hs))
+    elif _group.name == "186" :
+        ssh186()
+    else:
+        while True :
+            print("==============[%s]============="%_group.name)
+            for _index in range(len(_group.hs)) :
+                print('\t%d.\t%s\n'%(_index, _group.hs[_index].ip))
+            print('\tothers to quit')
+            
+            try :
+                _idx = int(input('Enter the number:'))
+            except :
+                return
+            
+            if _idx >= len(_group.hs) :
+                return
+            else :
+                myssh(getPathbyHost(_group.hs[_idx], _group.hs))
 
 while True :
     print("==============[Menu]=============")
-    for _index in range(len(hosts)) :
-        print('\t%d.\t%s\n'%(_index+1, hosts[_index].alias))
+    for _index in range(len(groups)) :
+        print('\t%d.\t%s\n'%(_index+1, groups[_index].name))
     print('\tothers to quit')
 
     try :
@@ -139,11 +178,8 @@ while True :
     if _idx < 0 :
         print('Bye')
         break
-    elif _idx >= len(hosts) :
-        print('[ERROR]Range in 1 - %d'%(len(hosts)))
+    elif _idx >= len(groups) :
+        print('[ERROR]Range in 1 - %d'%(len(groups)))
         continue
     
-    if _idx == 1 :
-        ssh186()
-    else :
-        myssh(getPathbyId(_idx, hosts))
+    sshgroup(groups[_idx])
