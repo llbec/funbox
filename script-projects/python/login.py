@@ -16,20 +16,24 @@ class Group :
         self.name = name
         self.hs = hs
 
-hsali = [
-    Host('120.78.12.252', 60022, '18692060908', 'gyWo57wI^6', '', 'ali', -1),
-]
-
-hs666 = [
-    Host('45.77.223.88', 22, 'root', '9Y[zVY3PPS+GXBN]', '', '666', -1),
+relayHost = [
+    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', None),
 ]
 
 hs186 = [
-    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', -1),
-    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', 0),
-    Host('10.186.11.42', 22, 'root', 'Zxcvbn2018', '', '186-42', 0),
-    Host('10.186.11.61', 22, 'root', 'Zxcvbn2019', '', '186-61', 0),
-    Host('10.186.11.62', 22, 'root', 'chain33', '', '186-62', 0),
+    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', None),
+    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', relayHost[0]),
+    Host('10.186.11.42', 22, 'root', 'Zxcvbn2018', '', '186-42', relayHost[0]),
+    Host('10.186.11.61', 22, 'root', 'Zxcvbn2019', '', '186-61', relayHost[0]),
+    Host('10.186.11.62', 22, 'root', 'chain33', '', '186-62', relayHost[0]),
+]
+
+hsali = [
+    Host('120.78.12.252', 60022, '18692060908', 'gyWo57wI^6', '', 'ali', None),
+]
+
+hs666 = [
+    Host('45.77.223.88', 22, 'root', '9Y[zVY3PPS+GXBN]', '', '666', hs186[1]),
 ]
 
 groups = [
@@ -86,12 +90,12 @@ def getLoginCmd(_host) :
     return None
 
 def getPathbyId(_id, _hlist) :
-    _i = _id
+    _h = _hlist[_id]
     _hs = []
-    _hs.append(_hlist[_i])
-    while _hlist[_i].relay >= 0 :
-        _i = _hlist[_i].relay
-        _hs.insert(0, _hlist[_i])
+    _hs.append(_h)
+    while _h.relay != None :
+        _h = _h.relay
+        _hs.insert(0, _h)
     if len(_hs) < 1 :
         print('[ERROR]Host %s Path not existed'%_hlist[_id].ip)
     return _hs
@@ -118,12 +122,12 @@ def myssh(_hostpath) :
     print('Welcome to %s\n'%(_hostpath[-1].ip))
     _ssh.interact()
 
-def getPathbyHost(_host, _hlist) :
+def getPathbyHost(_host) :
     _h = _host
     _hs = []
     _hs.append(_h)
-    while _h.relay >= 0 :
-        _h = _hlist[_h.relay]
+    while _h.relay != None :
+        _h = _h.relay
         _hs.insert(0, _h)
     if len(_hs) < 1 :
         print('[ERROR]Host %s Path not existed'%_host.ip)
@@ -150,13 +154,13 @@ def ssh186() :
                 _snet = int(input('Enter the subnet:'))
             except :
                 continue
-            myssh(getPathbyHost(Host('10.186.11.%d'%_snet, 22, 'root', 'Zxcvbn2018', '', '186-%d'%_snet, 0), hs186))
+            myssh(getPathbyHost(Host('10.186.11.%d'%_snet, 22, 'root', 'Zxcvbn2018', '', '186-%d'%_snet, hs186[0])))
         else :
-            myssh(getPathbyHost(hs186[_idx], hs186))
+            myssh(getPathbyHost(hs186[_idx]))
 
 def sshgroup(_group) :
     if len(_group.hs) == 1:
-        myssh(getPathbyId(0, _group.hs))
+        myssh(getPathbyHost(_group.hs[0]))
     elif _group.name == "186" :
         ssh186()
     else:
@@ -176,7 +180,7 @@ def sshgroup(_group) :
             if _idx >= len(_group.hs) :
                 return
             else :
-                myssh(getPathbyHost(_group.hs[_idx], _group.hs))
+                myssh(getPathbyHost(_group.hs[_idx]))
 
 while True :
     print("==============[Menu]=============")
