@@ -53,7 +53,7 @@ def ssh_passwd(_ssh, _host) :
             _ssh.sendline(_vfcode)
             return 1
         else :
-            if _host.passwd == '' and _host.key != '':
+            if _host.passwd == '':
                 _host.key = input('Select the Key file for %s:'%(_host.ip))
             else:
                 _host.passwd = input('Enter the password for %s:'%(_host.ip))
