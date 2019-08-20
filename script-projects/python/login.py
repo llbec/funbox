@@ -28,8 +28,8 @@ hs186 = [
     Host('10.186.11.198', 22, 'root', 'Zxcvbn2018', '', '186-198', relayHost[0]),
 ]
 
-hsali = [
-    Host('120.78.12.252', 60022, '18692060908', 'gyWo57wI^6', '', 'ali', None),
+hschaosuan = [
+    Host('114.67.38.12', 22, 'ubuntu', '', 'ubuntu', 'chs', None),
 ]
 
 hs666 = [
@@ -39,7 +39,7 @@ hs666 = [
 groups = [
     Group('666', hs666),
     Group('186', hs186),
-    Group('ali', hsali),
+    Group('chs', hschaosuan),
 ]
 
 def ssh_passwd(_ssh, _host) :
