@@ -55,8 +55,7 @@ def ssh_passwd(_ssh, _host) :
         elif _i == 3 :
             #print(_ssh.after)
             localCmd('chmod 400 %s'%(os.path.dirname(__file__) + '/key/%s'%(_host.key)))
-            print('key file mod change to 400, try again!
-            ')
+            print('key file mod change to 400, try again!')
             os._exit(0)
         else :
             _host.passwd = input('Enter the password for %s:'%(_host.ip))
