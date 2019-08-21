@@ -45,18 +45,21 @@ groups = [
 def ssh_passwd(_ssh, _host) :
     for _n in range(0, 3) :
         _ssh.sendline(_host.passwd)
-        _i = _ssh.expect(['.*password.*', 'Last login.*', '.*verification.*'])
+        _i = _ssh.expect(['.*password.*', 'Last login.*', '.*verification.*', 'Permission denied'])
         if _i == 1 :
             return _i
         elif _i == 2 :
             _vfcode = input('\r\nPlease enter the verification code sent to your mobile phone:')
             _ssh.sendline(_vfcode)
             return 1
+        elif _i == 3 :
+            #print(_ssh.after)
+            localCmd('chmod 400 %s'%(os.path.dirname(__file__) + '/key/%s'%(_host.key)))
+            print('key file mod change to 400, try again!
+            ')
+            os._exit(0)
         else :
-            if _host.passwd == '':
-                _host.key = input('Select the Key file for %s:'%(_host.ip))
-            else:
-                _host.passwd = input('Enter the password for %s:'%(_host.ip))
+            _host.passwd = input('Enter the password for %s:'%(_host.ip))
             continue
     _n = -1
     return _n
@@ -89,7 +92,8 @@ def getLoginCmd(_host) :
     if _host.passwd != '' :
         return 'ssh -p %d %s@%s'%(_host.port, _host.usrname, _host.ip)
     elif _host.key != '' :
-        return 'ssh -p %d %s@%s -i %s'%(_host.port, _host.usrname, _host.ip, _host.key)
+        kpath = os.path.dirname(__file__) + '/key/%s'%(_host.key)
+        return 'ssh -p %d %s@%s -i %s'%(_host.port, _host.usrname, _host.ip, kpath)
     return None
 
 def getPathbyId(_id, _hlist) :
@@ -184,6 +188,12 @@ def sshgroup(_group) :
                 return
             else :
                 myssh(getPathbyHost(_group.hs[_idx]))
+
+def localCmd(_cmd) : 
+    _p = os.popen(_cmd)
+    _data = _p.read()
+    _p.close()
+    return _data
 
 while True :
     print("==============[Menu]=============")
