@@ -97,12 +97,14 @@ def ssh_login(_ssh, _host) :
             return -1
 
 def getLoginCmd(_host) :
+    _cmd = None
     if _host.passwd != '' :
-        return 'ssh -p %d %s@%s'%(_host.port, _host.usrname, _host.ip)
+        _cmd = 'ssh -p %d %s@%s'%(_host.port, _host.usrname, _host.ip)
     elif _host.key != '' :
         kpath = os.path.dirname(__file__) + '/key/%s'%(_host.key)
-        return 'ssh -p %d %s@%s -i %s'%(_host.port, _host.usrname, _host.ip, kpath)
-    return None
+        _cmd = 'ssh -p %d %s@%s -i %s'%(_host.port, _host.usrname, _host.ip, kpath)
+    print(_cmd,'\n',_host.passwd)
+    return _cmd
 
 def getPathbyId(_id, _hlist) :
     _h = _hlist[_id]
