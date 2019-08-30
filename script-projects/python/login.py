@@ -36,10 +36,18 @@ hs666 = [
     Host('45.77.223.88', 22, 'root', '9Y[zVY3PPS+GXBN]', '', '666', hs186[1]),
 ]
 
+hsqulian = [
+    Host('42.159.88.122', 22, 'xmeter', 'xmeter', '', 'qu1', None),
+    Host('118.24.45.67', 22, 'xmeter', 'xmeter', '', 'qu2', None),
+    Host('134.175.11.21', 22, 'xmeter', 'xmeter', '', 'qu3', None),
+    Host('121.196.205.206', 22, 'xmeter', 'xmeter', '', 'qu4', None),
+]
+
 groups = [
     Group('666', hs666),
     Group('186', hs186),
     Group('chs', hschaosuan),
+    Group('quL', hsqulian),
 ]
 
 def ssh_passwd(_ssh, _host) :
