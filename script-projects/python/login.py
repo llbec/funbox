@@ -38,6 +38,7 @@ hs666 = [
 
 hsqulian = [
     Host('42.159.88.122', 22, 'xmeter', 'xmeter', '', 'qu1', None),
+    Host('42.159.88.122', 22, 'xmeter', 'xmeter', '', 'qu1', None),
     Host('118.24.45.67', 22, 'xmeter', 'xmeter', '', 'qu2', None),
     Host('134.175.11.21', 22, 'xmeter', 'xmeter', '', 'qu3', None),
     Host('121.196.205.206', 22, 'xmeter', 'xmeter', '', 'qu4', None),
