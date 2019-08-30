@@ -80,7 +80,7 @@ def ssh_login(_ssh, _host) :
                             'Last login.*',
                             '.*verification.*',
                             pexpect.EOF, 
-                            pexpect.TIMEOUT], timeout = 3)
+                            pexpect.TIMEOUT], timeout = 30)
         if _i == 0 :
             return ssh_passwd(_ssh, _host)
         elif _i == 1 :
@@ -103,7 +103,7 @@ def getLoginCmd(_host) :
     elif _host.key != '' :
         kpath = os.path.dirname(__file__) + '/key/%s'%(_host.key)
         _cmd = 'ssh -p %d %s@%s -i %s'%(_host.port, _host.usrname, _host.ip, kpath)
-    print(_cmd,'\n',_host.passwd)
+    #print(_cmd,'\n{0}'%_host.passwd)
     return _cmd
 
 def getPathbyId(_id, _hlist) :
