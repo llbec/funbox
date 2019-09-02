@@ -51,50 +51,72 @@ groups = [
     Group('quL', hsqulian),
 ]
 
-def ssh_passwd(_ssh, _host) :
-    for _n in range(0, 3) :
-        _ssh.sendline(_host.passwd)
-        _i = _ssh.expect(['.*password.*', 'Last login.*', '.*verification.*', 'Permission denied'])
-        if _i == 1 :
-            return _i
-        elif _i == 2 :
-            _vfcode = input('\r\nPlease enter the verification code sent to your mobile phone:')
-            _ssh.sendline(_vfcode)
-            return 1
-        elif _i == 3 :
-            #print(_ssh.after)
-            localCmd('chmod 400 %s'%(os.path.dirname(__file__) + '/key/%s'%(_host.key)))
-            print('key file mod change to 400, try again!')
-            os._exit(0)
-        else :
-            _host.passwd = input('Enter the password for %s:'%(_host.ip))
-            continue
-    _n = -1
-    return _n
+expectRet = [
+    '.*assword.*',
+    'Last login.*',
+    '.*verification.*',
+    'Permission denied',
+    '.*continue.*?',
+    pexpect.EOF,
+    pexpect.TIMEOUT,
+]
+
+class switchExpect :
+    #list = {}
+    #err = None
+    def __init__(self, s, h):
+        self.list = {
+            #'password'
+            0:self.password,
+            #'success'
+            1:self.success,
+            #'verifycode'
+            2:self.verification,
+            #'permission'
+            3:self.denied,
+            #'continue'
+            4:self.sendYes
+        }
+        self.ssh = s
+        self.host = h
+        #function = self.list.get(expt, self.default)
+        #function()
+    def switch(self, expt) :
+        func = self.list.get(expt, self.default)
+        return func()
+    def default(self):
+        print(self.ssh.after)
+        #self.err = self.ssh.after
+        return  -1
+    def password(self):
+        self.ssh.sendline(self.host.passwd)
+        _swt = switchExpect(self.ssh, self.host)
+        return _swt.switch(self.ssh.expect(expectRet, timeout = 60))
+    def sendYes(self):
+        #print('function sendYes call')
+        self.ssh.sendline('yes\n')
+        return 0
+    def success(self):
+        return 1
+    def verification(self):
+        _vfcode = input('\r\nPlease enter the verification code sent to your mobile phone:')
+        self.ssh.sendline(_vfcode)
+        return 0
+    def denied(self):
+        localCmd('chmod 400 %s'%(os.path.dirname(__file__) + '/key/%s'%(self.host.key)))
+        print('key file mod change to 400, try again!')
+        #self.err = 'key file mod change to 400, try again!'
+        return -1
 
 def ssh_login(_ssh, _host) :
-    while True :
-        _i = _ssh.expect(
-                            [".*password.*",
-                            ".*continue.*?",
-                            'Last login.*',
-                            '.*verification.*',
-                            pexpect.EOF, 
-                            pexpect.TIMEOUT], timeout = 30)
-        if _i == 0 :
-            return ssh_passwd(_ssh, _host)
-        elif _i == 1 :
-            _ssh.sendline('yes\n')
+    while True:
+        swt = switchExpect(_ssh, _host)
+        _r = swt.switch(_ssh.expect(expectRet, timeout = 60))
+        #print('what\'s the hell!',_r, _i)
+        if _r == 0 :
             continue
-        elif _i == 2 :
-            return 1
-        elif _i == 3 :
-            _vfcode = input('\r\nPlease enter the verification code sent to your mobile phone:')
-            _ssh.sendline(_vfcode)
-            return 1
         else :
-            print("[Error]Connection to %s fails"%(_host.ip))
-            return -1
+            return _r
 
 def getLoginCmd(_host) :
     _cmd = None
