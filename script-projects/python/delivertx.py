@@ -230,29 +230,10 @@ def GetVouts(_amount) :
     _vout = _vout[:len(_vout)-1] + "}"
     return _vout
 
-def createrawtx(_src, _dst, _amount) :
-    _balance = GetBalance(_src)
-    if _amount >= _balance :
-        _amount = _balance - 1
-    _vins, _count = GetVins(_addr, _amount)
-    _change = _count - _amount - 1
-
-    if _change != 0 and _amount != 0 :
-        _vout = '{\"%s\":{:.8f},\"%s\":{:.8f}}'%(_src,a2str(_change/COIN),_dst,a2str(_amount/COIN))
-    elif _change != 0 :
-        _vout = '{\"%s\":{:.8f}}'%(_src,a2str(_change/COIN))
-    elif _amount != 0 :
-        _vout = '{\"%s\":{:.8f}}'%(_dst,a2str(_amount/COIN))
-    else :
-        print("Origin address has no balance")
-        os._exit(0)
-
-    _rawtx = rpcwd('createrawtransaction', _vins, _vout)
+def createrawtx(_vin, _vout) :
+    _rawtx = rpcwd('createrawtransaction', _vin, _vout)
     print(_rawtx)
 
 
-utxos = GetUtxos(srcAddr.addr)
-print(len(utxos), GetAmount(), GetBalance(srcAddr.addr))
 vin, amout = GetVins(srcAddr.addr, 5)
-print(vin)
-print(GetVouts(amout))
+createrawtx(vin, GetVouts(amout))
