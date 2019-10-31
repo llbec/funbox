@@ -1,6 +1,13 @@
 #!/usr/bin/python
 
-import os, sys, argparse, json, getpass
+import os, sys, argparse, json, getpass, random
+
+class Address :
+    def __init__(self, _Secret, _addr) :
+        self.Secret = _Secret
+        self.addr = _addr
+
+srcAddr = Address("", "")
 
 def rpcwd(_m, *_params):
     _ps = ''
@@ -26,6 +33,9 @@ def callRpc(_wd):
 def GetUtxos(_addr) :
     return callRpc(rpcwd('getaddressutxos', '{"addresses": ["%s"]}'%_addr))
 
-#def createtx() {}
+def GetAmount() :
+    return random.randint(5000,100000)
 
-print(GetUtxos(srcAddr.addr))
+
+utxos = GetUtxos(srcAddr.addr)
+print(len(utxos). GetAmount())

@@ -43,4 +43,5 @@ def GetUtxos(_addr) :
 
 #def createtx() {}
 
-print(GetUtxos(srcAddr.addr))
+# utxos is a list
+utxos = GetUtxos(srcAddr.addr)
