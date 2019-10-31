@@ -199,7 +199,7 @@ def GetAmount() :
     return random.randint(500,10000)
 
 def GetVins(_addr, _num) :
-    _vins = "\"["
+    _vins = "["
     _utxos = GetUtxos(_addr)
     if _num > len(_utxos) :
         _num = len(_utxos)
@@ -211,12 +211,12 @@ def GetVins(_addr, _num) :
         _b = int(_utxo["satoshis"])
         _vins += "{\\\"txid\\\":\\\"%s\\\",\\\"vout\\\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
         _count += _b
-    _vins = _vins[:len(_vins)-1] + "]\""
+    _vins = _vins[:len(_vins)-1] + "]"
     return _vins, _count
 
 def GetVouts(_amount) :
     global listIndex
-    _vout = "\"{"
+    _vout = "{"
     for i in range(0, 20) :
         _value = GetAmount()
         if _value >= _amount :
@@ -227,7 +227,7 @@ def GetVouts(_amount) :
         _vout += "\\\"%s\\\":%d,"%(listrcvs[listIndex], _value)
         listIndex += 1
         _amount -= _value
-    _vout = _vout[:len(_vout)-1] + "}\""
+    _vout = _vout[:len(_vout)-1] + "}"
     return _vout
 
 def createrawtx(_vin, _vout) :
