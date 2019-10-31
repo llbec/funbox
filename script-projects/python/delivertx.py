@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, sys, argparse, json, getpass, random
+import os, sys, argparse, json, getpass, random, time
 
 class Address :
     def __init__(self, _Secret, _addr) :
@@ -209,7 +209,7 @@ def GetVins(_addr, _num) :
     for i in range(0, _num) :
         _utxo = _utxos[i]
         _b = int(_utxo["satoshis"])
-        _vins += "{\\\"txid\\\":\\\"%s\\\",\\\"vout\\\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
+        _vins += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
         _count += _b
     _vins = _vins[:len(_vins)-1] + "]"
     return _vins, _count
@@ -221,10 +221,10 @@ def GetVouts(_amount) :
         _value = GetAmount()
         if _value >= _amount :
             _value = _amount - 0.00000001
-            _vout += "\\\"%s\\\":%d,"%(listrcvs[listIndex], _value)
+            _vout += "\"%s\":%d,"%(listrcvs[listIndex], _value)
             listIndex += 1
             break
-        _vout += "\\\"%s\\\":%d,"%(listrcvs[listIndex], _value)
+        _vout += "\"%s\":%d,"%(listrcvs[listIndex], _value)
         listIndex += 1
         _amount -= _value
     _vout = _vout[:len(_vout)-1] + "}"
@@ -235,6 +235,25 @@ def createrawtx(_vin, _vout) :
     print(_rawtx)
     return callRpc(_rawtx)
 
+def signrawtx(_rawtx, _key) :
+    _cmd = rpcwd('signrawtransaction', '"%s"'%_rawtx.strip('\n'), '[]', '["%s"]'%_key)
+    _r = callRpc(_cmd)
+    if _r["complete"] == True:
+        return _r["hex"]
+    print("Sign rawtransaction failed, without matched private key.")
+    os._exit(0)
 
-vin, amout = GetVins(srcAddr.addr, 5)
-print(createrawtx(vin, GetVouts(amout)))
+def sendrawtx(_tx):
+    if _tx == None:
+        return "No rawtransaction data"
+    #return operation('%s sendrawtransaction %s'%(ut, _tx.strip('\n')))
+    return callRpc(rpcwd('sendrawtransaction', '"%s"'%_tx.strip('\n')))
+
+while True :
+    vin, amount = GetVins(srcAddr.addr, 5)
+    vout = GetVouts(amount)
+    rawtx = createrawtx(vin, vout)
+    tx = signrawtx(rawtx, srcAddr.Secret)
+    ret = sendrawtx(tx)
+    print(ret)
+    time.sleep(60)
