@@ -39,7 +39,7 @@ def callRpc(_wd):
     return ret['result']
 
 def GetUtxos(_addr) :
-    return callRpc('getaddressutxos', '{"addresses": ["%s"]}'%_addr)
+    return callRpc('getaddressutxos', "{\"addresses\": [\"%s\"]}"%_addr)
 
 #def createtx() {}
 
