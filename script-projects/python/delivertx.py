@@ -10,6 +10,7 @@ class Address :
 srcAddr = Address("", "SZkgLVprTwMNBPzvSgCfrGtdFADyThzMPA")
 listrcvs = []
 listIndex = 0
+COIN = 100000000
 
 def rpcwd(_m, *_params):
     _ps = ''
@@ -38,17 +39,44 @@ def GetUtxos(_addr) :
 def GetBalance(_addr) :
     return callRpc(rpcwd('getaddressbalance', '{"addresses": ["%s"]}'%_addr))["balance"]
 
-def GetAmount() :
-    return random.randint(5000,100000)
 
-def createrawtx() :
-    _vout = ''
-    _vouts = {}
-    _amount = 0
-    for i in range(0,10) :
-        _vouts[listrcvs[listIndex]] = GetAmount()
-        _amount += _vouts[listrcvs[listIndex]]
-        listIndex += 1
+def GetAmount() :
+    return random.randint(5000,100000) * COIN
+
+def GetVins(_addr, _amount) :
+    _vins = {}
+    _utxos = GetUtxos(_addr)
+    _count = 0
+    for utxo in utxos :
+        _b = int(utxo["satoshis"])
+        _vins[utxo["txid"]] = utxo["outputIndex"]
+        _count += _b
+        if _count > _amount :
+            break
+    return _vins, _count
+
+def createrawtx(_src, _dst, _amount) :
+    _balance = GetBalance(_src)
+    if _amount >= _balance :
+        _amount = _balance - 1
+    _vins, _count = GetVins(_addr, _amount)
+    _change = _count - _amount - 1
+
+    if _change != 0 and _amount != 0 :
+        _vout = '{\"%s\":{:.8f},\"%s\":{:.8f}}'%(_src,a2str(_change/COIN),_dst,a2str(_amount/COIN))
+    elif _change != 0 :
+        _vout = '{\"%s\":{:.8f}}'%(_src,a2str(_change/COIN))
+    elif _amount != 0 :
+        _vout = '{\"%s\":{:.8f}}'%(_dst,a2str(_amount/COIN))
+    else :
+        print("Origin address has no balance")
+        os._exit(0)
+    
+    _vin = ""
+    for _v in _vins :
+        _v += 
+
+    _rawtx = rpcwd('createrawtransaction', _coins['Vin'], _vout)
 
 
 utxos = GetUtxos(srcAddr.addr)
