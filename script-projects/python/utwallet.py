@@ -72,7 +72,7 @@ def createrawtx(_coins, _o, _r, _f) :
 
     #_rawtx = '%s createrawtransaction \'%s\' \'%s\''%(ut, _coins['Vin'], _vout)
     _rawtx = rpcwd('createrawtransaction', _coins['Vin'], _vout)
-    #print(_rawtx)
+    print(_rawtx)
     return callRpc(_rawtx)
 
 def signrawtx(_rawtx) :
