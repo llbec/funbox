@@ -7,7 +7,8 @@ class Address :
         self.Secret = _Secret
         self.addr = _addr
 
-srcAddr = Address("", "UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h")
+Fee = 0.00000001
+srcAddr = Address("", "UZEa2p6K4AjYyypGH7c12n7LM8s7YTQkxu")
 listrcvs = [
     "UN1rcJcbB3Lv54GQzVohMKjWuuRF8ueP1Z",
     "UNXEToQZQgWiubWFyU4RxTG5ZtXtjiJAgG",
@@ -194,11 +195,10 @@ def GetUtxos(_addr) :
 def GetBalance(_addr) :
     return callRpc(rpcwd('getaddressbalance', '{"addresses": ["%s"]}'%_addr))["balance"]
 
-
 def GetAmount() :
     return random.randint(500,10000)
 
-def GetVins(_addr, _num) :
+def GetVin(_addr, _num) :
     _vins = "["
     _utxos = GetUtxos(_addr)
     if _num > len(_utxos) :
@@ -208,25 +208,29 @@ def GetVins(_addr, _num) :
     _count = 0
     for i in range(0, _num) :
         _utxo = _utxos[i]
-        _b = int(_utxo["satoshis"])
+        _b = _utxo["satoshis"]
         _vins += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
         _count += _b
     _vins = _vins[:len(_vins)-1] + "]"
-    return _vins, _count
+    return _vins, _count/COIN
 
-def GetVouts(_amount) :
+def GetVout(_src, _amount) :
     global listIndex
     _vout = "{"
     for i in range(0, 20) :
         _value = GetAmount()
         if _value >= _amount :
-            _value = _amount - 0.00000001
-            _vout += "\"%s\":%d,"%(listrcvs[listIndex], _value)
+            _value = _amount - Fee
+            _vout += "\"%s\":%.8f,"%(listrcvs[listIndex], _value)
             listIndex += 1
             break
         _vout += "\"%s\":%d,"%(listrcvs[listIndex], _value)
         listIndex += 1
         _amount -= _value
+    if _amount > Fee :
+        _change = _amount - Fee
+        print(_amount, Fee, _change)
+        _vout += "\"%s\":%.8f,"%(_src, _change)
     _vout = _vout[:len(_vout)-1] + "}"
     return _vout
 
@@ -249,11 +253,14 @@ def sendrawtx(_tx):
     #return operation('%s sendrawtransaction %s'%(ut, _tx.strip('\n')))
     return callRpc(rpcwd('sendrawtransaction', '"%s"'%_tx.strip('\n')))
 
-while True :
-    vin, amount = GetVins(srcAddr.addr, 5)
-    vout = GetVouts(amount)
-    rawtx = createrawtx(vin, vout)
-    tx = signrawtx(rawtx, srcAddr.Secret)
-    ret = sendrawtx(tx)
-    print(ret)
-    time.sleep(60)
+def run() :
+    while True :
+        vin, amount = GetVin(srcAddr.addr, 5)
+        vout = GetVout(srcAddr.addr, amount)
+        rawtx = createrawtx(vin, vout)
+        tx = signrawtx(rawtx, srcAddr.Secret)
+        ret = sendrawtx(tx)
+        print(ret)
+        time.sleep(60)
+
+run()
