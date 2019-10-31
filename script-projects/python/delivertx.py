@@ -7,7 +7,7 @@ class Address :
         self.Secret = _Secret
         self.addr = _addr
 
-srcAddr = Address("", "")
+srcAddr = Address("", "SZkgLVprTwMNBPzvSgCfrGtdFADyThzMPA")
 listrcvs = []
 listIndex = 0
 
