@@ -7,7 +7,7 @@ class Address :
         self.Secret = _Secret
         self.addr = _addr
 
-srcAddr = Address("", "UZEa2p6K4AjYyypGH7c12n7LM8s7YTQkxu")
+srcAddr = Address("", "UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h")
 listrcvs = []
 listIndex = 0
 COIN = 100000000
@@ -52,8 +52,9 @@ def GetVins(_addr, _num) :
         return "", 0
     _count = 0
     for i in range(0, _num) :
-        _b = int(utxo["satoshis"])
-        _vins += "{\"txid\":\"%s\",\"vout\":%d},"%(utxo["txid"], int(utxo["outputIndex"]))
+        _utxo = _utxos[i]
+        _b = int(_utxo["satoshis"])
+        _vins += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
         _count += _b
     _vins[len(_vins)-1] = "]"
     return _vins, _count
