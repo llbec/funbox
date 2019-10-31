@@ -7,7 +7,7 @@ class Address :
         self.Secret = _Secret
         self.addr = _addr
 
-srcAddr = Address("", "SZkgLVprTwMNBPzvSgCfrGtdFADyThzMPA")
+srcAddr = Address("", "UZEa2p6K4AjYyypGH7c12n7LM8s7YTQkxu")
 listrcvs = []
 listIndex = 0
 COIN = 100000000
