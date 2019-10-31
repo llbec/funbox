@@ -23,7 +23,7 @@ def rpcwd(_m, *_params):
         _ps += '%s,'%_p
     if _ps[len(_ps)-1] == ',':
         _ps = _ps[:len(_ps)-1]
-    return 'curl -s --user Ulord03:Ulord03 --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://127.0.0.1:9889/'%(_m, _ps)
+    return 'curl -s --user Ulord130:Ulord130 --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://182.151.30.93:9889/'%(_m, _ps)
 
 def operation (_cmd) :
     _p = os.popen(_cmd)
