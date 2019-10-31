@@ -215,6 +215,7 @@ def GetVins(_addr, _num) :
     return _vins, _count
 
 def GetVouts(_amount) :
+    global listIndex
     _vout = "{"
     for i in range(0, 20) :
         _value = GetAmount()
