@@ -232,7 +232,8 @@ def GetVouts(_amount) :
 
 def createrawtx(_vin, _vout) :
     _rawtx = rpcwd('createrawtransaction', _vin, _vout)
-    print(_rawtx)
+    #print(_rawtx)
+    return callRpc(_rawtx)
 
 
 vin, amout = GetVins(srcAddr.addr, 5)
