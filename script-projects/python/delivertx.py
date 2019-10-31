@@ -209,30 +209,30 @@ def GetVins(_addr, _num) :
     for i in range(0, _num) :
         _utxo = _utxos[i]
         _b = int(_utxo["satoshis"])
-        _vins += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
+        _vins += "{\\\"txid\\\":\\\"%s\\\",\\\"vout\\\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
         _count += _b
     _vins = _vins[:len(_vins)-1] + "]\""
     return _vins, _count
 
 def GetVouts(_amount) :
     global listIndex
-    _vout = "{"
+    _vout = "\"{"
     for i in range(0, 20) :
         _value = GetAmount()
         if _value >= _amount :
             _value = _amount - 0.00000001
-            _vout += "\"%s\":%d,"%(listrcvs[listIndex], _value)
+            _vout += "\\\"%s\\\":%d,"%(listrcvs[listIndex], _value)
             listIndex += 1
             break
-        _vout += "\"%s\":%d,"%(listrcvs[listIndex], _value)
+        _vout += "\\\"%s\\\":%d,"%(listrcvs[listIndex], _value)
         listIndex += 1
         _amount -= _value
-    _vout = _vout[:len(_vout)-1] + "}"
+    _vout = _vout[:len(_vout)-1] + "}\""
     return _vout
 
 def createrawtx(_vin, _vout) :
     _rawtx = rpcwd('createrawtransaction', _vin, _vout)
-    #print(_rawtx)
+    print(_rawtx)
     return callRpc(_rawtx)
 
 
