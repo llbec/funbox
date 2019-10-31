@@ -56,7 +56,7 @@ def GetVins(_addr, _num) :
         _b = int(_utxo["satoshis"])
         _vins += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
         _count += _b
-    _vins[len(_vins)-1] = "]"
+    _vin = _vins[:len(_vins)-1] + "]"
     return _vins, _count
 
 def createrawtx(_src, _dst, _amount) :
