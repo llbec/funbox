@@ -8,6 +8,8 @@ class Address :
         self.addr = _addr
 
 srcAddr = Address("", "")
+listrcvs = []
+listIndex = 0
 
 def rpcwd(_m, *_params):
     _ps = ''
@@ -33,9 +35,21 @@ def callRpc(_wd):
 def GetUtxos(_addr) :
     return callRpc(rpcwd('getaddressutxos', '{"addresses": ["%s"]}'%_addr))
 
+def GetBalance(_addr) :
+    return callRpc(rpcwd('getaddressbalance', '{"addresses": ["%s"]}'%_addr))
+
 def GetAmount() :
     return random.randint(5000,100000)
 
+def createrawtx() :
+    _vout = ''
+    _vouts = {}
+    _amount = 0
+    for i in range(0,10) :
+        _vouts[listrcvs[listIndex]] = GetAmount()
+        _amount += _vouts[listrcvs[listIndex]]
+        listIndex += 1
+
 
 utxos = GetUtxos(srcAddr.addr)
-print(len(utxos). GetAmount())
+print(len(utxos), GetAmount(), GetBalance(srcAddr.addr))
