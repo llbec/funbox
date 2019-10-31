@@ -252,5 +252,6 @@ def createrawtx(_src, _dst, _amount) :
 
 utxos = GetUtxos(srcAddr.addr)
 print(len(utxos), GetAmount(), GetBalance(srcAddr.addr))
-print(GetVins(srcAddr.addr, 5))
-print(len(listrcvs))
+vin, amout = GetVins(srcAddr.addr, 5)
+print(vin)
+print(GetVouts(amout))
