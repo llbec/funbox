@@ -36,7 +36,7 @@ def GetUtxos(_addr) :
     return callRpc(rpcwd('getaddressutxos', '{"addresses": ["%s"]}'%_addr))
 
 def GetBalance(_addr) :
-    return callRpc(rpcwd('getaddressbalance', '{"addresses": ["%s"]}'%_addr))
+    return callRpc(rpcwd('getaddressbalance', '{"addresses": ["%s"]}'%_addr))["balance"]
 
 def GetAmount() :
     return random.randint(5000,100000)
