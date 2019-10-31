@@ -14,6 +14,7 @@ argParser.add_argument('-s', '--send', type=bool, default=False, metavar='', hel
 argParser.add_argument('-d', '--dumpkey', type=bool, default=False, metavar='', help='List Keys, type bool')
 argParser.add_argument('-p', '--password', type=bool, default=False, metavar='', help='Set a new password for the commands, type bool')
 argParser.add_argument('-l', '--list', type=bool, default=False, metavar='', help='List addresses, type bool')
+argParser.add_argument('-t', '--rawtx', type=bool, default=False, metavar='', help='Show createrawtransaction')
 
 def printAddrList(o, r):
     d = 'origin  address: %s\nreceive address: %s\n\n\n'%(o,r)
@@ -27,6 +28,7 @@ def rpcwd(_m, *_params):
     if _ps[len(_ps)-1] == ',':
         _ps = _ps[:len(_ps)-1]
     return 'curl -s --user Ulord03:Ulord03 --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://127.0.0.1:9889/'%(_m, _ps)
+    #return 'curl --user Ulord130:Ulord130 --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://182.151.30.93:9889/'%(_m, _ps)
 
 def operation (_cmd) :
     _p = os.popen(_cmd)
@@ -201,6 +203,11 @@ def main () :
     if args.dumpkey:
         checkPwd()
         print(getKeys())
+        return
+    
+    if args.rawtx:
+        coins = getCoins(args.origin)
+        print(createrawtx(coins, args.origin, args.receive, args.fee))
         return
 
     if args.send:
