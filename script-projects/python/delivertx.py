@@ -43,16 +43,19 @@ def GetBalance(_addr) :
 def GetAmount() :
     return random.randint(5000,100000) * COIN
 
-def GetVins(_addr, _amount) :
-    _vins = {}
+def GetVins(_addr, _num) :
+    _vins = "["
     _utxos = GetUtxos(_addr)
+    if _num > len(_utxos) :
+        _num = len(_utxos)
+    if _num == 0 :
+        return "", 0
     _count = 0
-    for utxo in utxos :
+    for i in range(0, _num) :
         _b = int(utxo["satoshis"])
-        _vins[utxo["txid"]] = utxo["outputIndex"]
+        _vins += "{\"txid\":\"%s\",\"vout\":%d},"%(utxo["txid"], int(utxo["outputIndex"]))
         _count += _b
-        if _count > _amount :
-            break
+    _vins[len(_vins)-1] = "]"
     return _vins, _count
 
 def createrawtx(_src, _dst, _amount) :
@@ -71,13 +74,11 @@ def createrawtx(_src, _dst, _amount) :
     else :
         print("Origin address has no balance")
         os._exit(0)
-    
-    _vin = ""
-    for _v in _vins :
-        _v += 
 
-    _rawtx = rpcwd('createrawtransaction', _coins['Vin'], _vout)
+    _rawtx = rpcwd('createrawtransaction', _vins, _vout)
+    print(_rawtx)
 
 
 utxos = GetUtxos(srcAddr.addr)
 print(len(utxos), GetAmount(), GetBalance(srcAddr.addr))
+print(GetVins(srcAddr.addr, 5))
