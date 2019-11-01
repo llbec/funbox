@@ -8,7 +8,7 @@ class Address :
         self.addr = _addr
 
 Fee = 0.00000001
-srcAddr = Address("", "URRzunfD2z1HC9HcUDfYbeSBmCV1qpM34F")
+srcAddr = Address("", "UZEa2p6K4AjYyypGH7c12n7LM8s7YTQkxu")
 listrcvs = [
     "UN1rcJcbB3Lv54GQzVohMKjWuuRF8ueP1Z",
     "UNXEToQZQgWiubWFyU4RxTG5ZtXtjiJAgG",
@@ -192,11 +192,25 @@ def callRpc(_wd):
 def GetUtxos(_addr) :
     return callRpc(rpcwd('getaddressutxos', '{"addresses": ["%s"]}'%_addr))
 
+def GetMemPooltx(_addr) :
+    return callRpc(rpcwd('getaddressmempool', '{"addresses": ["%s"]}'%_addr))
+
 def GetBalance(_addr) :
     return callRpc(rpcwd('getaddressbalance', '{"addresses": ["%s"]}'%_addr))["balance"]
 
 def GetAmount() :
     return random.randint(500,10000)
+
+def CheckUtxo(_addr, _utxo) :
+    _txid = _utxo["txid"]
+    if _utxo["comfirms"] < 1 :
+        return False
+    _pools = GetMemPooltx(_addr)
+    for _memtx in _pools :
+        if _txid == _memtx["prevtxid"] :
+            print("conflict tx: %s"%_txid)
+            return False
+    return True
 
 def GetVin(_addr, _num) :
     _vins = "["
@@ -208,7 +222,7 @@ def GetVin(_addr, _num) :
     _count = 0
     for i in range(0, _num) :
         _utxo = _utxos[i]
-        if _utxo["comfirms"] <= 1 :
+        if CheckUtxo(_addr, _utxo) == False :
             continue
         _b = _utxo["satoshis"]
         _vins += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
@@ -272,3 +286,4 @@ def run() :
         time.sleep(60)
 
 run()
+#print(GetMemPooltx(srcAddr.addr))
