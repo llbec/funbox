@@ -231,18 +231,17 @@ def GetVin(_addr, _num) :
     return _vins, _count/COIN
 
 def GetVout(_src, _amount) :
-    global listIndex
     _vout = "{"
     for i in range(0, 20) :
         _value = GetAmount()
+        _index = random.randint(0, len(listrcvs))
         if _value >= _amount :
             _value = _amount - Fee
-            _vout += "\"%s\":%.8f,"%(listrcvs[listIndex], _value)
-            listIndex += 1
+            _vout += "\"%s\":%.8f,"%(listrcvs[_index], _value)
             break
         _vout += "\"%s\":%d,"%(listrcvs[listIndex], _value)
-        listIndex += 1
         _amount -= _value
+
     if _amount > Fee :
         _change = _amount - Fee
         #print(_amount, Fee, _change)
