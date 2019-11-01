@@ -236,8 +236,6 @@ def GetVout(_src, _amount) :
     for i in range(0, 20) :
         _value = GetAmount()
         if _value >= _amount :
-            _value = _amount - Fee
-            _vout += "\"%s\":%.8f,"%(listrcvs[_index], _value)
             break
         _vout += "\"%s\":%d,"%(listrcvs[_index], _value)
         _amount -= _value
