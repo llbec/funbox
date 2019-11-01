@@ -267,7 +267,8 @@ def run() :
             ret = sendrawtx(tx)
             print(ret)
         else :
-            print(GetUtxos(srcAddr.addr))
+            #print(GetUtxos(srcAddr.addr))
+            print("Wait for utxo confirm twice!")
         time.sleep(60)
 
 run()
