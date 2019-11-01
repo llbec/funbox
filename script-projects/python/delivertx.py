@@ -8,7 +8,7 @@ class Address :
         self.addr = _addr
 
 Fee = 0.00000001
-srcAddr = Address("", "UZEa2p6K4AjYyypGH7c12n7LM8s7YTQkxu")
+srcAddr = Address("", "URRzunfD2z1HC9HcUDfYbeSBmCV1qpM34F")
 listrcvs = [
     "UN1rcJcbB3Lv54GQzVohMKjWuuRF8ueP1Z",
     "UNXEToQZQgWiubWFyU4RxTG5ZtXtjiJAgG",
@@ -208,6 +208,8 @@ def GetVin(_addr, _num) :
     _count = 0
     for i in range(0, _num) :
         _utxo = _utxos[i]
+        if _utxo["comfirms"] <= 1 :
+            continue
         _b = _utxo["satoshis"]
         _vins += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
         _count += _b
@@ -229,7 +231,7 @@ def GetVout(_src, _amount) :
         _amount -= _value
     if _amount > Fee :
         _change = _amount - Fee
-        print(_amount, Fee, _change)
+        #print(_amount, Fee, _change)
         _vout += "\"%s\":%.8f,"%(_src, _change)
     _vout = _vout[:len(_vout)-1] + "}"
     return _vout
@@ -240,6 +242,8 @@ def createrawtx(_vin, _vout) :
     return callRpc(_rawtx)
 
 def signrawtx(_rawtx, _key) :
+    if _rawtx == None or _rawtx == "" :
+        return None
     _cmd = rpcwd('signrawtransaction', '"%s"'%_rawtx.strip('\n'), '[]', '["%s"]'%_key)
     _r = callRpc(_cmd)
     if _r["complete"] == True:
@@ -256,11 +260,14 @@ def sendrawtx(_tx):
 def run() :
     while True :
         vin, amount = GetVin(srcAddr.addr, 5)
-        vout = GetVout(srcAddr.addr, amount)
-        rawtx = createrawtx(vin, vout)
-        tx = signrawtx(rawtx, srcAddr.Secret)
-        ret = sendrawtx(tx)
-        print(ret)
+        if amount > 0 :
+            vout = GetVout(srcAddr.addr, amount)
+            rawtx = createrawtx(vin, vout)
+            tx = signrawtx(rawtx, srcAddr.Secret)
+            ret = sendrawtx(tx)
+            print(ret)
+        else :
+            print(GetUtxos(srcAddr.addr))
         time.sleep(60)
 
 run()
