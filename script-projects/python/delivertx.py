@@ -242,6 +242,8 @@ def GetVout(_src, _amount) :
         _vout += "\"%s\":%d,"%(listrcvs[_index], _value)
         _amount -= _value
         _index += 1
+        if _index >= len(listrcvs) :
+            _index = 0
 
     if _amount > Fee :
         _change = _amount - Fee
