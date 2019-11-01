@@ -282,7 +282,7 @@ def run() :
             print(ret)
         else :
             #print(GetUtxos(srcAddr.addr))
-            print("Wait for utxo confirm twice!")
+            print("No UTXO!")
         time.sleep(60)
 
 run()
