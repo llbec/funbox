@@ -12,13 +12,13 @@ class Rpc :
         self.host = _host
         self.port = _port
     
-    def word(self, _method, _params):
+    def word(self, _method, *_params):
         _paramStr = ''
         for _p in _params:
             _paramStr += '%s,'%_p
         if _paramStr[len(_paramStr)-1] == ',':
             _paramStr = _paramStr[:len(_paramStr)-1]
-        return 'curl -s --user %s:%s --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://%s:%s/'%(self.name, self.pwd, _m, _paramStr, self.host, self.port)
+        return 'curl -s --user %s:%s --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://%s:%s/'%(self.name, self.pwd, _method, _paramStr, self.host, self.port)
 
     def operation (self, _cmd) :
         _p = os.popen(_cmd)
@@ -26,8 +26,10 @@ class Rpc :
         _p.close()
         return _data
     
-    def Run(self, _method, _params):
-        ret = json.loads(self.operation(self.word(_method, _params)))
+    def Run(self, _method, *_params):
+        _cmd = self.word(_method, _params)
+        print(_cmd)
+        ret = json.loads(self.operation(_cmd))
         if not ret['error'] is None:
             print(ret['error'])
             os._exit(0)
@@ -76,6 +78,7 @@ class Key :
             return "No rawtransaction data"
         return self.rpc.Run('sendrawtransaction', '"%s"'%_tx.strip('\n'))
 
+# not stable
 class Dispersion :
     def __init__ (self, _key, _recipients, _min, _max) :
         self.recipients = _recipients
@@ -139,3 +142,16 @@ class Dispersion :
                 #print(GetUtxos(srcAddr.addr))
                 print("No UTXO!")
             time.sleep(60)
+
+class Gather :
+    def __init__(self, _key, _dst) :
+        self.key = _key
+        self.dst = _dst
+        self.fee = Fee
+    
+    def __repr__(self) :
+        return "Gather<From %s to %s.Fee is %.8f>"%(self.key.address, self.dst, self.fee)
+    
+    def GetVin(self) :
+        utxos = self.key.Utxos()
+        print(utxos)
