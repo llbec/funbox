@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import pexpect, os, socket, re, paramiko
+import pexpect, os, socket, re
 
 def localCmd(_cmd) : 
     _p = os.popen(_cmd)
@@ -116,13 +116,13 @@ class Host :
             return 'ssh -p %d %s@%s -i %s'%(self.port, self.usrname, self.ip, kpath)
         else :
             return 'ssh -p %d %s@%s'%(self.port, self.usrname, self.ip)
-    def getShell(self) :
+    def SSH(self) :
         if self.route == None :
             _shell = pexpect.spawn(self.getSSHLoginCmd())
             print('Login@%s ......'%self.ip)
             return switchLoginExpect(_shell, self).Run()
         else :
-            _route = self.route.getShell()
+            _route = self.route.SSH()
             if _route == None :
                 return None
             _route.sendline(self.getSSHLoginCmd())
@@ -131,31 +131,35 @@ class Host :
     def getError(self, e) :
         return "Host(%s) error: %s"%(self.ip, e)
     def Shell(self) :
-        _shell = self.getShell()
+        _shell = self.SSH()
         if _shell == None :
             return
         _rows, _columns = os.popen('stty size', 'r').read().split()
         _shell.setwinsize(int(_rows), int(_columns))
         print('Welcome to %s\n'%(self.ip))
         _shell.interact()
-    def GetSSH(self) :
-        try :
-            #login in to host
-            _ssh = paramiko.SSHClient()
-            _ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            if self.key != '' :
-                _ssh.connect(self.ip, self.port, self.usrname, timeout=5, key_filename=self.key)
-            else :
-                _ssh.connect(self.ip, self.port, self.usrname, self.passwd, timeout=5)
-            return _ssh
-        except Exception as e :
-            print(self.getError(e))
-            return None
-    def Download(self) :
-        if IsDirect(self.ip) == True :
-            pass
-        else :
-            pass
+
+class Operate :
+    def __init__(self, _host) :
+        self.host = _host
+    def PutFile(self) :
+        pass
+
+class Node :
+    def __init__(self, _childs, _operate) :
+        self.childs = _childs
+        self.operate = _operate
+    def Add(self, child) :
+        self.childs
+
+class Trie :
+    def __init__(self) :
+        self.nodes = {}
+
+class Task :
+    def __init__(self, _hostlist, _operate) :
+        self.hostlist = _hostlist
+        self.operate = _operate
 
 relayHost = [
     Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', None),
