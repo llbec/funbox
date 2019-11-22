@@ -153,5 +153,13 @@ class Gather :
         return "Gather<From %s to %s.Fee is %.8f>"%(self.key.address, self.dst, self.fee)
     
     def GetVin(self) :
-        utxos = self.key.Utxos()
-        print(utxos)
+        _utxos = self.key.Utxos()
+        _vinStr = "["
+        _balance = 0
+        for _utxo in _utxos :
+            _vinStr += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
+            _balance += _utxo["satoshis"]
+        _vinStr = _vinStr[:len(_vinStr)-1] + "]"
+        return _vinStr, _balance
+    
+    def 
