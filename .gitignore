@@ -43,3 +43,7 @@ build/
 
 #ssh key
 *.pem
+
+#user file
+.wallet
+*.log
