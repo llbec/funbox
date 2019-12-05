@@ -217,7 +217,7 @@ class Gather :
         self.amount = _amount*COIN
     
     def __repr__(self) :
-        return "Gather<Translate %.8f from %s to %s.Fee is %.8f>"%(self.amount, self.key.address, self.dst, self.fee)
+        return "Gather<Translate %.8f from %s to %s .Fee is %.8f>"%(self.amount/COIN, self.key.address, self.dst, self.fee/COIN)
     
     def __GetVin(self) :
         _utxos = self.key.Utxos()
