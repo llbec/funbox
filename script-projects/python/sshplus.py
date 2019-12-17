@@ -161,17 +161,6 @@ class Task :
         self.hostlist = _hostlist
         self.operate = _operate
 
-relayHost = [
-    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', None),
-]
-
-hs186 = [
-    Host('114.67.40.11', 20282, 'lbc', 'lbc', '', '186', None),
-    Host('10.186.11.27', 22, 'root', 'Zxcvbn2018', '', '186-27', relayHost[0]),
-    Host('10.186.11.42', 22, 'root', 'Zxcvbn2018', '', '186-42', relayHost[0]),
-    Host('10.186.11.110', 22, 'root', 'Zxcvbn2019', '', '186-110', relayHost[0]),
-    Host('10.186.11.198', 22, 'root', 'Zxcvbn2018', '', '186-198', relayHost[0]),
-]
 
 #try :
 #    _idx = int(input('Enter the number:'))

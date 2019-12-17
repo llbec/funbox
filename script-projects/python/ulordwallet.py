@@ -354,7 +354,7 @@ class UtWallet :
         for _k in self.__keys :
             if _k.address == _addr :
                 return _k
-        return Key(_addr, "", self._rpc)
+        return Key(_addr, "", self.rpc)
 
     def GetBalance(self, _addr) :
         return self.__FindKey(_addr).Balance()/COIN
