@@ -112,5 +112,5 @@ class Host :
         _shell.interact()
 
 if __name__ == "__main__":
-    h = Host("106.52.103.36", 22, "root", "h+twR.3fM@5W", None,"tencent-jinxun", None)
+    h = Host("106.52.103.36", 22, "root", "Jx@2020330", None,"tencent-jinxun", None)
     h.Shell()
