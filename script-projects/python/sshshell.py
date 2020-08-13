@@ -82,6 +82,8 @@ class Host :
         self.key = _key
         self.alias = _alias
         self.route = _route
+    def __repr__(self) :
+        return "Host %s@%s(%s)"%(self.usrname, self.ip, self.getSSHLoginCmd())
     def getSSHLoginCmd(self) :
         if self.key != '' :
             kpath = os.path.dirname(__file__) + '/key/%s'%(self.key)
@@ -112,5 +114,10 @@ class Host :
         _shell.interact()
 
 if __name__ == "__main__":
-    h = Host("106.52.103.36", 22, "root", "", "itsp.dms","tencent-jinxun", None)
-    h.Shell()
+    h1 = Host("106.52.103.36", 22, "root", "", "itsp.dms","tencent-jinxun", None)
+    h2 = Host("192.168.168.254", 22, "root", "Jx~!@#$%^", "","XD", None)
+    h3 = Host("192.168.168.254", 33, "root", "JxZw~!@#$%^", "","XD", None)
+    h4 = Host("115.220.10.35", 753, "root", "Ubs547629134307", "","XD", None)
+    h_zhoukaiyuan = Host("49.233.162.142", 753, "root", "Dwgl1234", "","XD", None)
+    #h2 = Host("192.168.168.254", 22, "Jxchangsha", "Jx~!@#$%^", "","XD", None)
+    h1.Shell()
