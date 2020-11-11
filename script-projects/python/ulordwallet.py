@@ -265,7 +265,8 @@ class UtWallet :
             self.file = Config(_dir+"/.wallet")
         else :
             self.file = Config(_path)
-        self.rpc = Rpc("six666", "six666", "49.233.162.142", 9879)
+        #self.rpc = Rpc("euclan", "six666", "113.31.119.157", 9879)
+        self.rpc = Rpc(self.file.Read("rpcuser"), self.file.Read("rpcpswd"), self.file.Read("host"), self.file.Read("rpcport"))
         self.__keys = self.__GetKeys()
 
     def __repr__(self) :

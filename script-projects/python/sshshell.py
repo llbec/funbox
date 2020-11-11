@@ -11,9 +11,10 @@ def localCmd(_cmd) :
 expectRet = [
     '.*assword.*',
     'Last login.*',
-    '.*verification.*',
+    '.*verification code sent to your mobile phone.*',
     'Permission denied',
     '.*continue.*?',
+    'Welcome to Ubuntu.*',
     pexpect.EOF,
     pexpect.TIMEOUT,
 ]
@@ -32,7 +33,9 @@ class switchLoginExpect :
             #'permission'
             3:self.denied,
             #'continue'
-            4:self.sendYes
+            4:self.sendYes,
+            #'welcome'
+            5:self.success
         }
         self.ssh = s
         self.host = h
@@ -50,7 +53,7 @@ class switchLoginExpect :
                 return self.ssh
             return None
     def default(self):
-        print(self.ssh.after)
+        print(self.ssh.before)
         #self.err = self.ssh.after
         return  -1
     def password(self):
@@ -62,6 +65,7 @@ class switchLoginExpect :
         self.ssh.sendline('yes\n')
         return 0
     def success(self):
+        print(self.ssh.before)
         return 1
     def verification(self):
         _vfcode = input('\r\nPlease enter the verification code sent to your mobile phone:')
@@ -113,11 +117,16 @@ class Host :
         print('Welcome to %s\n'%(self.ip))
         _shell.interact()
 
+#class switchHost :
+#    def __init__(self) :
+
+
 if __name__ == "__main__":
     h1 = Host("106.52.103.36", 22, "root", "", "itsp.dms","tencent-jinxun", None)
     h2 = Host("192.168.168.254", 22, "root", "Jx~!@#$%^", "","XD", None)
     h3 = Host("192.168.168.254", 33, "root", "JxZw~!@#$%^", "","XD", None)
     h4 = Host("115.220.10.35", 753, "root", "Ubs547629134307", "","XD", None)
-    h_zhoukaiyuan = Host("49.233.162.142", 753, "root", "Dwgl1234", "","XD", None)
+    h_zhoukaiyuan = Host("49.233.162.142", 22, "root", "Dwgl1234", "","XD", None)
+    h_euclan = Host("113.31.119.157 ", 22, "ubuntu", "qwerty123", "", "euclan", None)
     #h2 = Host("192.168.168.254", 22, "Jxchangsha", "Jx~!@#$%^", "","XD", None)
-    h1.Shell()
+    h_euclan.Shell()
