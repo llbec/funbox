@@ -209,6 +209,7 @@ class Dispersion :
                 print("No UTXO!")
             time.sleep(60)
 
+#create transaction and send. select vin and create vout
 class Gather :
     def __init__(self, _key, _dst, _amount=0) :
         self.key = _key
@@ -246,7 +247,8 @@ class Gather :
     
     def Run(self) :
         if self.key.secret == "" :
-            print("%s without a private key, translate cancel")
+            #print("%s without a private key, translate cancel")
+            self.key.secret = input("Enter a secret key to sign this transaction:")
             return
         _vin, _balance = self.__GetVin()
         if _balance == 0 :
