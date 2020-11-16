@@ -4,6 +4,7 @@ import os, sys, argparse, json, getpass, random, time
 
 Fee = 0.00000001
 COIN = 100000000
+GUTXOLimit = 100
 
 def InputIndex() :
     try :
@@ -94,7 +95,7 @@ class Config :
         if _name in self.json :
             return self.json[_name]
         else :
-            return ""
+            return None
     
     def Write(self, _name, _value) :
         if self.json == "" :
@@ -231,10 +232,14 @@ class Gather :
         _utxos = self.key.Utxos()
         _vinStr = "["
         _balance = 0
+        _utxocout = 0
         for _utxo in _utxos :
             _vinStr += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
             _balance += _utxo["satoshis"]
+            _utxocout += 1
             if self.amount > 0 and _balance > self.amount :
+                break
+            if _utxocout >= GUTXOLimit :
                 break
         _vinStr = _vinStr[:len(_vinStr)-1] + "]"
         return _vinStr, _balance
@@ -277,6 +282,9 @@ class UtWallet :
         #self.rpc = Rpc("euclan", "six666", "113.31.119.157", 9879)
         self.rpc = Rpc(self.file.Read("rpcuser"), self.file.Read("rpcpswd"), self.file.Read("host"), self.file.Read("rpcport"))
         self.__keys = self.__GetKeys()
+        _rlmt = self.file.Read("utxolimit")
+        if _rlmt != None:
+            GUTXOLimit = _rlmt
 
     def __repr__(self) :
         _i = 1
