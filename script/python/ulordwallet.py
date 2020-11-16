@@ -28,10 +28,14 @@ class Rpc :
         return 'curl --user %s:%s --data-binary \'{"jsonrpc": "1.0", "id":"ut", "method": "%s", "params": [%s] }\' -H \'content-type: text/plain;\' http://%s:%s/'%(self.name, self.pwd, _method, _paramStr, self.host, self.port)
 
     def operation (self, _cmd) :
-        _p = os.popen(_cmd)
-        _data = _p.read()
-        _p.close()
-        return _data
+        try:
+            _p = os.popen(_cmd)
+            _data = _p.read()
+            _p.close()
+        except OSError:
+            print("command: %s\n error!\n"%(_cmd))
+        else:
+            return _data
     
     def Run(self, _method, *_params):
         _paramStr = ''
@@ -87,7 +91,10 @@ class Config :
     def Read(self, _name) :
         if self.json == "" :
             self.loadfile()
-        return self.json[_name]
+        if _name in self.json :
+            return self.json[_name]
+        else :
+            return ""
     
     def Write(self, _name, _value) :
         if self.json == "" :
@@ -249,7 +256,7 @@ class Gather :
         if self.key.secret == "" :
             #print("%s without a private key, translate cancel")
             self.key.secret = input("Enter a secret key to sign this transaction:")
-            return
+            #return
         _vin, _balance = self.__GetVin()
         if _balance == 0 :
             print("No coins! vin(%s)"%(_vin))
@@ -350,7 +357,10 @@ class UtWallet :
     def __GetKeys(self) :
         _keys = []
         for _k in self.file.Read("keys") :
-            _keys.append(Key(_k["address"], _k["secret"], self.rpc))
+            if "secret" in _k :
+                _keys.append(Key(_k["address"], _k["secret"], self.rpc))
+            else :
+                 _keys.append(Key(_k["address"], "", self.rpc))
         return _keys
     
     def __FindKey(self, _addr) :
