@@ -89,13 +89,20 @@ class Config :
         except Exception as e:
             print("updatefile error:", e)
     
-    def Read(self, _name) :
+    def Read(self, _name, _save = True) :
         if self.json == "" :
             self.loadfile()
         if _name in self.json :
             return self.json[_name]
         else :
-            return None
+            if _save :
+                _v = input("Enter the %s :"%(_name))
+                if _v == "" :
+                    os._exit(0)
+                self.Write(_name, _v)
+                return _v
+            else :
+                return None
     
     def Write(self, _name, _value) :
         if self.json == "" :
@@ -364,7 +371,7 @@ class UtWallet :
     
     def __GetKeys(self) :
         _keys = []
-        for _k in self.file.Read("keys") :
+        for _k in self.file.Read("keys", False) :
             if "secret" in _k :
                 _keys.append(Key(_k["address"], _k["secret"], self.rpc))
             else :
