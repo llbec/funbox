@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import pexpect, os, socket, re
+import pexpect, os, socket, re, sys
 
 def localCmd(_cmd) : 
     _p = os.popen(_cmd)
@@ -42,11 +42,12 @@ class switchLoginExpect :
         #function = self.list.get(expt, self.default)
         #function()
     def switch(self, expt) :
+        #print(expt)
         func = self.list.get(expt, self.default)
         return func()
     def Run(self) :
         while True :
-            _r = self.switch(self.ssh.expect(expectRet, timeout = 60))
+            _r = self.switch(self.ssh.expect(expectRet, timeout = 3))
             if _r == 0 :
                 continue
             elif _r > 0 :
@@ -54,14 +55,16 @@ class switchLoginExpect :
             return None
     def default(self):
         print(self.ssh.before)
+        print(self.ssh.after)
         #self.err = self.ssh.after
         return  -1
     def password(self):
+        print("send password")
         self.ssh.sendline(self.host.passwd)
         _swt = switchLoginExpect(self.ssh, self.host)
-        return _swt.switch(self.ssh.expect(expectRet, timeout = 60))
+        return _swt.switch(self.ssh.expect(expectRet, timeout = 3))
     def sendYes(self):
-        #print('function sendYes call')
+        print('send yes')
         self.ssh.sendline('yes\n')
         return 0
     def success(self):
@@ -120,13 +123,29 @@ class Host :
 #class switchHost :
 #    def __init__(self) :
 
+def InputIndex() :
+    try :
+        _idx = int(input('Select one:')) - 1
+    except :
+        _idx = -1
+    return _idx
+
+hosts = [
+    Host("106.52.103.36", 22, "root", "", "itsp.dms","tencent-wy", None),
+    Host("113.31.119.157 ", 22, "ubuntu", "", "euclan", "uclound-euclan", None),
+    #Host("10.198.103.2", 22, "user", "Stfypt@123", "", "ITSP-APP", None),
+    #Host("10.198.61.2", 22, "user", "Stfypt@123", "", "ITSP-DataBase", None),
+    #Host("49.233.162.142", 22, "root", "Dwgl1234", "","Zhouky", None),
+    #Host("115.220.10.35", 753, "root", "Ubs547629134307", "","unknown", None)
+]
 
 if __name__ == "__main__":
-    h1 = Host("106.52.103.36", 22, "root", "", "itsp.dms","tencent-jinxun", None)
-    h2 = Host("192.168.168.254", 22, "root", "Jx~!@#$%^", "","XD", None)
-    h3 = Host("192.168.168.254", 33, "root", "JxZw~!@#$%^", "","XD", None)
-    h4 = Host("115.220.10.35", 753, "root", "Ubs547629134307", "","XD", None)
-    h_zhoukaiyuan = Host("49.233.162.142", 22, "root", "Dwgl1234", "","XD", None)
-    h_euclan = Host("113.31.119.157 ", 22, "ubuntu", "qwerty123", "", "euclan", None)
-    #h2 = Host("192.168.168.254", 22, "Jxchangsha", "Jx~!@#$%^", "","XD", None)
-    h_euclan.Shell()
+    _i = 1
+    for _h in hosts :
+        print("\n%2d\t%s\t%s\n"%(_i, _h.ip, _h.alias))
+        _i = _i + 1
+    
+    _id = InputIndex()
+    if _id < len(hosts) and _id > 0 :
+        _h = hosts[_id]
+        _h.Shell()

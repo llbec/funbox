@@ -251,33 +251,74 @@ class Gather :
         _vinStr = _vinStr[:len(_vinStr)-1] + "]"
         return _vinStr, _balance
     
+    def __GetVins(self) :
+        _utxos = self.key.Utxos()
+        _vinList = []
+        _amtList = []
+        _vinStr = "["
+        _balance = 0
+        _utxocout = 0
+        for _utxo in _utxos :
+            _vinStr += "{\"txid\":\"%s\",\"vout\":%d},"%(_utxo["txid"], int(_utxo["outputIndex"]))
+            _balance += _utxo["satoshis"]
+            _utxocout += 1
+            if self.amount > 0 and _balance > self.amount :
+                _vinStr = _vinStr[:len(_vinStr)-1] + "]"
+                _vinList.append(_vinStr)
+                _amtList.append(_balance)
+                _vinStr = "["
+                _balance = 0
+                _utxocout = 0
+                break
+            if _utxocout >= GUTXOLimit :
+                _vinStr = _vinStr[:len(_vinStr)-1] + "]"
+                _vinList.append(_vinStr)
+                _amtList.append(_balance)
+                _vinStr = "["
+                _balance = 0
+                _utxocout = 0
+                continue
+        return _vinList, _amtList
+
     def __GetVout(self, _balance) :
-        if self.amount == 0 :
-            self.amount = _balance - self.fee
-        _change = _balance - self.amount - self.fee
+        #if self.amount == 0 :
+        #    self.amount = _balance - self.fee
+        _amount = _balance - self.fee
+        _change = _balance - _amount - self.fee
         #print("change is ", _change)
         if _change < 0 :
-            print("Not enough Fee! balance(%.8f),amount(%.8f),Feee(%.8f)"%(_balance/COIN, self.amount/COIN, self.fee/COIN))
+            print("Not enough Fee! balance(%.8f),amount(%.8f),Feee(%.8f)"%(_balance/COIN, _amount/COIN, self.fee/COIN))
             os._exit(0)
         elif _change == 0 :
-            return "{\"%s\":%.8f}"%(self.dst, self.amount/COIN)
+            return "{\"%s\":%.8f}"%(self.dst, _amount/COIN)
         else :
-            return "{\"%s\":%.8f, \"%s\":%.8f}"%(self.dst, self.amount/COIN, self.key.address, _change/COIN)
+            return "{\"%s\":%.8f, \"%s\":%.8f}"%(self.dst, _amount/COIN, self.key.address, _change/COIN)
     
     def Run(self) :
         if self.key.secret == "" :
             #print("%s without a private key, translate cancel")
             self.key.secret = input("Enter a secret key to sign this transaction:")
             #return
-        _vin, _balance = self.__GetVin()
-        if _balance == 0 :
-            print("No coins! vin(%s)"%(_vin))
+        _vins, _balances = self.__GetVins()
+        if len(_vins) != len(_balances) or len(_vins) == 0 :
+            print("__GetVins: No coins!")
             return
-        _vout = self.__GetVout(_balance)
-        _rawtx = self.key.createrawtx(_vin, _vout)
-        _tx = self.key.signrawtx(_rawtx)
+        if self.amount == 0 :
+            for num in _balances :
+                self.amount += num
         if 'y' == input("%s\nEnter y to continue:"%(self)) :
-            print(self.key.sendrawtx(_tx))
+            for i in range(len(_vins)) :
+                _vout = self.__GetVout(_balances[i])
+                _rawtx = self.key.createrawtx(_vins[i], _vout)
+                _tx = self.key.signrawtx(_rawtx)
+        #if _balance == 0 :
+        #    print("No coins! vin(%s)"%(_vin))
+        #    return
+        #_vout = self.__GetVout(_balance)
+        #_rawtx = self.key.createrawtx(_vin, _vout)
+        #_tx = self.key.signrawtx(_rawtx)
+        #if 'y' == input("%s\nEnter y to continue:"%(self)) :
+        #    print(self.key.sendrawtx(_tx))
 
 class UtWallet :
     def __init__(self, _path="default") :
