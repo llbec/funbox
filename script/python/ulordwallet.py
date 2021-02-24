@@ -175,7 +175,7 @@ class Dispersion :
         _voutNumber = self.voutNumber
         _vins = "["
         _utxos = self.key.Utxos()
-        if _voutNumber > len(_utxos) :
+        if _voutNumber > len(_utxos) or len(_utxos) == 0 :
             _voutNumber = len(_utxos)
         if _voutNumber == 0 :
             return "", 0
@@ -237,6 +237,8 @@ class Gather :
     
     def __GetVin(self) :
         _utxos = self.key.Utxos()
+        if len(_utxos) == 0 :
+            return "", 0
         _vinStr = "["
         _balance = 0
         _utxocout = 0
@@ -255,6 +257,8 @@ class Gather :
         _utxos = self.key.Utxos()
         _vinList = []
         _amtList = []
+        if len(_utxos) == 0 :
+            return _vinList, _amtList
         _vinStr = "["
         _balance = 0
         _utxocout = 0
@@ -448,13 +452,18 @@ class UtWallet :
                 _confirm
             )
             _last = _coin["height"]
+        if len(_utxos) == 0 :
+            _str += "\n"
         _h, _t = self.rpc.Height()
         _str += "checking at %d, %s"%(_h, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(_t)))
         return _str
 
     def GetLastCoin(self, _addr) :
         _k = self.__FindKey(_addr)
-        _last = _k.Utxos()[-1]
+        _utxos = _k.Utxos()
+        if len(_utxos) == 0:
+            return "No utxo!"
+        _last = _utxos[-1]
         _rawtx = self.rpc.Run("getrawtransaction", "\"%s\", 1"%(_last["txid"]))
         _str = "Last incoming @ %d(%s), confirms %d, amount %.8f, coin<%s-%d>\nchecking at %d, %s"%(
             _last["height"],
