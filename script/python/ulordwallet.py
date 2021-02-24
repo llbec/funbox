@@ -355,14 +355,18 @@ class UtWallet :
                 2:self.__LastCoin,
                 3:self.__Coins,
                 4:self.__Txs,
-                5:self.__Sendto
+                5:self.__Sendto,
+                6:self.__TxIns,
+                7:self.__TxOuts
             }
             self.__helps = {
                 1:"Balance",
                 2:"Last incoming",
                 3:"All UTXOs",
                 4:"All Transactions",
-                5:"Make a deal"
+                5:"Make a deal",
+                6:"All Incomings",
+                7:"All Spended"
             }
         
         def __Balance(self) :
@@ -378,7 +382,15 @@ class UtWallet :
             return 0
 
         def __Txs(self) :
-            self.__wallet.ShowRecords(self.__addr)
+            print(self.__wallet.ShowRecords(self.__addr))
+            return 0
+        
+        def __TxIns(self) :
+            print(self.__wallet.ShowRecords(self.__addr, 1))
+            return 0
+        
+        def __TxOuts(self) :
+            print(self.__wallet.ShowRecords(self.__addr, 2))
             return 0
 
         def __Sendto(self) :
@@ -481,9 +493,11 @@ class UtWallet :
         _sender = Gather(self.__FindKey(_addr), _dst, _amount)
         _sender.Run()
     
-    def ShowRecords(self, _addr, _writefile=True) :
+    def ShowRecords(self, _addr, _select=0, _writefile=True) :
         _k = self.__FindKey(_addr)
         _txs = _k.TxIDs()
+        _balance = 0
+        _count = 0
         if _writefile :
             _dir, _ = os.path.split(os.path.abspath(__file__))
             _path = _dir + "/%s_%d.log"%(_addr, time.time())
@@ -491,7 +505,14 @@ class UtWallet :
             _index = 1
             with open(_path, 'a+') as _f:
                 for _tx in _txs :
-                    _f.write(self.AnalyzeTx(_addr, _tx))
+                    _str, _amount = self.AnalyzeTx(_addr, _tx)
+                    if _select == 1 and _amount < 0 :
+                        continue
+                    if _select == 2 and _amount > 0 :
+                        continue
+                    _balance += _amount
+                    _count += 1
+                    _f.write(_str)
                     _f.write("\n")
                     print("\r%d"%_index, end="")
                     _index += 1
@@ -499,7 +520,22 @@ class UtWallet :
         else:
             print("%s transaction records:\n"%(_addr))
             for _tx in _txs:
-                print("\t%s\n"%(self.AnalyzeTx(_addr, _tx)))
+                _str, _amount = self.AnalyzeTx(_addr, _tx)
+                if _select == 1 and _amount < 0 :
+                    continue
+                if _select == 2 and _amount > 0 :
+                    continue
+                _balance += _amount
+                _count += 1
+                print("\t%s\n"%(_str))
+        _rstr = ""
+        if _select == 0 :
+            _rstr = "total %d, balance %8f\n"%(_count, _balance/COIN)
+        elif _select == 1 :
+            _rstr = "Incoming %d, all riceve %8f\n"%(_count, _balance/COIN)
+        elif _select == 2 :
+            _rstr = "Spend %d, all spended %8f\n"%(_count, _balance/COIN)
+        return _rstr
     
     def AnalyzeTx(self, _addr, _tx, _detail=False) :
         _rawtx = self.rpc.Run("getrawtransaction", "\"%s\", 1"%(_tx))
@@ -525,11 +561,11 @@ class UtWallet :
                 _amount += _out["valueSat"]
                 _rcvlist.append({"address":"%s"%(_rcv),"outindex":_out["n"],"amount":_out["valueSat"]})
             _outvalue += _out["valueSat"]
-        _str = ""
+        _str = "%s\n"%(_tx)
         if _detail :
             pass
         else :
-            _str += "\r%s, %.8f"%(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(_rawtx["time"])), _amount/COIN)
+            _str += "\t%s, %.8f"%(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(_rawtx["time"])), _amount/COIN)
             if _coinbase :
                 _str += ", Fee(0.0),        coinbase"
             else :
@@ -540,7 +576,7 @@ class UtWallet :
                 else :
                     for _out in _rawtx["vout"] :
                         _str += ", %s(%.8f)"%(_out["scriptPubKey"]["addresses"][0], _out["valueSat"]/COIN)
-        return _str
+        return _str, _amount
 
 if __name__ == "__main__":
     _wallet = UtWallet()
