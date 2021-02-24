@@ -263,12 +263,6 @@ class Gather :
             _balance += _utxo["satoshis"]
             _utxocout += 1
             if self.amount > 0 and _balance > self.amount :
-                _vinStr = _vinStr[:len(_vinStr)-1] + "]"
-                _vinList.append(_vinStr)
-                _amtList.append(_balance)
-                _vinStr = "["
-                _balance = 0
-                _utxocout = 0
                 break
             if _utxocout >= GUTXOLimit :
                 _vinStr = _vinStr[:len(_vinStr)-1] + "]"
@@ -278,6 +272,10 @@ class Gather :
                 _balance = 0
                 _utxocout = 0
                 continue
+        _vinStr = _vinStr[:len(_vinStr)-1] + "]"
+        _vinList.append(_vinStr)
+        _amtList.append(_balance)
+        
         return _vinList, _amtList
 
     def __GetVout(self, _balance) :
