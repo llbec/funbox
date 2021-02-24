@@ -309,7 +309,7 @@ class Gather :
                 _vout = self.__GetVout(_balances[i])
                 _rawtx = self.key.createrawtx(_vins[i], _vout)
                 _tx = self.key.signrawtx(_rawtx)
-                print("tx(%d)(%.8f):%s"%((i+1), _balances[i], self.key.sendrawtx(_tx)))
+                print("tx(%d)(%.8f):%s"%((i+1), _balances[i]/COIN, self.key.sendrawtx(_tx)))
         #if _balance == 0 :
         #    print("No coins! vin(%s)"%(_vin))
         #    return
