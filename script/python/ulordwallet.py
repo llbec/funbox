@@ -492,6 +492,7 @@ class UtWallet :
             with open(_path, 'a+') as _f:
                 for _tx in _txs :
                     _f.write(self.AnalyzeTx(_addr, _tx))
+                    _f.write("\n")
                     print("\r%d"%_index, end="")
                     _index += 1
             print("\nDone")
@@ -552,13 +553,3 @@ if __name__ == "__main__":
         if _addr == None :
             _addr = input("Enter an address")
         _wallet.Command(_wallet, _addr).Run()
-#Host49_233_162_142 = Rpc("six666", "six666", "49.233.162.142", 9879)
-#print(Host49_233_162_142.Height())
-#testKey = Key("UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h", "", Host49_233_162_142)
-#print(testKey.Balance()/COIN)
-#gether = Gather(testKey, "UduLEFeiDBYmZfW6qAL3ZUHSnYnsJ8yvam", 5632)
-#gether.Run()
-#print(UtWallet().GetLastCoin("UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h"))
-#UtWallet().GetCoins("UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h")
-#print(UtWallet().AnalyzeTx("UU6Zf3QBTmwaxEyLiuBCfXAGvamDHCMP8h", "c90c3f23bbf6651b9b575d5929c4ef6bfc01c3ec7f2bdc691c0c35175454f24e"))
-#print(UtWallet().AnalyzeTx("UU6n1tCZ62zbMFxwYMqxov3NBw69LnNCxn", "b854c10342a9e8ddf5466a7022f8f9cd59df61457c7fa7b88f880b14f206f8ba"))
