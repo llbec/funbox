@@ -275,7 +275,7 @@ class Gather :
         _vinStr = _vinStr[:len(_vinStr)-1] + "]"
         _vinList.append(_vinStr)
         _amtList.append(_balance)
-        
+
         return _vinList, _amtList
 
     def __GetVout(self, _balance) :
@@ -309,6 +309,7 @@ class Gather :
                 _vout = self.__GetVout(_balances[i])
                 _rawtx = self.key.createrawtx(_vins[i], _vout)
                 _tx = self.key.signrawtx(_rawtx)
+                print(self.key.sendrawtx(_tx))
         #if _balance == 0 :
         #    print("No coins! vin(%s)"%(_vin))
         #    return
