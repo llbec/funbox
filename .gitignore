@@ -41,6 +41,9 @@ build/
 #VSCode
 .vscode/
 
+#VS
+.vs/
+
 #ssh key
 *.pem
 
