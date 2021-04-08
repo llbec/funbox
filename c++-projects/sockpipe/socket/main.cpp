@@ -20,7 +20,12 @@ int main()
     std::cin.getline(str, 20);
     while (strcmp(str, "quit")!=0) {
         //send(pipe->sockSend, str, strlen(str) + sizeof(char), NULL);
-        pipe.Write(str, strlen(str));
+        int n = strlen(str);
+        char* tmp = new char[n * 100000];
+        for(int i = 0; i < 100000; i++){
+            memcpy(tmp + (i * n), str, n);
+        }
+        pipe.Write(tmp, n* 100000);
         memset(str, 0, 20);
         std::cin.getline(str, 20);
     }

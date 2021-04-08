@@ -11,6 +11,20 @@
 #pragma comment(lib,"WS2_32.lib") //显式连接套接字
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
+#define PROTOCALNO 6960
+#define HEADLEN 8
+
+static inline void buffer_write32be(unsigned char* buf, unsigned int value) {
+    buf[0] = value >> 24;
+    buf[1] = value >> 16;
+    buf[2] = value >> 8;
+    buf[3] = value;
+}
+
+static inline unsigned int buffer_read32be(const unsigned char* buf) {
+    return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
+}
+
 unsigned int __stdcall runpipe(void* pPara);
 unsigned int __stdcall runserver(void* pPara);
 unsigned int __stdcall runclient(void* pPara);
@@ -43,7 +57,14 @@ typedef struct sockpipe {
         return 0;
 	}
 
-    int write(char * str, unsigned int len){ return send(sockSend, str, len + sizeof(char), NULL); }
+    int write(char * str, unsigned int len)
+    {
+        unsigned char head[HEADLEN];
+        buffer_write32be(head, PROTOCALNO);
+        buffer_write32be(head + 4, len);
+        send(sockSend, (char *)head, HEADLEN, NULL);
+        return send(sockSend, str, len, NULL);
+    }
 
     void Stop()
     {
@@ -145,13 +166,26 @@ unsigned int __stdcall runserver(void* pPara)
     SOCKET clntSock = accept(servSock, (SOCKADDR*)&clntAddr, &nSize);
 
     //接收服务器传回的数据
-    char szBuffer[MAXBYTE] = { 0 };
-
+    char head[HEADLEN] = { 0 };
+    char* szdata;
     while (true) {
-        int rlen = recv(clntSock, szBuffer, MAXBYTE, NULL);
-        //输出接收到的数据
-        //printf("Message form client(%d): %s\n", rlen, szBuffer);
-        if (pipe->filldata && rlen > 0) pipe->filldata(szBuffer, rlen);
+        //head
+        int rlen = recv(clntSock, head, HEADLEN, NULL);
+        if (rlen < HEADLEN) {
+            blog(LOG_ERROR, "recive invalid data len(%d):%s\n", rlen, head);
+            break;
+        }
+        if (buffer_read32be((unsigned char*)head) != PROTOCALNO) break;
+        unsigned int tlen = buffer_read32be((unsigned char *)(&head[4]));
+
+        //接收所有数据进行处理
+        szdata = new char[tlen];
+        if (pipe->filldata && tlen > 0 && szdata) {
+            rlen = recv(clntSock, szdata, tlen, NULL);
+            if (rlen < tlen) break;
+            pipe->filldata(szdata, rlen);
+        }
+        delete[] szdata;
 
         //是否关闭
         if (!pipe->IsRunning()) break;
@@ -192,7 +226,7 @@ unsigned int __stdcall runclient(void* pPara)
 
     //等待结束
     WaitForSingleObject(pipe->evtShutdown, INFINITE);
-    send(pipe->sockSend, "0", 2, NULL); //触发server结束
+    send(pipe->sockSend, "0", 1, NULL); //触发server结束
 
     blog(LOG_INFO, "client thread exit\n");
     return 0;
