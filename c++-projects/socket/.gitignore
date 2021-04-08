@@ -1,0 +1,17 @@
+# Compiled Object files
+Debug/
+Release/
+
+#OSX
+*.DS_Store
+*.swp
+
+#VSCode
+.vscode/
+
+#VS
+.vs/
+
+#user file
+*.vcxproj
+*.vcxproj.*
