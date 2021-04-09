@@ -38,7 +38,7 @@ class switchLoginExpect :
             #'welcome'
             5:self.success,
             #'jumpserver-auth'
-            6:self.xl_jumpserver_auths
+            6:self.xl_jumpserver_auth
         }
         self.ssh = s
         self.host = h
