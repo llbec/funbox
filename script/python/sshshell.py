@@ -29,16 +29,16 @@ class switchLoginExpect :
             0:self.password,
             #'success'
             1:self.success,
-            #'verifycode'
-            2:self.verification,
+            #'ali-verifycode'
+            2:self.ali_verification,
             #'permission'
             3:self.denied,
             #'continue'
             4:self.sendYes,
             #'welcome'
             5:self.success,
-            #'google auth'
-            6:self.googleAuth
+            #'jumpserver-auth'
+            6:self.xl_jumpserver_auths
         }
         self.ssh = s
         self.host = h
@@ -73,7 +73,7 @@ class switchLoginExpect :
     def success(self):
         print(self.ssh.before)
         return 1
-    def verification(self):
+    def ali_verification(self):
         _vfcode = input('\r\nPlease enter the verification code sent to your mobile phone:')
         self.ssh.sendline(_vfcode)
         return 0
@@ -82,7 +82,7 @@ class switchLoginExpect :
         print('key file mod change to 400, try again!')
         #self.err = 'key file mod change to 400, try again!'
         return -1
-    def googleAuth(self):
+    def xl_jumpserver_auth(self):
         _auth = input('\r\nPlease enter 6 digits.\r\n[MFA auth]:')
         self.ssh.sendline(_auth)
         return 1
