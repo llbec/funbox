@@ -15,7 +15,7 @@ expectRet = [
     'Permission denied',
     '.*continue.*?',
     'Welcome to Ubuntu.*',
-    '[MFA auth]',
+    '.*MFA auth.*',
     pexpect.EOF,
     pexpect.TIMEOUT,
 ]
@@ -85,7 +85,7 @@ class switchLoginExpect :
     def googleAuth(self):
         _auth = input('\r\nPlease enter 6 digits.\r\n[MFA auth]:')
         self.ssh.sendline(_auth)
-        return 0
+        return 1
 
 class Host :
     def __init__(self, _ip, _port, _usrname, _passwd, _key, _alias, _route) :
@@ -140,7 +140,7 @@ def InputIndex() :
 hosts = [
     Host("106.52.103.36", 22, "root", "", "itsp.dms","tencent-wy", None),
     Host("113.31.119.157", 22, "ubuntu", "", "euclan", "uclound-euclan", None),
-    Host("183.236.93.135", 2222, "liubicheng", "", "qwer1234", "gz-xl", None),
+    Host("183.236.93.135", 2222, "liubicheng", "qwer1234", "", "gz-xl", None),
     #Host("10.198.103.2", 22, "user", "Stfypt@123", "", "ITSP-APP", None),
     #Host("10.198.61.2", 22, "user", "Stfypt@123", "", "ITSP-DataBase", None),
     #Host("49.233.162.142", 22, "root", "Dwgl1234", "","Zhouky", None),
