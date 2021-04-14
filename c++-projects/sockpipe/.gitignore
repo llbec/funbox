@@ -13,5 +13,4 @@ Release/
 .vs/
 
 #user file
-*.vcxproj
 *.vcxproj.*
