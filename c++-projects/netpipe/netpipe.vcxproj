@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\blog.h" />
+    <ClInclude Include="src\buffer_util.h" />
     <ClInclude Include="src\netpipe.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

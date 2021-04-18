@@ -1,220 +1,180 @@
 #include "netpipe.h"
 #include "blog.h"
-//#include <WinSock2.h>
 
-#pragma comment(lib,"WS2_32.lib") //œ‘ Ω¡¨Ω”Ã◊Ω”◊÷
+#pragma comment(lib, "WS2_32.lib") //ÊòæÂºèËøûÊé•Â•óÊé•Â≠ó
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-const int g_backlog = 10;
-
-CPipe::CPipe(int t, int p, std::string ip) : type(t), port(p), addr(ip) { net_init(); }
-
-CPipe::~CPipe() { if(valid()) Stop(); }
-
-void CPipe::net_init()
+PipeServer::PipeServer(int p, std::string ip)
 {
-    WSADATA wsa;
-    int res = WSAStartup(MAKEWORD(2, 2), &wsa) < 0;
-    if (res < 0) {
-        blog(LOG_ERROR, "WSAStartup failed with error %d\n", res);
-    }
+	sock_local = INVALID_SOCKET;
+	sock_remote = INVALID_SOCKET;
+	acceptThread = NULL;
+	addr = ip;
+	port = p;
+
+	WSADATA wsa;
+	int res = WSAStartup(MAKEWORD(2, 2), &wsa) < 0;
+	if (res < 0) {
+		blog(LOG_ERROR, "WSAStartup failed with error code %d\n", res);
+		throw("WSAStartup failed");
+	}
 }
 
-void CPipe::net_clean() { WSACleanup(); }
-
-int CPipe::srv_start()
+PipeServer::~PipeServer()
 {
-    int ret = 0;
-    //¥¥Ω®Ã◊Ω”◊÷
-    srv_sock_local = (unsigned int)socket(AF_INET, SOCK_STREAM, 0);
-    if (srv_sock_local == INVALID_SOCKET) {
-        blog(LOG_ERROR, "sock_srv_local INVALID_SOCKET\n");
-        return -1;
-    }
+	Stop();
+	WSACleanup();
+}
 
-    //∞Û∂®Ã◊Ω”◊÷
-    SOCKADDR_IN sin;
-    sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = inet_addr(addr.c_str());
-    sin.sin_port = htons(port);
+int PipeServer::Start()
+{
+	int ret = 0;
+	//ÂàõÂª∫Â•óÊé•Â≠ó
+	sock_local = (unsigned int)socket(AF_INET, SOCK_STREAM, 0);
+	if (sock_local == INVALID_SOCKET) {
+		blog(LOG_ERROR, "sock_srv_local INVALID_SOCKET\n");
+		return -1;
+	}
 
-    int r = bind(srv_sock_local, (SOCKADDR*)&sin, sizeof(sin));
-    if (r < 0) {
-        blog(LOG_ERROR, "sock_srv_local bind faild\n%d\n", WSAGetLastError());
-        ret = -2;
-        goto SOCK_CLOSE;
-    }
+	//ÁªëÂÆöÂ•óÊé•Â≠ó
+	SOCKADDR_IN sin;
+	sin.sin_family = AF_INET;
+	sin.sin_addr.s_addr = inet_addr(addr.c_str());
+	sin.sin_port = htons(port);
 
-    //¥Úø™º‡Ã˝
-    if (listen(srv_sock_local, g_backlog) < 0) {
-        blog(LOG_ERROR, "sock_srv_local listen faild\n");
-        ret = -3;
-        goto SOCK_CLOSE;
-    }
+	int r = bind(sock_local, (SOCKADDR *)&sin, sizeof(sin));
+	if (r < 0) {
+		blog(LOG_ERROR, "sock_srv_local bind faild\n%d\n",
+		     WSAGetLastError());
+		ret = -2;
+		goto SOCK_CLOSE;
+	}
 
-    if (type == PIPE_LOCAL) {
-        // Õ∑≈øÕªß∂Àø…“‘∆Ù∂Øµƒ–≈∫≈
-        ReleaseSemaphore(semOrder, 1, NULL);
-    }
+	//ÊâìÂºÄÁõëÂê¨
+	if (listen(sock_local, 1) < 0) {
+		blog(LOG_ERROR, "sock_srv_local listen faild\n");
+		ret = -3;
+		goto SOCK_CLOSE;
+	}
 
-    //µ»¥˝¡¨Ω”«Î«Û-◊”œﬂ≥Ã
-    acceptThread = (HANDLE)_beginthreadex(NULL, 0, accept_pro, this, 0, NULL);
+	//Á≠âÂæÖËøûÊé•ËØ∑Ê±Ç-Â≠êÁ∫øÁ®ã
+	acceptThread =
+		(HANDLE)_beginthreadex(NULL, 0, accept_pro, this, 0, NULL);
 
-    return 0;
+	return 0;
 
 SOCK_CLOSE:
-    closesocket(srv_sock_local);
-    return ret;
+	closesocket(sock_local);
+	return ret;
 }
 
-void CPipe::srv_stop()
+unsigned int __stdcall PipeServer::accept_pro(void *pPara)
 {
-    WaitForSingleObject(acceptThread, INFINITE);
-    CloseHandle(acceptThread);
-    closesocket(srv_sock_remote);
-    closesocket(srv_sock_local);
-    srv_started = false;
+	PipeServer *pipe = (PipeServer *)pPara;
+
+	SOCKADDR clntAddr;
+	int nSize = sizeof(SOCKADDR);
+	pipe->sock_remote = (unsigned int)accept(
+		pipe->sock_local, (SOCKADDR *)&clntAddr, &nSize);
+	return 0;
 }
 
-unsigned int __stdcall CPipe::accept_pro(void* pPara)
+int PipeServer::Recive(char *buf, size_t len)
 {
-    CPipe* pipe = (CPipe*)pPara;
-
-    SOCKADDR clntAddr;
-    int nSize = sizeof(SOCKADDR);
-    pipe->srv_sock_remote = (unsigned int)accept(pipe->srv_sock_local, (SOCKADDR*)&clntAddr, &nSize);
-    pipe->srv_started = true;
-    return 0;
+	if (sock_remote == INVALID_SOCKET)
+		return 0;
+	return recv(sock_remote, buf, len, 0);
 }
 
-bool CPipe::srv_valid()
+int PipeServer::Send(const char *buf, size_t len)
 {
-    if (!srv_started || srv_sock_remote == INVALID_SOCKET)
-        return false;
-    return true;
+	if (sock_remote == INVALID_SOCKET)
+		return 0;
+	return send(sock_remote, buf, len, 0);
 }
 
-int CPipe::srv_recive(char* buf, size_t len)
+void PipeServer::Stop()
 {
-    if (!srv_valid()) return 0;
-    return recv(srv_sock_remote, buf, len, 0);
+	if (acceptThread != NULL)
+		CloseHandle(acceptThread);
+	if (sock_remote != INVALID_SOCKET)
+		closesocket(sock_remote);
+	if (sock_local != INVALID_SOCKET)
+		closesocket(sock_local);
 }
 
-int CPipe::srv_send(const char* buf, size_t len)
+PipeClient::PipeClient(int p, std::string ip)
 {
-    if (!srv_valid()) return 0;
-    return send(srv_sock_remote, buf, len, 0);
+	sock = INVALID_SOCKET;
+	connectThread = NULL;
+	addr = ip;
+	port = p;
+
+	WSADATA wsa;
+	int res = WSAStartup(MAKEWORD(2, 2), &wsa) < 0;
+	if (res < 0) {
+		blog(LOG_ERROR, "WSAStartup failed with error code %d\n", res);
+		throw("WSAStartup failed");
+	}
 }
 
-int CPipe::cln_start()
+PipeClient::~PipeClient()
 {
-    int ret = 0;
-    //¥¥Ω®Ã◊Ω”◊÷
-    cln_sock = (unsigned int)socket(AF_INET, SOCK_STREAM, 0);
-    if (cln_sock == INVALID_SOCKET) {
-        blog(LOG_ERROR, "sock_srv_local INVALID_SOCKET\n");
-        return -1;
-    }
-
-    if (type == PIPE_LOCAL) {
-        //µ»¥˝øÕªß∂Àø…“‘∆Ù∂Øµƒ–≈∫≈
-        WaitForSingleObject(semOrder, INFINITE);
-    }
-
-    //∑¢∆¡¨Ω”«Î«Û-◊”œﬂ≥Ã
-    connectThread = (HANDLE)_beginthreadex(NULL, 0, connect_pro, this, 0, NULL);
-    return 0;
+	Stop();
+	WSACleanup();
 }
 
-void CPipe::cln_stop()
+int PipeClient::Start()
 {
-    WaitForSingleObject(connectThread, INFINITE);
-    CloseHandle(connectThread);
-    closesocket(cln_sock);
-    cln_connected = false;
+	//ÂàõÂª∫Â•óÊé•Â≠ó
+	sock = (unsigned int)socket(AF_INET, SOCK_STREAM, 0);
+	if (sock == INVALID_SOCKET) {
+		blog(LOG_ERROR, "sock_srv_local INVALID_SOCKET\n");
+		return -1;
+	}
+
+	//ÂèëËµ∑ËøûÊé•ËØ∑Ê±Ç-Â≠êÁ∫øÁ®ã
+	connectThread =
+		(HANDLE)_beginthreadex(NULL, 0, connect_pro, this, 0, NULL);
+	return 0;
 }
 
-unsigned int __stdcall CPipe::connect_pro(void* pPara)
+unsigned int __stdcall PipeClient::connect_pro(void *pPara)
 {
-    CPipe* pipe = (CPipe*)pPara;
+	PipeClient *pipe = (PipeClient *)pPara;
 
-    //¡¨Ω”Ã◊Ω”◊÷
-    SOCKADDR_IN sin;
-    sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = inet_addr(pipe->addr.c_str());
-    sin.sin_port = htons(pipe->port);
-    while (true) {
-        if (connect(pipe->cln_sock, (SOCKADDR*)&sin, sizeof(sin)) >= 0) {
-            pipe->cln_connected = true;
-            return 0;
-        }
-        blog(LOG_WARNING, "client connect failed!\n");
-    }
-    return 0;
+	//ËøûÊé•Â•óÊé•Â≠ó
+	SOCKADDR_IN sin;
+	sin.sin_family = AF_INET;
+	sin.sin_addr.s_addr = inet_addr(pipe->addr.c_str());
+	sin.sin_port = htons(pipe->port);
+	while (true) {
+		int ret = connect(pipe->sock, (SOCKADDR *)&sin, sizeof(sin));
+		if (ret == 0)
+			break;
+		blog(LOG_WARNING, "client connect failed(%d)!\n", ret);
+	}
+	return 0;
 }
 
-bool CPipe::cln_valid()
+int PipeClient::Recive(char *buf, size_t len)
 {
-    if (!cln_connected || cln_sock == INVALID_SOCKET)
-        return false;
-    return true;
+	if (sock == INVALID_SOCKET)
+		return 0;
+	return recv(sock, buf, len, 0);
 }
 
-int CPipe::cln_recive(char* buf, size_t len)
+int PipeClient::Send(const char *buf, size_t len)
 {
-    if (!cln_valid()) return 0;
-    return recv(cln_sock, buf, len, 0);
+	if (sock == INVALID_SOCKET)
+		return 0;
+	return send(sock, buf, len, 0);
 }
 
-int CPipe::cln_send(const char* buf, size_t len)
+void PipeClient::Stop()
 {
-    if (!cln_valid()) return 0;
-    return send(cln_sock, buf, len, 0);
-}
-
-int CPipe::Run()
-{
-    net_init();
-    int ret = 0;
-    if (type != PIPE_CLIENT) {
-        if (type == PIPE_LOCAL) {
-            semOrder = CreateSemaphore(NULL, 0, 1, NULL);
-            if (!semOrder) { blog(LOG_ERROR, "CreateSemaphore semOrder failed!\n"); ret = -1; goto CLEAN_NET; }
-        }
-        if (srv_start() < 0) { ret = -2; goto CLEAN_NET; }
-    }
-    if (type != PIPE_SERVER) {
-        if (cln_start() < 0) { ret = -2; goto CLEAN_NET; }
-    }
-    return 0;
-
-CLEAN_NET:
-    net_clean();
-    return ret;
-}
-
-void CPipe::Stop()
-{
-    if (type != PIPE_CLIENT) srv_stop();
-    if (type != PIPE_SERVER) cln_stop();
-    if (type == PIPE_LOCAL) CloseHandle(semOrder);
-    net_clean();
-}
-
-bool CPipe::valid()
-{
-    if (type == PIPE_SERVER) return srv_valid();
-    else if (type == PIPE_CLIENT) return cln_valid();
-    else return srv_valid() && cln_valid();
-}
-
-int CPipe::Recive(char* buf, size_t len)
-{
-    if (type == PIPE_SERVER) return srv_recive(buf, len);
-    else return cln_recive(buf, len);
-}
-int CPipe::Send(const char* buf, size_t len)
-{
-    if (type != PIPE_CLIENT) return srv_send(buf, len);
-    else return cln_send(buf, len);
+	if (connectThread != NULL)
+		CloseHandle(connectThread);
+	if (sock != INVALID_SOCKET)
+		closesocket(sock);
 }
