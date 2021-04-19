@@ -61,12 +61,14 @@ unsigned int __stdcall rcv_pro(void* pPara)
 		uint32_t len = buffer_read32be(&header[8]);
 		char* data = new char[len];
 		r = ptr->Recive((char*)data, len);
-		if (r < len) {
-			blog(LOG_INFO, "rcv error! expected:%d, facted:%d", len, r);
-			continue;
+		while (r < len) {
+			blog(LOG_INFO, "rcv continue! expected:%d, facted:%d\n", len, r);
+			//continue;
+			r += ptr->Recive((char*)data+r, len-r);
 		}
 		WaitForSingleObject(semio, INFINITE);
-		std::cout << "recive msg(" << r << "): " << data << std::endl;
+		//std::cout << "recive msg(" << r << "): " << data << std::endl;
+		printf("recive msg. header len:%d, rcv:%d\n", len, r);
 		ReleaseSemaphore(semio, 1, NULL);
 		if (strcmp(data, "quit") == 0) {
 			break;
@@ -86,10 +88,11 @@ unsigned int __stdcall send_pro(void* pPara)
 		memset(hdr, 0, 12);
 		std::cin >> str;
 		int n = strlen(str);
-		char* tmp = new char[n * 10000 + 1];
-		memset(tmp, 0, n * 10000 + 1);
+		int tmplen = 1 + (n * 10000);
+		char* tmp = new char[tmplen];
+		memset(tmp, 0, tmplen);
 		for (int i = 0; i < 10000; i++) {
-			memcpy(tmp + (i * n), str, n);
+			memcpy(&tmp[n*i], str, n);
 		}
 
 		int len = strlen(tmp) + 1;
@@ -99,7 +102,8 @@ unsigned int __stdcall send_pro(void* pPara)
 		r = ptr->Send(tmp, len);
 		delete[] tmp;
 		WaitForSingleObject(semio, INFINITE);
-		std::cout << "send msg " << r << std::endl;
+		//std::cout << "send msg " << r << len << tmplen << std::endl;
+		printf("send msg: init:%d, cpy:%d, send:%d\n", tmplen, len, r);
 		ReleaseSemaphore(semio, 1, NULL);
 		if (strcmp(str, "quit") == 0) {
 			break;
