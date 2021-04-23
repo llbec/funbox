@@ -141,6 +141,7 @@ hosts = [
     Host("106.52.103.36", 22, "root", "", "itsp.dms","tencent-wy", None),
     Host("113.31.119.157", 22, "ubuntu", "", "euclan", "uclound-euclan", None),
     Host("183.236.93.135", 2222, "liubicheng", "qwer1234", "", "gz-xl", None),
+    Host("183.236.93.135", 2222, "ubuntu", "", "amaeuclan.pem", "amason", None),
     #Host("10.198.103.2", 22, "user", "Stfypt@123", "", "ITSP-APP", None),
     #Host("10.198.61.2", 22, "user", "Stfypt@123", "", "ITSP-DataBase", None),
     #Host("49.233.162.142", 22, "root", "Dwgl1234", "","Zhouky", None),

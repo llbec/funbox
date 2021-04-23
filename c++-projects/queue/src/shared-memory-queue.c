@@ -219,7 +219,7 @@ bool video_queue_read(video_queue_t *vq/*, nv12_scale_t *scale*/, void *dst,
 	unsigned long idx = get_idx(inc);
 
 	*ts = *vq->ts[idx];
-
+	//memcpy(dst, vq->frame[idx], )
 	//nv12_do_scale(scale, dst, vq->frame[idx]);
 	return true;
 }
