@@ -21,8 +21,6 @@ expectRet = [
 ]
 
 class switchLoginExpect :
-    #list = {}
-    #err = None
     def __init__(self, s, h):
         self.list = {
             #'password'
@@ -40,6 +38,7 @@ class switchLoginExpect :
             #'jumpserver-auth'
             6:self.xl_jumpserver_auth
         }
+        self.timelimit = 10
         self.ssh = s
         self.host = h
         #function = self.list.get(expt, self.default)
@@ -50,7 +49,7 @@ class switchLoginExpect :
         return func()
     def Run(self) :
         while True :
-            _r = self.switch(self.ssh.expect(expectRet, timeout = 3))
+            _r = self.switch(self.ssh.expect(expectRet, timeout = self.timelimit))
             if _r == 0 :
                 continue
             elif _r > 0 :
@@ -65,7 +64,7 @@ class switchLoginExpect :
         print("send password")
         self.ssh.sendline(self.host.passwd)
         _swt = switchLoginExpect(self.ssh, self.host)
-        return _swt.switch(self.ssh.expect(expectRet, timeout = 3))
+        return _swt.switch(self.ssh.expect(expectRet, timeout = self.timelimit))
     def sendYes(self):
         print('send yes')
         self.ssh.sendline('yes\n')
@@ -141,7 +140,7 @@ hosts = [
     Host("106.52.103.36", 22, "root", "", "itsp.dms","tencent-wy", None),
     Host("113.31.119.157", 22, "ubuntu", "", "euclan", "uclound-euclan", None),
     Host("183.236.93.135", 2222, "liubicheng", "qwer1234", "", "gz-xl", None),
-    Host("18.116.100.208", 2222, "ubuntu", "", "amaeuclan.pem", "amason", None),
+    Host("18.116.100.208", 22, "ubuntu", "", "amaeuclan.pem", "amason", None),
     #Host("10.198.103.2", 22, "user", "Stfypt@123", "", "ITSP-APP", None),
     #Host("10.198.61.2", 22, "user", "Stfypt@123", "", "ITSP-DataBase", None),
     #Host("49.233.162.142", 22, "root", "Dwgl1234", "","Zhouky", None),
