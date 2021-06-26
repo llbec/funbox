@@ -100,9 +100,9 @@ class Host :
     def getSSHLoginCmd(self) :
         if self.key != '' :
             kpath = os.path.dirname(__file__) + '/key/%s'%(self.key)
-            return 'ssh -p %d %s@%s -i %s'%(self.port, self.usrname, self.ip, kpath)
+            return 'ssh -o ServerAliveInterval=30 -p %d %s@%s -i %s'%(self.port, self.usrname, self.ip, kpath)
         else :
-            return 'ssh -p %d %s@%s'%(self.port, self.usrname, self.ip)
+            return 'ssh -o ServerAliveInterval=30 -p %d %s@%s'%(self.port, self.usrname, self.ip)
     def SSH(self) :
         if self.route == None :
             _shell = pexpect.spawn(self.getSSHLoginCmd())
