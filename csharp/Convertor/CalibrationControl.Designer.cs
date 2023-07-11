@@ -41,6 +41,7 @@
             this.textBox_order.TabIndex = 0;
             this.textBox_order.Text = "4";
             this.textBox_order.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.textBox_order.TextChanged += new System.EventHandler(this.TextBox_order_TextChanged);
             // 
             // label1
             // 
