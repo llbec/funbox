@@ -209,7 +209,7 @@ namespace Convertor
             {
                 for (int i = 0; i < num; i++)
                 {
-                    double para = hexaComboBox.SelectedIndex == 0 ? double.Parse(sampleBoxes[i][0].Text, (System.Globalization.NumberStyles)16) : double.Parse(sampleBoxes[i][0].Text);
+                    double para = hexaComboBox.SelectedIndex == 0 ? Convert.ToDouble(Convert.ToInt32(sampleBoxes[i][0].Text, 16)) : double.Parse(sampleBoxes[i][0].Text);
                     for (int j = 0; j < num; j++)
                     {
                         gauss.arr[i][j] = Math.Pow(para, order - j);
@@ -234,7 +234,7 @@ namespace Convertor
         {
             try
             {
-                double para = hexaComboBox.SelectedIndex == 0 ? double.Parse(checkBoxes[0].Text, (System.Globalization.NumberStyles)16) : double.Parse(checkBoxes[0].Text);
+                double para = hexaComboBox.SelectedIndex == 0 ? Convert.ToDouble(Convert.ToInt32(checkBoxes[0].Text, 16)) : double.Parse(checkBoxes[0].Text);
                 double result = 0;
                 for (int i = 0; i < num; i++)
                 {
