@@ -1,0 +1,8 @@
+Cargo.lock
+target/
+.idea/
+.vscode/
+servers.csv
+servers.json
+*.local.csv
+*.local.json

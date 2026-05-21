@@ -1,0 +1,18 @@
+[
+  {
+    "host": "192.168.1.10",
+    "port": 22,
+    "user": "root",
+    "use_key": false,
+    "password": "replace-with-password",
+    "description": "dev server using password"
+  },
+  {
+    "host": "192.168.1.11",
+    "port": 22,
+    "user": "root",
+    "use_key": true,
+    "key_path": "~/.ssh/id_rsa",
+    "description": "prod server using ssh key"
+  }
+]
