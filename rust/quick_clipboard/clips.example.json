@@ -1,0 +1,14 @@
+[
+  {
+    "description": "GitHub token",
+    "text": "ghp_xxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+    "description": "Wi-Fi password",
+    "text": "correct-horse-battery-staple"
+  },
+  {
+    "description": "Common email",
+    "text": "hello@example.com"
+  }
+]
