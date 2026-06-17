@@ -10,6 +10,8 @@ use arboard::Clipboard;
 use serde::Deserialize;
 
 const DEFAULT_CONFIG_FILE: &str = "clips.json";
+const DEFAULT_CONFIG_DIR: &str = ".config";
+const APP_CONFIG_DIR: &str = "quick_clipboard";
 
 #[derive(Debug, Clone)]
 struct ClipItem {
@@ -75,15 +77,34 @@ fn parse_config_path() -> Result<PathBuf, Box<dyn Error>> {
 
 fn print_help() {
     println!(
-        "quick_clipboard\n\nUsage:\n  quick_clipboard [config-file]\n\nIf config-file is omitted, quick_clipboard reads clips.json next to the executable."
+        "quick_clipboard\n\nUsage:\n  quick_clipboard [config-file]\n\nIf config-file is omitted, quick_clipboard reads ~/.config/quick_clipboard/clips.json."
     );
 }
 
 fn default_config_path() -> PathBuf {
-    env::current_exe()
-        .ok()
-        .and_then(|path| path.parent().map(|parent| parent.join(DEFAULT_CONFIG_FILE)))
+    user_home_dir()
+        .map(|home| {
+            home.join(DEFAULT_CONFIG_DIR)
+                .join(APP_CONFIG_DIR)
+                .join(DEFAULT_CONFIG_FILE)
+        })
         .unwrap_or_else(|| PathBuf::from(DEFAULT_CONFIG_FILE))
+}
+
+#[cfg(windows)]
+fn user_home_dir() -> Option<PathBuf> {
+    env::var_os("USERPROFILE").map(PathBuf::from).or_else(|| {
+        let drive = env::var_os("HOMEDRIVE")?;
+        let path = env::var_os("HOMEPATH")?;
+        let mut home = std::ffi::OsString::from(drive);
+        home.push(path);
+        Some(PathBuf::from(home))
+    })
+}
+
+#[cfg(not(windows))]
+fn user_home_dir() -> Option<PathBuf> {
+    env::var_os("HOME").map(PathBuf::from)
 }
 
 fn read_clip_items(path: &Path) -> Result<Vec<ClipItem>, Box<dyn Error>> {

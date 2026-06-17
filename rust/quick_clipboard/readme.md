@@ -51,7 +51,10 @@ cargo build --release
 ./target/release/quick_clipboard clips.json
 ```
 
-如果不传配置文件路径，程序默认读取可执行文件同目录下的 `clips.json`。
+如果不传配置文件路径，程序默认读取用户目录下的 `.config/quick_clipboard/clips.json`：
+
+- macOS / Linux：`~/.config/quick_clipboard/clips.json`
+- Windows：`%USERPROFILE%\.config\quick_clipboard\clips.json`
 
 运行后会看到类似输出：
 

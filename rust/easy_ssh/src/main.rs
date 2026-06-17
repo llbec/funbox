@@ -19,7 +19,9 @@ use russh::{
 use serde::Deserialize;
 use tokio::sync::mpsc;
 
-const DEFAULT_SERVER_FILE: &str = "servers.json";
+const DEFAULT_CONFIG_FILE: &str = "servers.json";
+const DEFAULT_CONFIG_DIR: &str = ".config";
+const APP_CONFIG_DIR: &str = "easy_ssh";
 
 #[derive(Debug, Clone)]
 struct Server {
@@ -81,10 +83,29 @@ async fn run() -> Result<(), Box<dyn Error>> {
 }
 
 fn default_config_path() -> PathBuf {
-    env::current_exe()
-        .ok()
-        .and_then(|path| path.parent().map(|parent| parent.join(DEFAULT_SERVER_FILE)))
-        .unwrap_or_else(|| PathBuf::from(DEFAULT_SERVER_FILE))
+    user_home_dir()
+        .map(|home| {
+            home.join(DEFAULT_CONFIG_DIR)
+                .join(APP_CONFIG_DIR)
+                .join(DEFAULT_CONFIG_FILE)
+        })
+        .unwrap_or_else(|| PathBuf::from(DEFAULT_CONFIG_FILE))
+}
+
+#[cfg(windows)]
+fn user_home_dir() -> Option<PathBuf> {
+    env::var_os("USERPROFILE").map(PathBuf::from).or_else(|| {
+        let drive = env::var_os("HOMEDRIVE")?;
+        let path = env::var_os("HOMEPATH")?;
+        let mut home = std::ffi::OsString::from(drive);
+        home.push(path);
+        Some(PathBuf::from(home))
+    })
+}
+
+#[cfg(not(windows))]
+fn user_home_dir() -> Option<PathBuf> {
+    env::var_os("HOME").map(PathBuf::from)
 }
 
 fn read_servers(path: &Path) -> Result<Vec<Server>, Box<dyn Error>> {
