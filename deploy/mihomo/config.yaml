@@ -1,0 +1,14 @@
+# 本地配置模板。同名顶层字段覆盖订阅中的整个字段。
+# 不在这里填写 proxies、proxy-groups、rules，默认保留订阅提供的内容。
+mixed-port: 7890
+allow-lan: false
+bind-address: 127.0.0.1
+mode: rule
+log-level: info
+external-controller: 127.0.0.1:9090
+external-ui: ui
+external-ui-url: "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
+tun:
+  enable: false
+profile:
+  store-selected: true
