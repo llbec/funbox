@@ -163,11 +163,19 @@ curl --noproxy '*' -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:9090/ui
 
 在**自己电脑的终端**执行以下命令，将 `用户名@服务器IP` 替换成实际 SSH 地址：
 
+**macOS（终端）：**
+
 ```bash
-ssh -NT -o ExitOnForwardFailure=yes -L 127.0.0.1:19090:127.0.0.1:9090 用户名@服务器IP
+ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -L 19090:127.0.0.1:9090 用户名@服务器IP
 ```
 
-保持终端打开，在浏览器访问：
+**Windows（PowerShell）：**
+
+```powershell
+ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -L 19090:127.0.0.1:9090 用户名@服务器IP
+```
+
+连接成功后通常没有输出，保持终端打开，在自己电脑的浏览器访问：
 
 **<http://127.0.0.1:19090/ui/>**
 
