@@ -1,9 +1,0 @@
-\obj
-\.vs
-\bin
-
-
-*.exe
-*.exe.config
-*.pdb
-*.user
