@@ -8,6 +8,16 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 local_config="$script_dir/config.yaml"
 config_dir="${1:-/etc/mihomo}"
 
+# 默认配置目录通常属于 root；需要时自动通过 sudo 重新执行。
+if ! mkdir -p "$config_dir" 2>/dev/null || [[ ! -w "$config_dir" ]]; then
+  if (( EUID != 0 )) && command -v sudo >/dev/null 2>&1; then
+    echo "写入 $config_dir 需要管理员权限，将通过 sudo 继续。"
+    exec sudo bash "$script_dir/subscribe.sh" "$@"
+  fi
+  echo "无法写入配置目录：$config_dir，请检查目录权限。" >&2
+  exit 1
+fi
+
 for cmd in curl awk base64 mihomo mktemp; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "缺少命令：$cmd，请先安装。" >&2
@@ -15,8 +25,6 @@ for cmd in curl awk base64 mihomo mktemp; do
   }
 done
 [[ -s "$local_config" ]] || { echo "本地配置不存在或为空：$local_config" >&2; exit 1; }
-mkdir -p "$config_dir"
-[[ -w "$config_dir" ]] || { echo '配置目录不可写，请使用 sudo bash subscribe.sh。' >&2; exit 1; }
 config_dir="$(cd "$config_dir" && pwd)"
 target="$config_dir/config.yaml"
 [[ "$local_config" != "$target" ]] || { echo '模板目录不能与输出目录相同。' >&2; exit 1; }

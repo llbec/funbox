@@ -185,3 +185,57 @@ ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -L 19090:127.0.0.1
 - 密钥：配置文件中的 `secret` 值，没有配置则留空
 
 连接后，在“代理 / Proxies”中切换节点即可。不需要在服务器防火墙中开放 `7890` 或 `9090`。
+
+## 常见问题
+
+### 提示 `/usr/bin/env: bash\r: No such file or directory`
+
+脚本被保存为 Windows CRLF 换行。在服务器的脚本目录执行一次，转换为 Linux LF 换行：
+
+```bash
+sed -i 's/\r$//' install.sh subscribe.sh test-subscription.sh
+chmod +x install.sh subscribe.sh test-subscription.sh
+./install.sh
+```
+
+仓库已添加 `.gitattributes` 固定这些文件的换行格式；通过编辑器或文件传输工具保存时也应选择 LF。
+
+### 提示配置目录不可写
+
+旧脚本可以直接使用 sudo：
+
+```bash
+sudo bash ./subscribe.sh
+```
+
+更新后的脚本会在无法写入 `/etc/mihomo` 时自动通过 sudo 重新执行，按提示输入用户密码即可。
+
+### 面板下载出现 `TLS handshake timeout`
+
+若日志已显示 `7890` 和 `9090` 正常监听，说明内核已启动；面板静态文件下载失败不会阻止代理监听。实际代理连通性仍需 curl 测试。
+
+可先绕过代理直接下载面板，在服务器执行（只有下载、解压都成功才复制文件）：
+
+```bash
+sudo apt install -y unzip
+(
+  set -e
+  UI_WORKDIR="$(mktemp -d)"
+  curl --noproxy '*' -fL --retry 3 --connect-timeout 30 --max-time 300 \
+    https://codeload.github.com/MetaCubeX/metacubexd/zip/refs/heads/gh-pages \
+    -o "$UI_WORKDIR/metacubexd.zip"
+  unzip -q "$UI_WORKDIR/metacubexd.zip" -d "$UI_WORKDIR"
+  test -f "$UI_WORKDIR/metacubexd-gh-pages/index.html"
+  sudo mkdir -p /etc/mihomo/ui
+  sudo cp -a "$UI_WORKDIR/metacubexd-gh-pages/." /etc/mihomo/ui/
+  sudo chmod -R a+rX /etc/mihomo/ui
+)
+```
+
+无需重新安装内核。文件放好后检测面板：
+
+```bash
+curl --noproxy '*' -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:9090/ui/
+```
+
+返回 `200` 后按上文建立 SSH 隧道。如果服务器直连 GitHub 也失败，在自己电脑下载同一 ZIP，通过 `scp metacubexd.zip 用户名@服务器IP:~/` 上传，再在服务器解压，将 `metacubexd-gh-pages` 内的文件复制到 `/etc/mihomo/ui/`。
