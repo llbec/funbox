@@ -175,6 +175,36 @@ ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -L 19090:127.0.0.1
 ssh -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -L 19090:127.0.0.1:9090 用户名@服务器IP
 ```
 
+如果服务器使用 **pem 密钥文件**登录（如 AWS / 云服务商下发的密钥），加 `-i` 指定密钥路径。
+
+**macOS（终端）：**
+
+```bash
+ssh -NT -i /path/to/key.pem -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -L 19090:127.0.0.1:9090 用户名@服务器IP
+```
+
+密钥文件权限需为 `600`，否则 ssh 会拒绝使用：
+
+```bash
+chmod 600 /path/to/key.pem
+```
+
+也可用 `ssh-add /path/to/key.pem` 加入 ssh-agent，之后命令无需再加 `-i`。
+
+**Windows（PowerShell）：**
+
+```powershell
+ssh -NT -i C:\path\to\key.pem -o ExitOnForwardFailure=yes -o ServerAliveInterval=60 -L 19090:127.0.0.1:9090 用户名@服务器IP
+```
+
+Windows 下密钥文件需移除继承权限、仅当前用户可读，否则 ssh 会拒绝使用：
+
+```powershell
+icacls C:\path\to\key.pem /inheritance:r /grant:r "$($env:USERNAME):(R)"
+```
+
+也可用 `ssh-add C:\path\to\key.pem` 加入 ssh-agent，之后命令无需再加 `-i`。
+
 连接成功后通常没有输出，保持终端打开，在自己电脑的浏览器访问：
 
 **<http://127.0.0.1:19090/ui/>**
