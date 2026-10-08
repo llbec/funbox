@@ -3,15 +3,44 @@ services:
     image: redis:7
     container_name: redis
     restart: unless-stopped
-    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}", "--appendonly", "yes"]
+
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?请在.env中设置REDIS_PASSWORD}
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?请在.env中设置REDIS_PASSWORD}
+      REDIS_MAXMEMORY: ${REDIS_MAXMEMORY:-512mb}
+
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        exec redis-server \
+          --requirepass "$$REDIS_PASSWORD" \
+          --dir /data \
+          --appendonly yes \
+          --appendfsync everysec \
+          --maxmemory "$$REDIS_MAXMEMORY" \
+          --maxmemory-policy noeviction
+
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_BIND_IP:-127.0.0.1}:${REDIS_PORT:-6379}:6379"
+
     volumes:
       - ./data:/data
+
+    mem_limit: ${REDIS_CONTAINER_MEMORY:-1g}
+    stop_grace_period: 30s
+
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep -q PONG"]
+      test:
+        - CMD-SHELL
+        - 'redis-cli --raw ping | grep -qx PONG'
       interval: 10s
       timeout: 5s
       retries: 5
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      start_period: 10s
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
