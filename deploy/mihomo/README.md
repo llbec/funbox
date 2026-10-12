@@ -126,6 +126,30 @@ export all_proxy=socks5h://127.0.0.1:7890
 export no_proxy=localhost,127.0.0.1,::1
 ```
 
+也可以配置两个 alias，一条开启代理、一条关闭代理。执行一次写入 shell 配置文件（bash 用 `~/.bashrc`，zsh 用 `~/.zshrc`）：
+
+```bash
+cat >> ~/.bashrc <<'EOF'
+alias proxy-on='export http_proxy=http://127.0.0.1:7890 https_proxy=http://127.0.0.1:7890 all_proxy=socks5h://127.0.0.1:7890 no_proxy=localhost,127.0.0.1,::1'
+alias proxy-off='unset http_proxy https_proxy all_proxy no_proxy'
+EOF
+source ~/.bashrc
+```
+
+之后在任何终端使用：
+
+```bash
+proxy-on    # 开启代理
+curl https://api.ipify.org
+proxy-off   # 关闭代理
+```
+
+验证代理是否开启：
+
+```bash
+env | grep -i proxy
+```
+
 退出 SSH 后 Mihomo 仍会运行；服务器重启后需重新启动。
 
 ## 7. MetaCubeXD
