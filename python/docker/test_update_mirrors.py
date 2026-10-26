@@ -40,23 +40,37 @@ class Tests(unittest.TestCase):
             self.assertTrue(result['debug'])
             self.assertEqual(result['log-driver'], 'json-file')
             self.assertEqual(len(result['registry-mirrors']), 2)
-            self.assertEqual(result['data-root'], '/data/docker')
+            self.assertNotIn('data-root', result)
             backup = list(Path(directory).glob('*.daemon.json'))
             self.assertEqual(len(backup), 1)
             self.assertRegex(backup[0].name, r'^\d{14}\.daemon\.json$')
             self.assertEqual(backup[0].read_bytes(), original)
             self.assertEqual(config.stat().st_mode & 0o777, 0o640)
 
-    def test_data_root_kept_or_added(self):
-        cases = [(b'{"data-root":"/srv/docker"}', '/srv/docker'), (b'{}', '/data/docker'), (b'{}', '/mnt/docker')]
-        for original, expected in cases:
+    def test_data_root_only_changed_when_explicit(self):
+        cases = [
+            (b'{"data-root":"/srv/docker"}', None, '/srv/docker'),
+            (b'{}', None, None),
+            (b'{}', '/mnt/docker', '/mnt/docker'),
+            (b'{"data-root":"/srv/docker"}', '/mnt/docker', '/mnt/docker'),
+        ]
+        for original, data_root, expected in cases:
             with self.subTest(original=original, expected=expected), tempfile.TemporaryDirectory() as directory:
                 config = Path(directory) / 'daemon.json'
                 config.write_bytes(original)
-                data_root = expected if expected == '/mnt/docker' else '/data/docker'
                 with patch.object(app, 'fetch_readme', return_value=PAGE), patch.object(app, 'check_mirror', return_value=(True, 'test')):
                     app.update(config, data_root)
-                self.assertEqual(json.loads(config.read_text())['data-root'], expected)
+                result = json.loads(config.read_text())
+                if expected is None:
+                    self.assertNotIn('data-root', result)
+                else:
+                    self.assertEqual(result['data-root'], expected)
+
+    def test_cli_data_root_is_optional(self):
+        for arguments, expected in [([], None), (['--data-root', '/mnt/docker'], '/mnt/docker')]:
+            with self.subTest(arguments=arguments), patch('sys.argv', ['update_mirrors.py'] + arguments), patch.object(app, 'update') as update:
+                self.assertEqual(app.main(), 0)
+                self.assertEqual(update.call_args.args[1], expected)
 
     def test_failures_preserve_original(self):
         for original, page, ok in [(b'{}', PAGE, False), (b'{}', '', True), (b'invalid', PAGE, True)]:

@@ -15,7 +15,6 @@ from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 SOURCE = 'https://raw.githubusercontent.com/dongyubin/DockerHub/main/README.md'
-DEFAULT_DATA_ROOT = '/data/docker'
 
 
 def extract_mirrors(markdown):
@@ -110,7 +109,7 @@ def unique_object(pairs):
     return result
 
 
-def update(config_path, data_root=DEFAULT_DATA_ROOT, timeout=10, skip_check=False):
+def update(config_path, data_root=None, timeout=10, skip_check=False):
     if config_path.is_symlink() or not config_path.is_file():
         raise ValueError(f'配置必须是已存在的普通文件：{config_path}')
     original = config_path.read_bytes()
@@ -135,12 +134,10 @@ def update(config_path, data_root=DEFAULT_DATA_ROOT, timeout=10, skip_check=Fals
     if not selected:
         raise ValueError('没有通过检测的镜像地址，原配置未修改')
     config['registry-mirrors'] = selected
-    # 已有 data-root 则沿用原值，没有才写入默认目录。
-    if 'data-root' in config:
-        print(f'已存在 data-root：{config["data-root"]}，保持不变')
-    else:
+    # 仅显式传入参数时新增或覆盖 data-root。
+    if data_root is not None:
         config['data-root'] = data_root
-        print(f'新增 data-root：{data_root}')
+        print(f'设置 data-root：{data_root}')
     payload = json.dumps(config, ensure_ascii=False, indent=2, allow_nan=False) + '\n'
 
     # 同目录临时文件 + 原子替换，失败不会留下半个 JSON 文件。
@@ -170,7 +167,7 @@ def update(config_path, data_root=DEFAULT_DATA_ROOT, timeout=10, skip_check=Fals
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', type=Path, default=Path('/etc/docker/daemon.json'), help='配置文件路径')
-    parser.add_argument('--data-root', default=DEFAULT_DATA_ROOT, help=f'默认数据目录，原配置没有 data-root 时写入，默认 {DEFAULT_DATA_ROOT}')
+    parser.add_argument('--data-root', default=None, help='显式指定时新增或覆盖 data-root；不传则保持原配置')
     parser.add_argument('--timeout', type=float, default=10, help='网络请求超时秒数，默认 10')
     parser.add_argument('--skip-check', action='store_true', help='不检测连通性，直接使用网页列出的前五个地址')
     args = parser.parse_args()

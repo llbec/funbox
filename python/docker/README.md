@@ -14,7 +14,7 @@ sudo python3 python/docker/update_mirrors.py
 2. 按网页顺序提取地址、补全 HTTPS、去重。
 3. 检测 `/v2/` 接口，取前 **最多 5 个**通过检测的地址；不足 5 个就使用实际数量。
 4. 仅替换 `registry-mirrors`，保留其他 JSON 配置，原子写回文件。
-5. 处理 `data-root`：原配置已有该字段就沿用原值，没有则写入默认目录 `/data/docker`。
+5. 默认不修改 `data-root`：已有则保留，没有也不新增。仅传入 `--data-root 路径` 时新增或覆盖该字段。
 
 配置不存在、JSON 无效、下载失败或没有可用地址时退出，原配置不变。配置已存在时备份会保留。检测只验证 Registry 接口响应，401 表示需要认证，不保证所有镜像都可拉取。
 
@@ -24,7 +24,7 @@ sudo python3 python/docker/update_mirrors.py
 sudo python3 python/docker/update_mirrors.py --skip-check
 ```
 
-需要把默认数据目录改成其他路径时（仅在原配置没有 `data-root` 时生效）：
+需要显式修改数据目录时（会新增或覆盖原 `data-root`）：
 
 ```bash
 sudo python3 python/docker/update_mirrors.py --data-root /srv/docker
