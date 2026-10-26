@@ -21,6 +21,36 @@ https://unrelated.example
 
 
 class Tests(unittest.TestCase):
+    def test_readme_falls_back_after_tls_timeout(self):
+        from unittest.mock import MagicMock
+        response = MagicMock()
+        response.__enter__.return_value = response
+        response.read.return_value = PAGE.encode()
+        with patch.object(app, 'urlopen', side_effect=[TimeoutError('TLS handshake timeout'), response]) as fetch:
+            self.assertEqual(app.fetch_readme(10), PAGE)
+            self.assertEqual(fetch.call_count, 2)
+            self.assertEqual(fetch.call_args.args[0].full_url, app.README_SOURCES[1])
+
+    def test_all_downloads_fail_preserves_config(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / 'daemon.json'
+            config.write_bytes(b'{"data-root":"/srv/docker"}')
+            with patch.object(app, 'urlopen', side_effect=TimeoutError('TLS timeout')) as fetch:
+                with self.assertRaisesRegex(ValueError, '所有 README 下载地址均失败'):
+                    app.update(config)
+                self.assertEqual(fetch.call_count, 2 * len(app.README_SOURCES))
+            self.assertEqual(config.read_bytes(), b'{"data-root":"/srv/docker"}')
+
+    def test_local_readme_skips_download(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory) / 'daemon.json'
+            config.write_text('{}')
+            readme = Path(directory) / 'README.md'
+            readme.write_text(PAGE, encoding='utf-8')
+            with patch.object(app, 'fetch_readme') as fetch:
+                self.assertEqual(len(app.update(config, skip_check=True, readme_file=readme)), 2)
+                fetch.assert_not_called()
+
     def test_extract(self):
         self.assertEqual(app.extract_mirrors(PAGE), ['https://one.example', 'https://two.example'])
 

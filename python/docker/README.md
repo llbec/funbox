@@ -18,6 +18,20 @@ sudo python3 python/docker/update_mirrors.py
 
 配置不存在、JSON 无效、下载失败或没有可用地址时退出，原配置不变。配置已存在时备份会保留。检测只验证 Registry 接口响应，401 表示需要认证，不保证所有镜像都可拉取。
 
+遇到 GitHub TLS 握手超时，程序会依次尝试 GitHub Raw、jsDelivr 和 GitHub raw 地址，最多两轮。jsDelivr 可能存在缓存。可以延长每次网络操作的超时时间：
+
+```bash
+sudo python3 python/docker/update_mirrors.py --timeout 30
+```
+
+如果服务器无法访问这些地址，在自己电脑下载该仓库的原始 `README.md` 并上传到服务器，然后运行：
+
+```bash
+sudo python3 python/docker/update_mirrors.py --readme-file ./README.md
+```
+
+此选项只跳过网页下载，仍会检测镜像地址；`--skip-check` 只跳过镜像检测，不解决网页下载超时。两者可组合使用。
+
 如果只想按网页标注提取地址，不做网络检测：
 
 ```bash

@@ -2,6 +2,7 @@
 """备份 Docker 配置，从 DockerHub README 提取并检测最多五个镜像源。"""
 import argparse
 from datetime import datetime
+from http.client import HTTPException
 import json
 import os
 from pathlib import Path
@@ -15,6 +16,11 @@ from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 SOURCE = 'https://raw.githubusercontent.com/dongyubin/DockerHub/main/README.md'
+README_SOURCES = (
+    SOURCE,
+    'https://cdn.jsdelivr.net/gh/dongyubin/DockerHub@main/README.md',
+    'https://github.com/dongyubin/DockerHub/raw/refs/heads/main/README.md',
+)
 
 
 def extract_mirrors(markdown):
@@ -55,12 +61,23 @@ def extract_mirrors(markdown):
 
 
 def fetch_readme(timeout):
-    request = Request(SOURCE, headers={'User-Agent': 'docker-mirror-updater/1.0'})
-    with urlopen(request, timeout=timeout) as response:
-        content = response.read(2 * 1024 * 1024 + 1)
-    if len(content) > 2 * 1024 * 1024:
-        raise ValueError('README 超过大小限制')
-    return content.decode('utf-8-sig')
+    for attempt in range(1, 3):
+        for source in README_SOURCES:
+            print(f'获取镜像列表（第 {attempt}/2 轮）：{source}', flush=True)
+            try:
+                request = Request(source, headers={'User-Agent': 'docker-mirror-updater/1.0'})
+                with urlopen(request, timeout=timeout) as response:
+                    content = response.read(2 * 1024 * 1024 + 1)
+                if len(content) > 2 * 1024 * 1024:
+                    raise ValueError('README 超过大小限制')
+                markdown = content.decode('utf-8-sig')
+                if not extract_mirrors(markdown):
+                    raise ValueError('响应中没有有效镜像表格')
+                return markdown
+            except (OSError, URLError, HTTPException, ValueError) as exc:
+                print(f'此地址获取失败，尝试下一个：{exc}', flush=True)
+    raise ValueError('所有 README 下载地址均失败，原配置未修改。可增加 --timeout 30，'
+                     '或在其他电脑下载 README.md 后使用 --readme-file README.md')
 
 
 def check_mirror(url, timeout):
@@ -109,7 +126,7 @@ def unique_object(pairs):
     return result
 
 
-def update(config_path, data_root=None, timeout=10, skip_check=False):
+def update(config_path, data_root=None, timeout=10, skip_check=False, readme_file=None):
     if config_path.is_symlink() or not config_path.is_file():
         raise ValueError(f'配置必须是已存在的普通文件：{config_path}')
     original = config_path.read_bytes()
@@ -127,7 +144,8 @@ def update(config_path, data_root=None, timeout=10, skip_check=False):
         raise ValueError('daemon.json 顶层必须是 JSON 对象')
     # 拒绝 NaN / Infinity 等非标准 JSON 值。
     json.dumps(config, allow_nan=False)
-    candidates = extract_mirrors(fetch_readme(timeout))
+    markdown = readme_file.read_text(encoding='utf-8-sig') if readme_file else fetch_readme(timeout)
+    candidates = extract_mirrors(markdown)
     if not candidates:
         raise ValueError('网页未提取到镜像地址，可能是网页结构变化；原配置未修改')
     selected = select_mirrors(candidates, timeout, skip_check)
@@ -170,11 +188,12 @@ def main():
     parser.add_argument('--data-root', default=None, help='显式指定时新增或覆盖 data-root；不传则保持原配置')
     parser.add_argument('--timeout', type=float, default=10, help='网络请求超时秒数，默认 10')
     parser.add_argument('--skip-check', action='store_true', help='不检测连通性，直接使用网页列出的前五个地址')
+    parser.add_argument('--readme-file', type=Path, help='读取本地 README.md，跳过网页下载（仍默认检测镜像地址）')
     args = parser.parse_args()
     if args.timeout <= 0:
         parser.error('--timeout 必须大于 0')
     try:
-        update(args.config, args.data_root, args.timeout, args.skip_check)
+        update(args.config, args.data_root, args.timeout, args.skip_check, args.readme_file)
     except (OSError, ValueError, URLError) as exc:
         print(f'失败：{exc}', file=sys.stderr)
         return 1
